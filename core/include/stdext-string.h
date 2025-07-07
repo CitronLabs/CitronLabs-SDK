@@ -75,6 +75,11 @@ Interface(Formatter,
 	u64 imethod(Print,, FORMAT_ID* format, inst(StringBuilder) out);
 )
 
+Static(FormatUtils,
+	u64 (*FormatVArgs)(inst(StringBuilder) out, va_list args);
+	u64 (*ScanVArgs)(inst(String) in, va_list args);
+)
+
 Class(String,
 __INIT(cstr c_str; u64 len; bool inline_alloc),
 __FIELD(u64 len; cstr txt; chartype type;),

@@ -48,19 +48,13 @@ typedef struct{	errvt val; const cstr msg; }std_err;
 -----------------------*/
 
 typedef struct String_Instance String_Instance;
-/*
-Class(Debug, 
-__INIT(), 
-__FIELD(), 
+
 #ifdef DEBUG
 // utility for quickly removing debug statements
       #define debug(...) __VA_ARGS__
 #else
       #define debug(...) 
 #endif
-
-)
-*/
 
 Interface(Loggable,
 	errvt imethod(log,, inst(String) text);
@@ -84,10 +78,9 @@ __INIT( const cstr name;
 ),
 __FIELD(),
 
-	u64 method(Logger, logWithFormat,, LOG_TYPE type, ...);
-	u64 method(Logger, log,, LOG_TYPE type, inst(String) text);
+	errvt method(Logger, logWithFormat,, LOG_TYPE type, ...);
+	errvt method(Logger, log,, LOG_TYPE type, inst(String) text);
 )
-
 
 Class(Error,
 __INIT(errvt errorcode; cstr message;),
@@ -107,12 +100,13 @@ __FIELD(errvt errorcode; cstr message;),
 	
 	#define quiet(...) Error.Hide(); __VA_ARGS__ Error.Show();
 
+	inst(Logger) STDLOG;
+
 	void method(Error, Print);
 	errvt method(Error, Set,, const char errname[], const char funcname[]);
       	void (*Show)();
       	void (*Clear)();
       	void (*Hide)();
-      	void (*SetHandler)(void(*handler)());
 	void (*SetLogger)(inst(Logger) logger);
 )
 

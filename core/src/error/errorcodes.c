@@ -1,6 +1,5 @@
-#include "../../include/std-all.h"
+#include "error.h"
 
-static bool showErrors = true;
 
 errvt methodimpl(Error, Set,, const char errmsg[], const char funcname[]){
 
@@ -25,9 +24,13 @@ void methodimpl(Error, Print){
 
 return;
 }
-
 void Error_Hide(){
 	showErrors = false;
+}
+
+void Error_SetLogger(inst(Logger) logger){
+	nonull(logger, return);
+	error_logger = logger;
 }
 
 void Error_Show(){
@@ -39,18 +42,18 @@ void Error_Clear(){
 	thrd_err->errorcode = 0;
 	thrd_err->message = "No Error";
 }
+
 private(Error);
 construct(Error,
 	.Set = Error_Set,
 	.Print = Error_Print,
 	.Show = Error_Show,
 	.Hide = Error_Hide,
-	.Clear = Error_Clear
+	.Clear = Error_Clear,
+	.SetLogger = Error_SetLogger
 ){
-
 	self->errorcode = args.errorcode;
 	self->message = args.message;
 	
-	set_methods(Error);
 return self;
 }

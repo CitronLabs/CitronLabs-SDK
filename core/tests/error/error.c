@@ -1,7 +1,7 @@
 #pragma once
 #include "../xc_additions.h"
 #include "../test-utils.h"
-
+#include "./logger.c"
 
 bool RUN_STDERROR_TESTS(){
 	println("\n"BLUE"--Testing Standard Error--"NC);
@@ -27,6 +27,7 @@ NEW_TEST("Core Functionality"){
 			PASS_TEST
 		}
 	}
+	
 }
 
 return TEST_RESULT; 
