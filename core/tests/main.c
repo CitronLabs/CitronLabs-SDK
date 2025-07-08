@@ -4,10 +4,10 @@
 #include "./data/data.c"
 #include "./thread/thread.c"
 #include "./network/network.c"
-#include "./ext/io/io.c"
-#include "./ext/string/string.c"
-#include "./ext/time/time.c"
-#include "./ext/malloc/malloc.c"
+#include "./io/io.c"
+#include "./string/string.c"
+#include "./time/time.c"
+#include "./malloc/malloc.c"
 
 
 __start{
