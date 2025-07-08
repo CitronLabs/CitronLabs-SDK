@@ -1,4 +1,4 @@
-#include "../../../include/std-all.h"
+#include "../../include/std-all.h"
 
 private(Arena,
 	size_t max_size, current_size;

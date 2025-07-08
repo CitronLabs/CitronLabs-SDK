@@ -1,6 +1,6 @@
 #pragma once
 #ifndef NO_HEADERS
-#include "../../../include/std-all.h"
+#include "../../include/std-all.h"
 #include <ctype.h>
 #endif
 
