@@ -77,6 +77,7 @@ __INIT( const cstr name;
       * infolog
 ),
 __FIELD(),
+      	inst(Logger) std_logger;
 
 	errvt method(Logger, logWithFormat,, LOG_TYPE type, ...);
 	errvt method(Logger, log,, LOG_TYPE type, inst(String) text);

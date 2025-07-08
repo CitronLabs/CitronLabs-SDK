@@ -8,6 +8,14 @@
 #undef main
 int extra_main(int argc, cstr* argv);
 
+u64 Print_VArgs(inst(StringBuilder) builder, va_list args);
+u64 Scan_VArgs(inst(String) str, va_list args);
+
+Impl(FormatUtils){
+	.FormatVArgs = Print_VArgs,
+	.ScanVArgs = Scan_VArgs
+};
+
 errvt init_ExtraC(){
 	errvt res = ERR_NONE;
 	if(__USER_INIT__ != NULL) res  = __USER_INIT__();

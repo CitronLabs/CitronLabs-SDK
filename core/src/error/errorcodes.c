@@ -28,6 +28,9 @@ void Error_Hide(){
 	showErrors = false;
 }
 
+
+extern inst(Logger) error_logger;
+
 void Error_SetLogger(inst(Logger) logger){
 	nonull(logger, return);
 	error_logger = logger;
