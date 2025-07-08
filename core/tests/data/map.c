@@ -18,7 +18,7 @@ NEW_TEST("Map Data Structure"){
 	
 	u32 data[3] = {31243552, 4509302, 391204802};
 	inst(String) keys[3] = {s("hi"), s("Lorem Ispbum"), s("Hello World!")};
-	u32 indexes[3] = {UINT32_MAX, UINT32_MAX, UINT32_MAX};
+	u32 indexes[3] = {INVALID_MAPINDEX, INVALID_MAPINDEX, INVALID_MAPINDEX};
 	
 	NEW_SUBTEST("Initialization"){
 		map = pushMap(String, u32);
@@ -50,10 +50,10 @@ NEW_TEST("Map Data Structure"){
 			PASS_TEST
 	}
 	NEW_SUBTEST("Searching"){
-		u32 key_index = UINT32_MAX;
+		u32 key_index = INVALID_MAPINDEX;
 		
 		loop(i, 3){
-		    if((key_index = Map.SearchIndex(map, keys[i])) == UINT32_MAX){
+		    if((key_index = Map.SearchIndex(map, keys[i])) == INVALID_MAPINDEX){
 
 			FAIL_TEST
 			goto skip;	
@@ -69,9 +69,8 @@ NEW_TEST("Map Data Structure"){
 		u32* index_result = {0};
 
 		loop(i, 3){
-			if((index_result = Map.Index(map, indexes[0])) == NULL){
+			if((index_result = Map.Index(map, indexes[i])) == NULL){
 				FAIL_TEST
-
 				goto skip;
 			}
 			if(*index_result != data[i]){
@@ -83,7 +82,7 @@ NEW_TEST("Map Data Structure"){
 	}
 	NEW_SUBTEST("Removing"){
 		loop(i, 3){
-		    if(Map.Remove(map, &indexes[i]) != ERR_NONE){
+		    if(Map.Remove(map, keys[i]) != ERR_NONE){
 			FAIL_TEST
 			goto skip;
 		    }
@@ -106,11 +105,11 @@ NEW_TEST("Map Data Structure"){
 		u32* index_result = {0};
 		
 		map = pushMap(String, u32,
-			{&keys[0], &data[0]},
-			{&keys[1], &data[1]},
-			{&keys[2], &data[2]}
+			{keys[0], &data[0]},
+			{keys[1], &data[1]},
+			{keys[2], &data[2]}
 		);
-		if(map != NULL){
+		if(map == NULL){
 			FAIL_TEST
 			goto skip;
 		}

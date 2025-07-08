@@ -204,6 +204,8 @@ typedef struct data_entry{
 }data_entry;
 asClass(data_entry){ passover }
 
+#define INVALID_MAPINDEX UINT32_MAX
+
 Class(Map,
 __INIT(
       	u64 init_size; 

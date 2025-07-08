@@ -22,17 +22,17 @@ u32 Map_Hash(void* data_ptr, u64 size){
 	switch (size % 8)
 	{
 	case 7:
-		last |= (u64)data[6] << 56; /* fallthrough */
+		last |= (u64)data[6] << 56; 
 	case 6:
-		last |= (u64)data[5] << 48; /* fallthrough */
+		last |= (u64)data[5] << 48; 
 	case 5:
-		last |= (u64)data[4] << 40; /* fallthrough */
+		last |= (u64)data[4] << 40; 
 	case 4:
-		last |= (u64)data[3] << 32; /* fallthrough */
+		last |= (u64)data[3] << 32; 
 	case 3:
-		last |= (u64)data[2] << 24; /* fallthrough */
+		last |= (u64)data[2] << 24; 
 	case 2:
-		last |= (u64)data[1] << 16; /* fallthrough */
+		last |= (u64)data[1] << 16; 
 	case 1:
 		last |= (u64)data[0] << 8;
 		hash ^= last;
@@ -67,15 +67,17 @@ return OK;
 
 u32 methodimpl(Map,Insert,, void* key_data, void* itemptr){
 	
-	nonull(self, return UINT32_MAX);
-	nonull(key_data, return UINT32_MAX);
-	nonull(itemptr, return UINT32_MAX);
+	nonull(self, return INVALID_MAPINDEX);
+	nonull(key_data, return INVALID_MAPINDEX);
+	nonull(itemptr, return INVALID_MAPINDEX);
 	
 	
 	u64 place = 10;
 	u8 placenum = 10;
-	u32 key = UINT32_MAX;
-	u32 hashvalue =
+	u32 
+	 key = INVALID_MAPINDEX,
+	 index = INVALID_MAPINDEX,
+	 hashvalue =
 	    priv->key_hash_func == NULL ?
 		Map.Hash(key_data, priv->key_size) 
 		:
@@ -84,13 +86,15 @@ u32 methodimpl(Map,Insert,, void* key_data, void* itemptr){
 	for(;;){
 		if(priv->bucket_indexes[hashvalue%place] == 0){
 			key = (hashvalue%place);
-			u32 index = List.Size(priv->buckets);
-			priv->bucket_indexes[key] = index;
-			List.Append(priv->buckets, &(data_entry){
+			index = List.Size(priv->buckets);
+			List.FillSlot(priv->buckets, &(data_entry){
 				.hash = hashvalue,
 				.data = calloc(1, priv->item_size),
-				.key = calloc(priv->key_size, sizeof(u8)),
-			}, 1);
+				.key = calloc(1, priv->key_size),
+			});
+			// we add 1 to the index since we want to avoid using index 0 
+			// because we check for index 0 as an invalid state in the search function
+			priv->bucket_indexes[key] = index + 1;
 			memcpy(
 				((data_entry*)List.GetPointer(
 					priv->buckets, 
@@ -115,13 +119,13 @@ u32 methodimpl(Map,Insert,, void* key_data, void* itemptr){
 		}	
 	}
 	
-return key;
+return index;
 }
 
 u32 methodimpl(Map, SearchIndex,, void* key){
 
-	nonull(key, return UINT32_MAX);
-	nonull(self, return UINT32_MAX);
+	nonull(key, return INVALID_MAPINDEX);
+	nonull(self, return INVALID_MAPINDEX);
 	
 	u64 place = 10;
 	u8 placenum = 10;
@@ -136,12 +140,14 @@ u32 methodimpl(Map, SearchIndex,, void* key){
 
 			data_entry* bucket = 
 				List.GetPointer(
-					priv->buckets, 
-					priv->bucket_indexes[hashvalue%place]
+					priv->buckets,
+					// see insert function for reason why we substract 1
+					priv->bucket_indexes[hashvalue%place] - 1 
 				);
 				
 			if(bucket->hash == hashvalue)
-				return hashvalue%place;
+					// see insert function for reason why we substract 1
+				return priv->bucket_indexes[hashvalue%place] - 1;
 		}
 		place+=placenum;
 		if(place >= (10*10000) || place >= priv->allocednum){
@@ -156,7 +162,7 @@ void* methodimpl(Map, Search,, void* key){
 
 	u32 mindex = Map.SearchIndex(self, key);
 
-	if(UINT32_MAX == mindex) {
+	if(INVALID_MAPINDEX == mindex) {
 		ERR(DATAERR_EMPTY, "key index not found");
 		return NULL;
 	}
@@ -167,39 +173,40 @@ return Map.Index(self, mindex);
 void* methodimpl(Map,Index,, u32 key){
 	nonull(self, return NULL)
 
-	if(key > priv->allocednum){
+	if(key > List.Size(priv->buckets)){
 		ERR(DATAERR_OUTOFRANGE, "invalid key");
 		return NULL;
 	}
 
 	data_entry* buckets = List.GetPointer(priv->buckets, 0);
-	u32 buck_index = priv->bucket_indexes[key];
 	
-	if(buck_index == 0) {
+	if(buckets[key].hash == 0){
 		ERR(DATAERR_OUTOFRANGE, "invalid key");
 		return NULL;
 	}
 
-return buckets->data;
+return buckets[key].data;
 }
-errvt methodimpl(Map,Remove,, void* key){
+errvt methodimpl(Map, Remove,, void* key){
 	nonull(self, return nullerr)
 	
 	u32 mindex = Map.SearchIndex(self, key);
 
-	if(UINT32_MAX == mindex) 
+	if(INVALID_MAPINDEX == mindex) 
 		return ERR(DATAERR_EMPTY, "key index not found");
 
 	data_entry* bucket = 
 		List.GetPointer(
 			priv->buckets, 
-			priv->bucket_indexes[mindex]
+			mindex
 		);
 	if(bucket == NULL) 
 		ERR(DATAERR_OUTOFRANGE, "invalid key");
-
-	bucket->hash = 0; 
 	free(bucket->data); 
+	free(bucket->key);
+	*bucket = (data_entry){0}; 
+	List.SetFree(priv->buckets, mindex);
+
 return OK;
 }
 List(data_entry) methodimpl(Map,GetEntries){
@@ -209,6 +216,13 @@ return priv->buckets;
 errvt imethodimpl(Map,Free){
 	self_as(Map);
 	nonull(self, return nullerr;);
+	
+	ListForEach(priv->buckets, data_entry, entry){
+		if(entry.data != NULL){
+			free(entry.data);
+			free(entry.key);
+		}
+	}
 	
 	del(priv->buckets);
 	free(priv->bucket_indexes); 
@@ -280,7 +294,7 @@ construct(Map,
 		.item_size = args.data_type_size,
 		.key_size = args.key_type_size,
 		.allocednum = init_size + (init_size / 2),
-		.default_index = UINT32_MAX,
+		.default_index = INVALID_MAPINDEX,
 		.key_hash_func = args.key_hash_func
 	};
 
@@ -289,7 +303,7 @@ construct(Map,
 		    if(args.literal[i].key != NULL){
 			Map.Insert(self, args.literal[i].key, args.literal[i].data);
 		    }
-		    else if(priv->default_index == UINT32_MAX){
+		    else if(priv->default_index == INVALID_MAPINDEX){
 			Map.SetDefault(self, args.literal[i].data);
 	    	}
 	    }

@@ -1,5 +1,7 @@
 #include "datastructs.h"
-#include <ctype.h>
+
+#define insertIntoListAt(index, _data, len) \
+	memcpy(&(((u8*)priv->data)[index * priv->item_size]), _data, priv->item_size * len);
 
 errvt methodimpl(List, Limit,, u64 limit_size){
 	
@@ -50,19 +52,41 @@ errvt methodimpl(List,Append,, void* in, u64 len){
 		return ERR(
 		DATAERR_OUTOFRANGE, "grow the priv to fit new data")
 #endif
-	
-	void* appendloc = &(((u8*)priv->data)[priv->items * priv->item_size]);
-	memcpy(appendloc, in, priv->item_size * len);
+	insertIntoListAt(priv->items, in, len)
 	
 	priv->items++;
 return OK;
 }
 
 errvt methodimpl(List, SetFree,, u64 index){
+	nonull(self, return nullerr);
+
+	if(priv->free_slots_buff == NULL){
+		priv->free_slots_buff = calloc(10, sizeof(u64));
+		priv->free_slots_buff_alloced = 10;
+		if(priv->free_slots_buff == NULL){
+			return ERR(DATAERR_MEMALLOC, "failed to allocate free_slots_buff");
+		}
+	}
 	
+	priv->free_slots_buff[priv->free_slots_buff_size] = index;
+	priv->free_slots_buff_size++;
+
+return OK;	
 }
 u64 methodimpl(List, FillSlot,, void* in){
+	nonull(self, return nullerr);
+	u64 index = UINT64_MAX;
 
+	if(priv->free_slots_buff == NULL || priv->free_slots_buff_size == 0){
+		index = priv->items;
+		List.Append(self, in, 1);
+
+	}else{
+		index = priv->free_slots_buff[--priv->free_slots_buff_size];
+
+	}
+return index;
 }
 
 
@@ -91,23 +115,21 @@ errvt methodimpl(List,Insert,, u64 len, u64 index, void* in){
 	
 
 	if(index == priv->items){
-		void* appendloc = &(((u8*)priv->data)[priv->items * priv->item_size]);
-		memcpy(appendloc, in, len * priv->item_size);
+		insertIntoListAt(priv->items, in, len)
 		priv->items+=len;
 	}else{
-		u64 restofpriv = (priv->items - index);
-		void* tempstore = calloc(restofpriv, priv->item_size);
+		u64 size_restoflist = (priv->items - index);
+		void* tempstore = calloc(size_restoflist, priv->item_size);
 		void* indexloc = &(((u8*)priv->data)[index * priv->item_size]);
-		memcpy(tempstore, indexloc, restofpriv);
+		memcpy(tempstore, indexloc, size_restoflist * priv->item_size);
 
-		priv->items -= restofpriv;
-		memcpy(indexloc, in, len * priv->item_size);
+		priv->items -= size_restoflist;
+		insertIntoListAt(index, in, len)
 		
 		priv->items += len;
-		void* appendloc = &(((u8*)priv->data)[priv->items * priv->item_size]);
 		
-		priv->items += restofpriv;
-		memcpy(appendloc,tempstore,restofpriv);
+		insertIntoListAt(priv->items, tempstore, size_restoflist)
+		priv->items += size_restoflist;
 		
 		free(tempstore);
 	}
@@ -120,59 +142,20 @@ errvt methodimpl(List,Merge,, inst(List) merged_list, u64 index){
     // Error checking
 	
 	nonull(self, return nullerr;)
-	nonull(mergpriv, return nullerr;)
+	nonull(merged_list, return nullerr;)
 
-	index = index == UINT64_MAX ? priv->items : index;	
-	
-	if(index > priv->items) return ERR( 
-		DATAERR_SIZETOOLARGE , "index out of range");
-	
 	if(mergpriv->item_size != priv->item_size) return ERR(
 		DATAERR_SIZETOOLARGE , "different item sizes");
 
-	if(priv->limit == priv->items) return ERR(
-		DATAERR_LIMIT, "limit has been reached for this priv");
-
-
-    // Bounds checking
-	u64 len = mergpriv->items;
-
-	if(priv->items + mergpriv->items > priv->limit)
-		len = priv->limit - priv->items;
-
-	if(priv->items + mergpriv->items > priv->items_alloced)
-#if STDDATA_AUTOGROW
-		List.Grow(self, mergpriv->items);
-#else
-		return ERR(
-		DATAERR_OUTOFRANGE, "grow the priv to fit new data")
-#endif
 
    // Merging the Lists
-	if(index == priv->items){
-		void* appendloc = &(((u8*)priv->data)[priv->items * priv->item_size]);
-		memcpy(appendloc, mergpriv->data, mergpriv->items * mergpriv->item_size);
-		priv->items+=mergpriv->items;
+	if(index == UINT64_MAX){
+		return List.Append(self, mergpriv->data, mergpriv->items);
 	}else{
-		u64 restofpriv = (priv->items - index);
-		void* tempstore = calloc(priv->item_size, restofpriv);
-		void* indexloc = &(((u8*)priv->data)[index * priv->item_size]);
-		memcpy(tempstore, indexloc, restofpriv);
-
-		priv->items -= restofpriv;
-		memcpy(indexloc, mergpriv->data, mergpriv->items * mergpriv->item_size);
-		
-		priv->items += mergpriv->items;
-		void* appendloc = &(((u8*)priv->data)[priv->items * priv->item_size]);
-		
-		priv->items += restofpriv;
-		memcpy(appendloc,tempstore,restofpriv);
-		
-		free(tempstore);
+		return List.Insert(self, mergpriv->items, index, mergpriv->data);
 	}
-
-return OK;
 }
+
 inst(List) methodimpl(List,SubList,, u64 index, u64 len){
 
 	nonull(self, return NULL;)
