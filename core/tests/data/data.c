@@ -16,7 +16,8 @@ bool RUN_STDDATA_TESTS(){
 	Error.Clear();
 	RUN_STACK_TESTS();
 	Error.Clear();
-	//RUN_QUEUE_TESTS();
+	RUN_QUEUE_TESTS();
+	Error.Clear();
 	RUN_MAP_TESTS();
 	Error.Clear();
 	RUN_DATASTRUCTS_TESTS();

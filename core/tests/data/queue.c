@@ -46,7 +46,7 @@ NEW_TEST("Queue Data Structure"){
 	}
 	NEW_SUBTEST("Freeing"){
 		pop(queue);
-		if(errnm != ERR_NONE ){
+		if(errnm != ERR_NONE){
 			FAIL_TEST
 			goto skip;
 		}
@@ -56,7 +56,7 @@ NEW_TEST("Queue Data Structure"){
 		char queue_data[sizeof("Hello, World!")] = {0};
 		
 
-		queue = pushQueue(c8, 'H','e','l','l','o',',',' ','W','o','r','l','d');
+		queue = pushQueue(c8, 'H','e','l','l','o',',',' ','W','o','r','l','d','!');
 
 		if(queue == NULL){
 			FAIL_TEST
@@ -66,7 +66,7 @@ NEW_TEST("Queue Data Structure"){
 			FAIL_TEST
 			goto skip;
 		}
-		if(Queue.Dequeue(queue, queue_data, sizeof("Hello, World!")) != ERR_NONE ){
+		if(Queue.Dequeue(queue, queue_data, sizeof("Hello, World!") - 1) != ERR_NONE ){
 			FAIL_TEST
 			goto skip;
 		}
@@ -79,7 +79,7 @@ NEW_TEST("Queue Data Structure"){
 			goto skip;
 		}
 		pop(queue);
-		if(errnm != ERR_NONE ){
+		if(errnm != ERR_NONE){
 			FAIL_TEST
 			goto skip;
 		}

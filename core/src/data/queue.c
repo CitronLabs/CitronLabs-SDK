@@ -4,240 +4,223 @@
 #define FULL 1
 #define JUMP 2
 
-#define shifthead(head, numofbytes) head = ((u8*)head) + numofbytes 
-#define slot_size(queue) (queue->itemsize + sizeof(slot_status))
+#define write_queue(in, index)								\
+	*priv->writehead = FULL;							\
+	pntr_shift(priv->writehead, sizeof(slot_status));				\
+	memcpy(priv->writehead, &((u8*)in)[index * priv->itemsize], priv->itemsize);	\
+	pntr_shift(priv->writehead,priv->itemsize);					\
+	priv->items++;									
+
+#define read_queue(out, index)								\
+	*priv->readhead = EMPTY;							\
+	pntr_shift(priv->readhead, sizeof(slot_status));				\
+	memcpy(&((u8*)out)[index * priv->itemsize], priv->readhead, priv->itemsize);	\
+	pntr_shift(priv->readhead,priv->itemsize);					\
+	priv->items--;	
+
+
+#define get_slot_dist(a, b) ((pntr_asVal(b) - pntr_asVal(a)) / slot_size)
+
+#define slot_size (priv->itemsize + sizeof(slot_status))
+
+
 
 errvt methodimpl(Queue, Grow,, u64 add_amount){
+	
+	u64 queue_allocsize = get_slot_dist(priv->start, priv->end); 
+	
+	if(queue_allocsize + add_amount > priv->limit)
+		return ERR(DATAERR_LIMIT, "cannot grow queue past limit");
 
-	if(priv->nextqueue != NULL){
-		self = priv->nextqueue;
+	if(priv->writehead < priv->readhead && priv->jmp_point == NULL){
+		
+		u64 slots_btwn_wrt_rd = get_slot_dist(priv->writehead, priv->readhead);
 
-		u64 previtems = priv->items;
-		u64 total_items = priv->nextqueue != NULL ? 
-		priv->items 
-		: 
-		priv->items + priv->nextqueue->__private->items;
+		*(&(((u8*)priv->writehead)[(slots_btwn_wrt_rd - 1)* slot_size])) = JUMP;
 
-		if(total_items + priv->items <= priv->limit)
-			priv->items += priv->items;
-		else 
-			priv->items += priv->limit - total_items;
-
-		priv->start = realloc(priv->start,priv->items * slot_size(priv));
-		priv->end = priv->start + (priv->items * slot_size(priv));
-		priv->writehead = priv->start + (previtems * slot_size(priv));
-
+		priv->jmp_point = priv->end; 
+	
 	}
-	else {
-	    if(priv->limit - priv->items > 0){
-		priv->nextqueue = new(Queue, priv->items, priv->dsn_type, priv->itemsize);
-		*priv->writehead = JUMP;
-		priv->limit = priv->limit - priv->items;
-	    }else{
-		return ERR(DATAERR_LIMIT, "limit has been reached for this queue");
-	    }
-	}
+	
+	void* new_buf = realloc(priv->start, get_slot_dist(priv->start, priv->end) + add_amount);
+
+	if(priv->jmp_point != NULL)
+		priv->jmp_point = new_buf + (get_slot_dist(priv->start, priv->jmp_point) * slot_size);
+		
+	priv->end = new_buf + (get_slot_dist(priv->start, priv->end) * slot_size);
+	priv->readhead = new_buf + (get_slot_dist(priv->start, priv->readhead)  * slot_size);
+	priv->writehead = new_buf + (get_slot_dist(priv->start, priv->writehead)  * slot_size);
+	
+
 return OK;
 }
 
-#define currpriv currqueue->__private
 errvt methodimpl(Queue, Enqueue,, void* item, u64 num){
+	nonull(self, return nullerr);
 	
-	inst(Queue) currqueue = self;
-	
-	nonull(self, return nullerr)
-	nonull(item, return nullerr)
+	u64 queue_allocsize = get_slot_dist(priv->start, priv->end);
 
-	if(priv->nextqueue != NULL) currqueue = priv->nextqueue;
+	if(priv->items + num > queue_allocsize)
+			Queue.Grow(self, (queue_allocsize / 2) + num);
 
 	loop(i, num){
-
-		if(priv->writehead == priv->end){
-	//		DO_LATER("finish implementing this function");
+		if(*priv->writehead == JUMP){
+			pntr_shift(priv->writehead, sizeof(slot_status));				
+			memcpy(priv->writehead, &((u8*)item)[i * priv->itemsize], priv->itemsize);	
+			priv->items++;									
 		}
-		if(*(priv->writehead + slot_size(priv)) == FULL){
-	//		DO_LATER("finish implementing this function");
+		else{
+			write_queue(item, i);
 		}
-		*currpriv->writehead = FULL;
-		shifthead(currpriv->writehead, sizeof(slot_status));
-		memcpy(currpriv->writehead, &((u8*)item)[i], currpriv->itemsize);
-		shifthead(currpriv->writehead,currpriv->itemsize);
-		currpriv->items++;
 	}
+
 return OK;
 }
 errvt methodimpl(Queue, Dequeue,, void* out, u64 num){
+	nonull(self, return nullerr);
 
-	nonull(self, return nullerr)
-	nonull(out, return nullerr)
-
-	if(EMPTY == *priv->readhead) return ERR(
-		DATAERR_EMPTY, "queue is empty");
+	if(num > priv->items)
+		return ERR(DATAERR_OUTOFRANGE, "num exceeds queue");
 
 	loop(i, num){
-
+		if(priv->readhead == priv->jmp_point)
+			priv->readhead = priv->start;
+	
 		if(*priv->readhead == JUMP){
-			free(priv->start);
-			;
-			priv = priv->nextqueue->__private;
+			read_queue(out, i);
+			priv->readhead = priv->jmp_point;					
+		}else{
+			read_queue(out, i);
 		}
-
-		if(priv->readhead == priv->end) priv->readhead = priv->start;
-		*priv->readhead = EMPTY;
-		shifthead(priv->readhead, sizeof(slot_status));
-		memcpy(&((u8*)out)[i * priv->itemsize], priv->readhead, priv->itemsize);
-		shifthead(priv->readhead,priv->itemsize);
-		priv->items--;
 	}
-
 
 return OK;
 }
 bool methodimpl(Queue,Check){
+	nonull(self, return false);
 
-	nonull(self, return -1)
-
-	switch(*priv->readhead){
-	case EMPTY: return false;
-	case FULL: return true;
-	case JUMP: return Queue.Check(priv->nextqueue);
-	}
-return false;	
+return priv->items != 0;	
 }
 
 u64 methodimpl(Queue, Count){
-	nonull(self, return -1)
+	nonull(self, return 0);
 
-	return priv->items;
+return priv->items;	
 }
 
 errvt methodimpl(Queue, Index,, bool write, u64 index, void* data){
+	nonull(self, return nullerr);
 
+	if(priv->items <= index) 
+		return ERR(DATAERR_OUTOFRANGE, "index exceeds queue");
 
-	if(priv->items <= index){
-		if(priv->nextqueue == NULL) 
-			return ERR(DATAERR_OUTOFRANGE, "index out of range");
-		index -= priv->items;
-		self = priv->nextqueue;
+	void* index_start = priv->readhead;
 
-		if(priv->items <= index)
-			return ERR(DATAERR_OUTOFRANGE, "index out of range");
+	if(priv->jmp_point != NULL && get_slot_dist(priv->readhead, priv->jmp_point) < index){
+		index -= get_slot_dist(priv->readhead, priv->jmp_point);
+		index_start = priv->start;
+
+		if(priv->writehead > priv->readhead){
+			index -= priv->items - get_slot_dist(priv->readhead, priv->writehead);
+			index_start = priv->jmp_point;
+		}
+	}
+	else if(get_slot_dist(priv->readhead, priv->end) < index){
+		index -= get_slot_dist(priv->readhead, priv->end);
+		index_start = priv->start;
 	}
 
-	void* slot_data = priv->readhead + (slot_size(priv) * index);
-	if(*(slot_status*)slot_data == JUMP){
-		self = priv->nextqueue;
+	if(write){
+		memcpy(&(((u8*)index_start)[index * slot_size + sizeof(slot_status)]), data, priv->itemsize);
+	}else{
+		memcpy(data, &(((u8*)index_start)[index * slot_size + sizeof(slot_status)]), priv->itemsize);
 	}
-
-	if(slot_data == priv->end) 
-		slot_data = priv->start;
-
-	slot_data += sizeof(slot_status);
-
-	memcpy(data, priv->readhead, priv->itemsize);
 
 return OK;
 }
 
 errvt methodimpl(Queue, Limit,, u64 limit){
 
-	u64 total_items = priv->nextqueue != NULL ? 
-		priv->items 
-		: 
-		priv->items + priv->nextqueue->__private->items;
-	
-	if(total_items > limit){
-		if(priv->nextqueue != NULL){
-			total_items -= priv->items;
-			self = priv->nextqueue;
-		}
-		void* new_data_buffer = calloc(limit, priv->itemsize);
-		if(priv->writehead < priv->readhead){
-			u64 num_first_cpy = (priv->end - priv->readhead) / slot_size(priv);
-			if((limit - num_first_cpy) > 0){
+	nonull(self, return nullerr);
 
-				memcpy(new_data_buffer, priv->readhead, num_first_cpy);
-			}else{
-				memcpy(new_data_buffer, priv->readhead, limit);
-			}
-			if(((limit - num_first_cpy) - (priv->items - num_first_cpy)) > 0){
-
-				memcpy(new_data_buffer + (num_first_cpy * slot_size(priv)),
-	  				priv->start, priv->items - num_first_cpy);
-			}else{
-				memcpy(new_data_buffer + (num_first_cpy * slot_size(priv)),
-	  				priv->start, limit - num_first_cpy);
-			}
-	 	}else{
-			memcpy(new_data_buffer, priv->readhead, limit);
-		}
-		free(priv->start);
-		priv->start = realloc(priv->start,priv->items * slot_size(priv));
-		priv->end = priv->start + (priv->items * slot_size(priv));
+	if(limit > priv->items){
+		void* new_buf = calloc(limit, slot_size);
+		Queue.Dequeue(self, new_buf, limit);
+		priv->end = new_buf + (limit * slot_size);
+		priv->readhead = new_buf;
 		priv->writehead = priv->end;
-		priv->readhead = priv->start;
-		priv->items = limit;
 	}
 
 	priv->limit = limit;
-
 return OK;
 }
 void* methodimpl(Queue, ToPointer){
-	
 	nonull(self, return NULL);
 
-	if(priv->items == 0) return NULL;
+	if(priv->to_pointer_buf != NULL)
+		free(priv->to_pointer_buf);
 
+	priv->to_pointer_buf = calloc(priv->items, slot_size);
 
-	u64 total_items = priv->nextqueue != NULL ? 
-		priv->items 
-		: 
-		priv->items + priv->nextqueue->__private->items;
+	slot_status* readhead = priv->readhead;
+	loop(i, priv->items){
 
-	void* out = calloc(total_items, priv->itemsize);
-	u32 cursor = 0;
+		if(readhead == priv->jmp_point)
+			readhead = priv->start;
 
-	loop(i, total_items){
-
-		void* curr_data = priv->readhead + (slot_size(priv) * cursor);
-
-		if(*priv->readhead == JUMP){
-			self = priv->nextqueue;
-			cursor = 0;
+		if(*readhead == JUMP){
+			pntr_shift(readhead, sizeof(slot_status));					
+		
+			memcpy(&((u8*)priv->to_pointer_buf)[i * priv->itemsize], readhead, priv->itemsize);	
+		
+			readhead = priv->jmp_point;					
+			
+		}else{
+			pntr_shift(readhead, sizeof(slot_status));					
+		
+			memcpy(&((u8*)priv->to_pointer_buf)[i * priv->itemsize], readhead, priv->itemsize);	
+		
+			pntr_shift(readhead,priv->itemsize);					
 		}
-
-		if(curr_data == priv->end) 
-			curr_data = priv->start;
-
-		curr_data += sizeof(slot_status);
-
-		memcpy(&((u8*)out)[i * priv->itemsize], curr_data, priv->itemsize);
 	}
 
-return out;
+
+return priv->to_pointer_buf;
 }
 
 errvt imethodimpl(Queue,Free){
-	self_as(Queue)
+	self(Queue)
 
-	nonull(self, return nullerr;)
+	nonull(self, return nullerr);
 
-	if(priv->nextqueue != NULL){del(priv->nextqueue);}
+	if(priv->to_pointer_buf != NULL) 
+		free(priv->to_pointer_buf);
+	
 	free(priv->start);
-	;
 
 return OK;
 }
 
 u64 imethodimpl(Queue, Scan,, FORMAT_ID* formats, inst(String) in){
+	nonull(object, return 0);
+	self(Queue);
+	
+	inst(Queue) result = NULL;
+	u64 len = DSN.parseQueue(NULL, &result, in);
 
+	if(len == 0){
+		ERR(DATAERR_DSN, "failed to scan for queue");
+		return 0;
+	}
+	*self = *result;
 
+return len;
 }
 
 u64 imethodimpl(Queue, Print,, FORMAT_ID* formats, inst(StringBuilder) out){
+	nonull(object, return 0);
+	self(Queue)
 
-	inst(Queue) self = object;
 	u64 formated_len = 0;
 
 	switch(formats[FORMAT_DATA]){
@@ -275,32 +258,23 @@ construct(Queue,
 	  	.Scan = Queue_Scan
 	}
 ){
-
-	u64 start_size = args.init_size  == 0 ? 1 : args.init_size;
-	set_priv(Queue){
+	u64 start_size = args.init_size  == 0 ? 10 : args.init_size;
+	setpriv(Queue){
 		.start = calloc(start_size, args.type_size + sizeof(slot_status)),
-		.end = priv->start + (start_size * (args.type_size + sizeof(slot_status))),
-		.readhead = priv->start,
-		.writehead = priv->start,
 		.itemsize = args.type_size,
 		.dsn_type = args.dsn_type,
 		.items = 0,
-		.limit = UINT64_MAX,
+		.limit = UINT64_MAX
 	};
+	priv->end = &(((u8*)priv->start)[start_size * (args.type_size + sizeof(slot_status))]);
+	priv->readhead = priv->start;
+	priv->writehead = priv->start;
 
-	set_methods(Queue);
-	
-	if(args.literal != NULL){
+	if(args.literal != NULL && args.init_size != 0){
 		loop(i, start_size){
-			*priv->writehead = FULL;
-			shifthead(priv->writehead, sizeof(slot_status));
-			memcpy(priv->writehead, args.literal, priv->itemsize);
-			args.literal += args.type_size;
-			shifthead(priv->writehead,priv->itemsize);
-			priv->items++;
+			write_queue(args.literal, i);
 		}
 	}
-
 
 return self;
 }
