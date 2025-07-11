@@ -52,7 +52,7 @@ errvt methodimpl(Mutex, UnLock){
 return OK;
 }
 errvt imethodimpl(Mutex, Destroy){
-	self_as(Mutex)
+	self(Mutex)
 
 	nonull(self, return nullerr);
 	

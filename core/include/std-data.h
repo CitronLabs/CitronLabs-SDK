@@ -213,7 +213,7 @@ __INIT(
 	DSN_field_type key_dsn_type;
 	u64 data_type_size; 
 	DSN_field_type data_dsn_type;
-	u32(*key_hash_func)(void* object);
+	u32(*key_hash_func)(inst(Object) object);
 	data_entry* literal;
 ),
 __FIELD(),

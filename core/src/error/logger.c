@@ -93,7 +93,7 @@ return formatted_len;
 }
 
 errvt imethodimpl(Logger, Destroy){
-	self_as(Logger);
+	self(Logger);
 	nonull(self, return nullerr);
 
 	del(priv->name);

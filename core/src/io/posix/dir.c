@@ -72,9 +72,12 @@ inst(Dir) Dir_Create (dirpath path, u8 flags){
 
 	inst(Dir) self = calloc(1, sizeof(Dir_Instance));
 
-	set_priv(Dir){
+	setpriv(Dir){
 		.dir = opendir(path),
 	};
+	self->__init = true;
+	self->__methods = &Dir;
+
 	strncpy((cstr)&priv->path, path, 255);
 
 return self;
@@ -219,7 +222,7 @@ return OK;
 }
 
 errvt imethodimpl(Dir, Close){
-	self_as(Dir)
+	self(Dir)
 
 	nonull(self, return nullerr)	
 	closedir(priv->dir);

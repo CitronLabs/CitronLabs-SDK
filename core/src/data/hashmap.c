@@ -214,7 +214,7 @@ List(data_entry) methodimpl(Map,GetEntries){
 return priv->buckets;
 }
 errvt imethodimpl(Map,Free){
-	self_as(Map);
+	self(Map);
 	nonull(self, return nullerr;);
 	
 	ListForEach(priv->buckets, data_entry, entry){
@@ -238,16 +238,24 @@ errvt methodimpl(Map, Limit,, u64 limit){
 }
 
 u64 imethodimpl(Map, Scan,, FORMAT_ID* formats, inst(String) in){
+	nonull(object, return 0);
+	self(Map);
+	
+	inst(Map) result = NULL;
+	u64 len = DSN.parseMap(NULL, &result, in);
 
-	nonull(object, return 0;);
-	inst(Map) self = object;
+	if(len == 0){
+		ERR(DATAERR_DSN, "failed to scan for map");
+		return 0;
+	}
+	*self = *result;
 
-return DSN.parseMap(NULL, &self, in);
+return len;
 }
 
 u64 imethodimpl(Map, Print,, FORMAT_ID* formats, inst(StringBuilder) out){
 
-	inst(Map) self = object;
+	self(Map)
 
 	u64 formated_len = 0;
 	switch(formats[FORMAT_DATA]){

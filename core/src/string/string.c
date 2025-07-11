@@ -16,14 +16,13 @@ return strncmp(self->txt, cmp_string->txt, self->len) == 0;
 
 inst(String) methodimpl(String,Copy){
 
-	inst(String) res = new(String, res->txt, res->len);
-	res->txt[self->len] = '\0';
+	inst(String) res = new(String, self->txt, self->len);
 
 return res;
 }
 
 errvt imethodimpl(String,Free){
-	self_as(String);
+	self(String);
 	
 	nonull(self->txt, return nullerr;);
 	
@@ -38,7 +37,7 @@ u64 methodimpl(String,Scan,, ...){
 	va_list args;
 	va_start(args, self);
 
-	u64 scanned_len = Scan_VArgs(self, args);
+	u64 scanned_len = FormatUtils.ScanVArgs(self, args);
 
 	va_end(args);
 
@@ -70,7 +69,7 @@ return self->len;
 
 
 u32 imethodimpl(String, Hash){
-	self_as(String);
+	self(String);
 
 return Map.Hash(self->txt, self->len);
 }
@@ -100,7 +99,7 @@ construct(String,
 	    	priv->inline_alloc = false;
 	}else{
 		self->len = args.len;
-		self->txt = shift_ptr(self, sizeof(String_Instance) + sizeof(String_Private));
+		self->txt = pntr_shiftcpy(self, sizeof(String_Instance) + sizeof(String_Private));
 	    	
 		priv->inline_alloc = true;
 	}

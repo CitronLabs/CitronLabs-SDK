@@ -19,7 +19,7 @@ return OK;
 
 
 errvt imethodimpl(Struct, __DESTROY){
-	self_as(Struct);
+	self(Struct);
 
 	nonull(self, return nullerr);
 
@@ -54,17 +54,24 @@ return OK;
 }
 
 u64 imethodimpl(Struct, Scan,, FORMAT_ID* formats, inst(String) in){
-	nonull(object, return 0;)
+	nonull(object, return 0);
+	self(Struct);
 	
-	inst(Struct) self = (inst(Struct))object; 
+	inst(Struct) result = NULL;
+	u64 len = DSN.parseStruct(NULL, &result, in);
 
-return DSN.parseStruct(NULL, &self, in);
+	if(len == 0){
+		ERR(DATAERR_DSN, "failed to scan for struct");
+		return 0;
+	}
+	*self = *result;
+
+return len;
 }
 
 u64 imethodimpl(Struct, Print,, FORMAT_ID* formats, inst(StringBuilder) out){
 	nonull(object, return 0;)
-	
-	inst(Struct) self = (inst(Struct))object; 
+	self(Struct); 
 	
 return DSN.formatStruct(NULL, self, out);
 }

@@ -1,81 +1,65 @@
 #include "../../include/std-all.h"
 
-typedef u64 pool_metadata[2]; // [0] = alloced size ; [1] = used size
-
 private(Pool,
-	size_t max_size, current_size;
-	void* lastfree_member;
-	pool_metadata* data;
+	size_t max_size, alloc_size, current_size;
+	Stack(void*) free_slots;
+	List(Buffer) pool_buffers;
 	u16 member_size;
+	bool isStatic;
 );
 
-static pool_metadata* alloc_new_pool(inst(Pool) self, size_t size){
+void* methodimpl(Pool, Alloc,, u64 num){
 
-	pool_metadata* res = 
-	    malloc(
-		(size * priv->member_size) + 
-	 	sizeof(pool_metadata) + 
-	 	sizeof(void*)
-	    );
-	
-	(*res)[0] = size;
-	(*res)[1] = 0;
+	inst(Buffer) alloc_buff = NULL;
 
-	void* data_start = &res[1];
-	(*(pool_metadata**)(data_start + size)) = NULL;
+	 
+	if(priv->current_size + num > priv->alloc_size){
+		if(priv->isStatic){
+			ERR(MEMERR_OVERFLOW, "cannot grow a static pool");
+			return NULL;
+		}
+		if(priv->current_size + num > priv->max_size){
+			ERR(MEMERR_OVERFLOW, "size goes beyond the specified maximum");
+			return NULL;
+		}
+		u64 new_alloc_size = 
+			((priv->alloc_size / 2) + num) > priv->max_size ?
+			priv->max_size - priv->alloc_size : ((priv->alloc_size / 2) + num);
 
-return res;
-}
+		inst(Buffer) new_buff = new(Buffer, new_alloc_size, priv->member_size);
+		List.Append(priv->pool_buffers, &new_buff, 1);
 
-#define alloc_size (*curr_strip)[0]
-#define curr_size (*curr_strip)[1]
-void* imethodimpl(Pool, New,, size_t size, ...){
-
-	self_as(Pool)
-
-	void* res = NULL;
-	if(priv->lastfree_member != NULL){
-		res = priv->lastfree_member;
-		priv->lastfree_member = *(void**)priv->lastfree_member;
-	}	
-	if(priv->lastfree_member == NULL){
-		//Maximum size is reached
-	    if(priv->current_size >= priv->max_size){
-		assert(priv->current_size <= priv->max_size);
-		ERR(MEMERR_OVERFLOW, "maximum size has been reached");
-	    }
-	    else{
-	        pool_metadata* curr_strip = priv->data;
-	        loop(i, priv->current_size){
-	    	    pool_metadata** next_strip = NULL;
-	    	    if(alloc_size < curr_size){
-		        break;
-		    }else
-		        assert(curr_size == alloc_size);
-		        void* data_start = &curr_strip[1];
-			next_strip = (pool_metadata**)(data_start + alloc_size); 
-		    	    
-		        if(*next_strip == NULL){
-			    *next_strip = alloc_new_pool(self, 
-				(priv->current_size + (alloc_size + (alloc_size / 2)) > priv->max_size) ?
-				priv->max_size - priv->current_size : alloc_size + (alloc_size / 2));
-			}
-			curr_strip = *next_strip;
-	    	    }
-	    	res = ((void*)&curr_strip[1]) + 
-	    	   (curr_size * priv->member_size) + 
-		    priv->member_size;
-		curr_size++;
-	   }
+		priv->alloc_size += new_alloc_size;
+	}else{
+	    ListForEach(priv->pool_buffers, inst(Buffer), buff){
+		if(!Buffer.isMaxed(buff) && 
+		   Buffer.getTotalSize(buff) > Buffer.getItemNum(buff) + num)
+		{
+			alloc_buff = buff;
+			break;
+		}
+    	    }
 	}
-return res;
-}
-errvt imethodimpl(Pool, Delete,, void* instance, ...){
-	
-	self_as(Pool)
+	priv->current_size += num;
 
-	*((void**)instance) = priv->lastfree_member;
-	priv->lastfree_member = instance;
+return Buffer.Allocator.New(generic alloc_buff, num, NULL);
+
+}
+
+void* imethodimpl(Pool, New,, size_t size, void* ex_args){
+	self(Pool);
+return Pool.Alloc(self, size);
+}
+
+errvt methodimpl(Pool, Return,, void* instance){
+	Stack.Push(priv->free_slots, &instance, 1);
+return OK;
+}
+
+
+errvt imethodimpl(Pool, Delete,, void* instance, void* ex_args){	
+	self(Pool);
+	Stack.Push(priv->free_slots, &instance, 1);
 return OK;
 }
 
@@ -88,31 +72,27 @@ construct(Pool,
 
 	if(0 == args.member_size){
 		ERR(MEMERR_INVALIDSIZE, "required member size cannot be 0");
-	  	return self;
+	  	return NULL;
 	}
 	
 	if(0 == args.init_size){ 
 	      	ERR(MEMERR_INVALIDSIZE, "required init size cannot be 0");
-	  	return self;
+	  	return NULL;
 	}
 
 	args.limit = args.limit == 0 ? UINT64_MAX : args.limit;
 	
 	if(args.init_size > args.limit) {
 	  	ERR(MEMERR_INVALIDSIZE, "init size cannot be larger than the limit");
-	  	return self;
+	  	return NULL;
 	}
 	
-	set_methods(Pool);
-	set_priv(Pool){
+	setpriv(Pool){
 	  	.max_size = args.limit,
 		.current_size = args.init_size,
 		.member_size = args.member_size,
 		.data = alloc_new_pool(self, args.init_size)
 	};
 
-set_init();
 return self;
-
-
 }

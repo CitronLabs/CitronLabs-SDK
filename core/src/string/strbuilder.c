@@ -26,7 +26,7 @@ u64 methodimpl(StringBuilder, Set,, ...){
 
 	List.Flush(priv->data);
 
-	len = Print_VArgs(self, args);   
+	len = FormatUtils.FormatVArgs(self, args);   
 	
 	va_end(args);
 
@@ -45,7 +45,7 @@ u64 methodimpl(StringBuilder, Append,, inst(String) string, ...){
 		va_list args;
 		va_start(args, string);
 
-		len = Print_VArgs(self, args);   
+		len = FormatUtils.FormatVArgs(self, args);   
 	
 		va_end(args);
 	}
@@ -64,7 +64,7 @@ u64 methodimpl(StringBuilder, Prepend,, inst(String) string, ...){
 		va_list args;
 		va_start(args, string);
 
-		len = Print_VArgs(self, args);   
+		len = FormatUtils.FormatVArgs(self, args);   
 		
 		va_end(args);
 	}
@@ -84,7 +84,7 @@ u64 methodimpl(StringBuilder, Insert,, u64 index, inst(String) string, ...){
 		va_list args;
 		va_start(args, string);
 	
-		len = Print_VArgs(self, args);   
+		len = FormatUtils.FormatVArgs(self, args);   
 		
 		va_end(args);
 	}

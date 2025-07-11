@@ -8,13 +8,13 @@
 -------------------------------*/
 
 #define method(Class,name, ...) (*name)(Class##_Instance* self __VA_ARGS__)
-#define imethod(name, ...) (*name)(void* object __VA_ARGS__)
+#define imethod(name, ...) (*name)(inst(Object) object __VA_ARGS__)
 
 #define methodimpl(Class,Routine, ...) 			\
 	Class##_##Routine(Class##_Instance* self __VA_ARGS__)
 
 #define imethodimpl(Class,Routine, ...) 		\
-	Class##_##Routine(void* object __VA_ARGS__)
+	Class##_##Routine(inst(Object) object __VA_ARGS__)
 
 #define __INIT(...) __VA_ARGS__;
 #define __FIELD(...) __VA_ARGS__;
@@ -31,13 +31,13 @@
 	name##_Instance* name##_Construct(				\
 		name##_ConstructArgs args, 				\
 		name##_Instance* self){ 				\
-	set_methods(name); 						\
+	self->__methods = &name;					\
 	self->__private = 						\
 	(name##_Private*)&(((u8*)self)[sizeof(name##_Instance)]); 	\
 		if(name##__Create__(args, self) == NULL){ 		\
 		    ERR(ERR_INITFAIL, "failed to initialize " #name);	\
 		    return self;}					\
-	set_init();							\
+	self->__init = true;						\
 return self;}								\
 									\
 	name##_Instance* name##__Create__(				\
@@ -49,13 +49,9 @@ return self;}								\
 #define private(name, ...) \
 typedef struct name##_Private{__VA_ARGS__}name##_Private; \
 
-#define set_priv(name) \
-	self->__private = (name##_Private*)&(((u8*)self)[sizeof(name##_Instance)]); \
-	*self->__private = (name##_Private)
+#define setpriv(Class) *self->__private = (Class##_Private)
 
-#define set_methods(Class) self->__methods = &Class
-#define set_init() self->__init = true
-#define self_as(Class) inst(Class) self = object;
+#define self(Class) inst(Class) self = class(Class) object;
 
 #define passover *self = args; return self;
 
@@ -112,7 +108,8 @@ typedef struct name##_Private{__VA_ARGS__}name##_Private; \
 #define data(DataClass) DataClass##_Instance
 
 #define generic (inst(Object))
-#define class(class) (inst(class))
+#define class(type) (inst(type))
+#define cast(type) (type)
 
 #define init(name, ptr, ...) name##_Construct((name##_ConstructArgs){__VA_ARGS__}, ptr)
 
@@ -120,11 +117,9 @@ typedef struct name##_Private{__VA_ARGS__}name##_Private; \
 #define push(name, ...) init(name, alloca(sizeof(name##_Instance) + sizeof_##name##_Private), __VA_ARGS__)
 
 #define del(object) if(object->__methods->Object.__DESTROY == NULL) ERR(ERR_NULLPTR,"no destructor specified for this object"); \
-		    else if(object->__methods->Object.__DESTROY(object) == ERR_NONE) free(object);
+		    else if(object->__methods->Object.__DESTROY(generic object) == ERR_NONE) free(object);
 #define pop(object) if(object->__methods->Object.__DESTROY == NULL) ERR(ERR_NULLPTR,"no destructor specified for this object"); \
-		    else object->__methods->Object.__DESTROY(object)
-
-
+		    else object->__methods->Object.__DESTROY(generic object)
 
 /*----------------------|
        Base Types	|
@@ -179,7 +174,12 @@ typedef wchar_t* wstr;
 asClass(wstr){ passover }
 
 typedef void* pntr;
+#define pntr_shift(ptr, shift_amt) ptr = ((void*)(&(((uint8_t*)ptr)[shift_amt])))
+#define pntr_shiftcpy(ptr, shift_amt) ((void*)(&(((uint8_t*)ptr)[shift_amt])))
+#define pntr_asVal(addr) (*(uint64_t*)&addr)
 asClass(pntr){ passover }
+
+Type(Object);
 
 Interface(Object,
 	u32 imethod(__HASH);			
@@ -189,7 +189,6 @@ Interface(Object,
 #endif
 
 )
-Type(Object,);
 
 typedef enum {
 	BASETYPE_NULL,	BASETYPE_INT,    	

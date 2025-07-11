@@ -93,7 +93,7 @@ errvt methodimpl(Stack, Index,, bool write, u64 index, void* data){
 return OK;
 }
 errvt imethodimpl(Stack, Free){
-	self_as(Stack)
+	self(Stack)
 	nonull(self, return nullerr;);
 
 	free(priv->start);
@@ -102,40 +102,25 @@ return OK;
 }
 
 u64 imethodimpl(Stack, Scan,, FORMAT_ID* formats, inst(String) in){
+	nonull(object, return 0);
+	self(Stack);
 	
-	inst(Stack) self = object;
+	inst(Stack) result = NULL;
+	u64 len = DSN.parseStack(NULL, &result, in);
 
-	u64 scanned_len = 0;
-	loop(i, in->len){
-
-		if(
-		in->txt[i] != '>' ||
-		in->txt[i + 1] != '>' ||
-		in->txt[i + 2] != '[')
-		{ scanned_len++; continue;}
-		
-		DSN_data data = {0};
-		DSN_field_type first_type = DSN_NULL;
-		
-		for(;scanned_len < in->len;){
-			scanned_len += DSN.parseField(NULL, &data, str_cutfcpy(in, scanned_len));
-			if(Stack.Count(self) == 0) first_type = data.type;
-			else 
-			    if(first_type != data.type){ERR(
-		     	        DATAERR_DSN, "multiple types not allowed in stacks");
-				break;
-			    }
-		
-			Stack.Push(self, &data, 1);
-		}
-		break;
+	if(len == 0){
+		ERR(DATAERR_DSN, "failed to scan for stack");
+		return 0;
 	}
-return scanned_len;
+	*self = *result;
+
+return len;
 }
 
 u64 imethodimpl(Stack, Print,, FORMAT_ID* formats, inst(StringBuilder) out){
+	nonull(object, return 0);
+	self(Stack); 
 
-	inst(Stack) self = object;
 	u64 formated_len = 0;
 
 	switch(formats[FORMAT_DATA]){

@@ -90,7 +90,7 @@ __FIELD(errvt errorcode; cstr message;),
 	#define OK ERR_NONE
 
 	#define ERR(code, msg) Error.Set(&(Error_Instance){NULL,&Error,code, #code}, msg, __func__)
-	#define check(...) Error.Clear(); __VA_ARGS__ if(errnm != ERR_NONE)
+	#define check(...) Error.Clear(); __VA_ARGS__ for(inst(Error) err = geterr(); err->errorcode != ERR_NONE; Error.Clear())
 	#define nonull(var, ...) if(var == NULL){errvt nullerr = ERR(ERR_NULLPTR, #var " is null"); __VA_ARGS__;}
 	#define NOT_IMPLEM(returnval) ERR(ERR_NOTIMPLEM, "not implemented yet..."); return returnval;
 

@@ -237,7 +237,7 @@ void methodimpl(List,Pop){
 }
 
 errvt imethodimpl(List,Free){
-	self_as(List)
+	self(List)
 	nonull(self, return nullerr;)
 	
 	if(priv->data != NULL) free(priv->data);
@@ -251,9 +251,10 @@ return res;
 }
 
 u64 imethodimpl(List, Print,, FORMAT_ID* formats, inst(StringBuilder) out){
+	nonull(object, return 0);
 	u64 formated_len = 0;
 
-	inst(List) self = object;
+	self(List); 
 
 	switch(formats[FORMAT_DATA]){
 	case DATA_DSN:
@@ -279,18 +280,19 @@ return formated_len;
 }
 
 u64 imethodimpl(List, Scan,, FORMAT_ID* formats, inst(String) in){
-
-	inst(List) self = object;
-
-	DSN_data list_data = {0};
-	u64 scanned_len = DSN.parseField(NULL, &list_data, in);
+	nonull(object, return 0);
+	self(List);
 	
-	if(list_data.type != DSN_LIST){
-		ERR(DATAERR_DSN, "invalid list format");
+	inst(List) result = NULL;
+	u64 len = DSN.parseList(NULL, &result, in);
+
+	if(len == 0){
+		ERR(DATAERR_DSN, "failed to scan for list");
 		return 0;
 	}
+	*self = *result;
 
-return scanned_len;
+return len;
 }
 
 construct(List,

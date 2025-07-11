@@ -9,7 +9,6 @@
 #ifndef __USER_CONFIG__
 #include "xc-user-config.h"
 #endif
-#include "xc-user-addons.h"
 #include "std-utils.h"
 #include "std-types.h"
 #include "std-thread.h"

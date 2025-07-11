@@ -27,7 +27,7 @@ errvt methodimpl(Semaphore, Post){
 return OK;
 }
 errvt imethodimpl(Semaphore, Destroy){
-	self_as(Semaphore)
+	self(Semaphore)
 	nonull(priv, return nullerr;);
 	sem_destroy(&priv->semaphore);
 	;
@@ -43,8 +43,7 @@ construct(Semaphore,
 		.__DESTROY = Semaphore_Destroy
 	}
 ){
-	set_methods(Semaphore);
-	set_priv(Semaphore){
+	setpriv(Semaphore){
 		.semaphore = 0
 	};
 	sem_init(&priv->semaphore, false, args.slots);

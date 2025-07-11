@@ -9,8 +9,6 @@ for(int __##item##_iterator = 0; 	\
     __##item##_iterator < size; 	\
     item = ((type*)array)[++__##item##_iterator])
 
-#define shift_ptr(ptr, shift_amt) ((void*)(&(((uint8_t*)ptr)[shift_amt])))
-
 #define getbitflagsinit size_t currentflag = 0, flagschecked = 0; 
 
 #define getbitflags(flags, ...)											\

@@ -61,7 +61,7 @@ return unixAddrToXCAddr(priv->settings.domain, &priv->address, address);
 }
 
 errvt imethodimpl(Socket, Close,){
-	self_as(Socket)
+	self(Socket)
 
 	nonull(socket);
 
@@ -97,12 +97,10 @@ construct(Socket,
 	if(-1 == protocal ) {ERR(
 	      NETERR_SOCKINVAL, "invalid protocal setting"); return NULL;}
 
-	set_priv(Socket){
+	setpriv(Socket){
 		.fd = socket(domain, protocal, 0),
 		.settings = args.settings
 	};
 	
-	set_methods(Socket);
-
 return self;
 }

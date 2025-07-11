@@ -26,16 +26,16 @@ private(Map,
 	u32 default_index;
 	List(data_entry) buckets;
 	DSN_field_type key_dsn, data_dsn;
-	u32(*key_hash_func)(void*);
+	u32(*key_hash_func)(inst(Object));
 )
 
 typedef u8 slot_status;
 private(Queue,
-    	slot_status* writehead,* readhead,* start,* end;
+    	slot_status* writehead,* readhead,* start,* end, * jmp_point;
     	u16 itemsize;
 	u64 items, limit;
-	inst(Queue) nextqueue;
 	DSN_field_type dsn_type;
+	void* to_pointer_buf;
 )
 
 private(Stack,

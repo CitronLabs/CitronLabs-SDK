@@ -221,7 +221,7 @@ errvt methodimpl(File, Move,, dirpath path){
 return OK;
 }
 errvt imethodimpl(File, Close){
-	self_as(File)
+	self(File)
 
 	nonull(self, return nullerr);	
 	close(priv->fd);

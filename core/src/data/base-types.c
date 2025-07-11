@@ -73,7 +73,7 @@ return print_len;
 u64 imethodimpl(ULong, Scan,, FORMAT_ID* formats, inst(String) in){
 	Number_Instance res = {0};			
 	u64 actual_len = Number.Formatter.Scan 	
-		(&res, formats, in);			
+		(generic &res, formats, in);			
 	*(u64*)object = res.as_u64;		
 return actual_len;
 }
@@ -103,7 +103,7 @@ return print_len;
 u64 imethodimpl(Long, Scan,, FORMAT_ID* formats, inst(String) in){
 	Number_Instance res = {0};			
 	u64 actual_len = Number.Formatter.Scan 	
-		(&res, formats, in);			
+		(generic &res, formats, in);			
 	*(i64*)object = res.as_i64;		
 return actual_len;
 }
@@ -133,7 +133,7 @@ return print_len;
 u64 imethodimpl(UInt, Scan,, FORMAT_ID* formats, inst(String) in){
 	Number_Instance res = {0};			
 	u64 actual_len = Number.Formatter.Scan 	
-		(&res, formats, in);			
+		(generic &res, formats, in);			
 	*(u32*)object = res.as_u32;		
 return actual_len;
 }
@@ -160,7 +160,7 @@ return print_len;
 u64 imethodimpl(Int, Scan,, FORMAT_ID* formats, inst(String) in){
 	Number_Instance res = {0};			
 	u64 actual_len = Number.Formatter.Scan 	
-		(&res, formats, in);			
+		(generic &res, formats, in);			
 	*(i32*)object = res.as_i32;		
 return actual_len;
 }
@@ -189,7 +189,7 @@ return print_len;
 u64 imethodimpl(Pointer, Scan,, FORMAT_ID* formats, inst(String) in){
 	Number_Instance res = {0};			
 	u64 actual_len = Number.Formatter.Scan 	
-		(&res, formats, in);			
+		(generic &res, formats, in);			
 	*(void**)object = (void*)res.as_u64;		
 return actual_len;
 }
@@ -218,7 +218,7 @@ return print_len;
 u64 imethodimpl(Float, Scan,, FORMAT_ID* formats, inst(String) in){
 	Number_Instance res = {0};			
 	u64 actual_len = Number.Formatter.Scan 	
-		(&res, formats, in);			
+		(generic &res, formats, in);			
 	*(double*)object = res.as_double;		
 return actual_len;
 }
@@ -278,7 +278,7 @@ u64 imethodimpl(Char, Print,, FORMAT_ID* formats, inst(StringBuilder) out){
 	char buff[4] = {0};
 	if(formats[FORMAT_STRINGS] == STRING_NUM)
 	    actual_len = Number.Formatter.Print(
-			&(Number_Instance){
+			generic &(Number_Instance){
 				.type = N_UNSIGNED,
 				.len = 0,
 				.as_u8 = *(char*)object,

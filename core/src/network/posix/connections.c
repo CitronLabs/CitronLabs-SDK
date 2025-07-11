@@ -270,7 +270,7 @@ errvt methodimpl(Connection, GetAddress,, void* address, void* multicast_address
 return error;
 }
 errvt imethodimpl(Connection, Close){
-	self_as(Connection)
+	self(Connection)
 	nonull(self);
 	
 	if(priv->watched)
@@ -327,7 +327,7 @@ construct(Connection,
 	      return NULL;
 	}
 
-	set_priv(Connection){
+	setpriv(Connection){
 		.fd = socket(domain, protocal, 0),
 		.settings = args.settings,
 		.sizeofaddr = XCAddrToUnix(
@@ -346,8 +346,6 @@ construct(Connection,
 	      ; return NULL;
 	}
 	
-	set_methods(Connection);
-
 	Map.Insert(connections, n(priv->fd), &self);
 
 return self;

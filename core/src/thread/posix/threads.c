@@ -93,7 +93,7 @@ void Thread_Sleep(u64 milliseconds){
 
 }
 errvt imethodimpl(Thread, Destroy){
-	self_as(Thread);
+	self(Thread);
 	nonull(self, return nullerr);
 	
 	if(priv->is_active) return ERR( 

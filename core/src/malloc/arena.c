@@ -1,64 +1,110 @@
 #include "../../include/std-all.h"
+#include <stdbool.h>
 
 private(Arena,
-	size_t max_size, current_size;
-	void* data,* top;
+	size_t max_size, alloc_size, current_size;
+	List(Buffer) arena_buffers;
+	bool isStatic;
 )
 
-void* imethodimpl(Arena, New,, u64 size, ...){
-	
-	self_as(Arena);
+errvt methodimpl(Arena, Reserve,, u64 num_bytes){
+	if(priv->alloc_size - priv->current_size > num_bytes) return OK;
+ 	
+}
+errvt methodimpl(Arena, Grow,, u64 num_bytes){
 
-	if(priv->current_size >= priv->max_size){
-		ERR(MEMERR_OVERFLOW, "size goes beyond the specified maximum");
-		return NULL;
+}
+void* methodimpl(Arena, Alloc,, u64 num_bytes){
+
+	inst(Buffer) alloc_buff = NULL;
+
+	if(priv->current_size + num_bytes > priv->alloc_size){
+		if(priv->isStatic){
+			ERR(MEMERR_OVERFLOW, "cannot grow a static arena");
+			return NULL;
+		}
+		if(priv->current_size + num_bytes > priv->max_size){
+			ERR(MEMERR_OVERFLOW, "size goes beyond the specified maximum");
+			return NULL;
+		}
+		u64 new_alloc_size = 
+			((priv->alloc_size / 2) + num_bytes) > priv->max_size ?
+			priv->max_size - priv->alloc_size : ((priv->alloc_size / 2) + num_bytes);
+
+		inst(Buffer) new_buff = new(Buffer, new_alloc_size);
+		List.Append(priv->arena_buffers, &new_buff, 1);
+
+		priv->alloc_size += new_alloc_size;
+	}else{
+	    ListForEach(priv->arena_buffers, inst(Buffer), buff){
+		if(!Buffer.isMaxed(buff) && 
+		   Buffer.getTotalSize(buff) > Buffer.getItemNum(buff) + num_bytes)
+		{
+			alloc_buff = buff;
+			break;
+		}
+    	    }
 	}
-	
-	if(priv->data + priv->current_size >= priv->top + size){
-	    priv->current_size += ((priv->current_size / 2 ) + size);
+	priv->current_size += num_bytes;
 
-	    priv->current_size = priv->current_size >= priv->max_size ?
-			priv->max_size	: priv->current_size;
-	
-	   u64 top_offset = priv->top - priv->data;
-	   priv->data = realloc(priv->data, priv->current_size);
-	   priv->top = priv->data + top_offset;
-	}
-	void* res = priv->top;
-	priv->top += size;
-
-return res;
+return Buffer.Allocator.New(generic alloc_buff, num_bytes, NULL);
 }
 
-void* imethodimpl(Arena, Resize,, void* instance, u64 size, ...){	
-	
-	self_as(Arena);
+void* imethodimpl(Arena, New,, u64 size, void* ex_args){ 
+	self(Arena); 
+return Arena.Alloc(self, size); 
+}
 
-	if(size == 0) return NULL;
+void* imethodimpl(Arena, Resize,, void* instance, u64 size, void* ex_args){ 
+	self(Arena); 
+	Arena.Grow(self, size);
+return instance;
+}
 
-	if(priv->current_size > size)
-		priv->data = realloc(priv->data, size);
+errvt imethodimpl(Arena, Delete,, void* instance, void* ex_args){
+return OK;
+}
 
+errvt imethodimpl(Arena, setMax,, u64 size){
+	self(Arena);
 	priv->max_size = size;
+return OK;
+}
+u64 imethodimpl(Arena, getBytesAlloced){
+	self(Arena);
+return priv->alloc_size;
+}
 
-return priv->data;
+bool imethodimpl(Arena, isStatic){ 
+	self(Arena);
+return priv->isStatic;
 }
 
 construct(Arena,
+	.Alloc = Arena_Alloc,
+	.Grow = Arena_Grow,
+	.Reserve = Arena_Reserve,
 	.Allocator = {
 		.New = Arena_New,
-		.Resize = Arena_Resize
+		.Resize = Arena_Resize,
+	  	.Delete = Arena_Delete,
+	  	.isStatic = Arena_isStatic,
+	  	.getBytesAlloced = Arena_getBytesAlloced,
+	  	.setMax = Arena_setMax
 	}
 ){
 	if(args.init_size == 0) {
 	    ERR(MEMERR_INVALIDSIZE, "initial size cannot be 0 for priv");
-	    return self;
+	    return NULL;
 	}
 
-	set_priv(Arena){
+	setpriv(Arena){
 		.max_size = UINT64_MAX,
-		.data = malloc(args.init_size),
-		.current_size = args.init_size,
+		.arena_buffers = newList(inst(Buffer)),
+		.alloc_size = args.init_size,
+		.current_size = 0
 	};
+
+return self;
 }
 
