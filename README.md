@@ -16,9 +16,11 @@ Please note that **Extra-C is currently under active development and is not yet 
 
 Your interest in Extra-C is appreciated. If you've found this repository, please check back periodically for updates on its progress.
 
-## What's Next?
+## Currently Working On
 
-The immediate focus is on establishing a robust build system and outlining clear guidelines for community contributions. Extra-C is envisioned to become a valuable resource for C developers.
+- Finishing the core library utilities
+- Providing a stable first build
+- Creating a test suite for integration testing of new features and changes
 
 ## Contact
 
