@@ -10,17 +10,6 @@
 #include "xc-user-config.h"
 #endif
 
-typedef enum DSN_field_type{
-	DSN_NULL,
-	DSN_NUMBER,
-	DSN_STRING,
-	DSN_LIST,
-	DSN_QUEUE,
-	DSN_STACK,
-	DSN_MAP,
-	DSN_STRUCT
-}DSN_field_type;
-
 #define getDSN_Type(var) _Generic((var),		\
 inst(Number)	: DSN_NUMBER,				\
 inst(String)	: DSN_STRING,				\
@@ -31,12 +20,22 @@ inst(Map)	: DSN_MAP,				\
 inst(Struct)	: DSN_STRUCT,				\
 default		: DSN_NULL)
 
+Enum(DSN_fieldType,
+	DSN_NULL,
+	DSN_NUMBER,
+	DSN_STRING,
+	DSN_LIST,
+	DSN_QUEUE,
+	DSN_STACK,
+	DSN_MAP,
+	DSN_STRUCT
+);
 
-typedef struct DSN_data{
-	DSN_field_type type;
+Type(DSN_data,
+	DSN_fieldType type;
 	void* data;
-}DSN_data;
-asClass(DSN_data){ passover }
+);
+
 
 /**
  * Extra-C List Data Structure
@@ -76,7 +75,7 @@ List.Cast(list, getDSN_Type((type){0}), sizeof(type))
 
 
 Class(List,
-__INIT(u64 init_size; u64 type_size; DSN_field_type dsn_type; void* literal;),
+__INIT(u64 init_size; u64 type_size; DSN_fieldType dsn_type; void* literal;),
 __FIELD(),
 
 	interface(Formatter);
@@ -95,7 +94,7 @@ __FIELD(),
 	inst(List)	method(List,SubList,, u64 index, u64 len);
 	errvt 		method(List,Merge,, inst(List) merged_list,u64 index);
 	errvt 		method(List,Grow,, u64 add_amount);
-	errvt   	method(List,Cast,, DSN_field_type dsn_type, u64 new_type_size);
+	errvt   	method(List,Cast,, DSN_fieldType dsn_type, u64 new_type_size);
 )
 
 /**
@@ -121,7 +120,7 @@ __FIELD(),
 
 
 Class(Stack,
-__INIT(u64 init_size; u64 type_size; DSN_field_type dsn_type; void* literal;),
+__INIT(u64 init_size; u64 type_size; DSN_fieldType dsn_type; void* literal;),
 __FIELD(),
 	
 	interface(Formatter);
@@ -154,7 +153,7 @@ __FIELD(),
 		getDSN_Type((type){0}),			\
 		(type[]){__VA_ARGS__})
 Class(Queue,
-__INIT(u64 init_size; u64 type_size;DSN_field_type dsn_type; void* literal;),
+__INIT(u64 init_size; u64 type_size; DSN_fieldType dsn_type; void* literal;),
 __FIELD(),
 
 	interface(Formatter);
@@ -197,12 +196,12 @@ __FIELD(__Base_Type_ID__ ID; void* data),
 			(data_entry[]){__VA_ARGS__})
 
 #define entry(key, data) data_entry
-typedef struct data_entry{
+
+Type(data_entry,
 	void* key;
 	void* data;
 	u32 hash;
-}data_entry;
-asClass(data_entry){ passover }
+);
 
 #define INVALID_MAPINDEX UINT32_MAX
 
@@ -210,9 +209,9 @@ Class(Map,
 __INIT(
       	u64 init_size; 
 	u64 key_type_size;
-	DSN_field_type key_dsn_type;
+	DSN_fieldType key_dsn_type;
 	u64 data_type_size; 
-	DSN_field_type data_dsn_type;
+	DSN_fieldType data_dsn_type;
 	u32(*key_hash_func)(inst(Object) object);
 	data_entry* literal;
 ),
@@ -283,6 +282,10 @@ __FIELD(Map(String, DSN_data) fields),
 	DSN_data*	method(Struct, SearchField,, inst(String) name);
 )
 
+Type(DSB_List,
+	
+
+);
 
 Class(DSN, 
 __INIT(cstr name; inst(String) source; List(entry(String,DSN)) imports), 

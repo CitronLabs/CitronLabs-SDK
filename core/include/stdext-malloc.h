@@ -30,20 +30,31 @@ Interface(Allocator,
 );
 
 Class(Buffer,
-__INIT(u64 size; u16 type_size),
-__FIELD(void* pointer),
+__INIT(u64 size; u16 type_size; bool isStatic),
+__FIELD(),
 	#define Buffer(type) inst(Buffer)
-	#define buffer(type, size) \
-      		init(Buffer, sizeof(Buffer) + sizeof_Buffer_Private + (sizeof(type) * size), size, sizeof(type))
+	
+	#define newBuffer(type, size)		 					\
+      		init(Buffer, malloc(							\
+			sizeof(Buffer) + sizeof_Buffer_Private + (sizeof(type) * size)),\
+	     		size, sizeof(type), isStatic					\
+	     	)
+	
+	#define pushBuffer(type, size)		 					\
+      		init(Buffer, alloca(							\
+			sizeof(Buffer) + sizeof_Buffer_Private + (sizeof(type) * size)),\
+	     		size, sizeof(type), isStatic					\
+	     	)
 
 	interface(Allocator);
 
 	bool method(Buffer, isMaxed);
-	u64  method(Buffer, getTotalSize);
-	u64  method(Buffer, getTypeSize);
-	u64  method(Buffer, getItemNum);
-      	u64  method(Buffer, realloc,, u64 num);
-      	u64  method(Buffer, cast,, u64 type_size);
+	pntr  method(Buffer, getPointer);
+	u64   method(Buffer, getTotalSize);
+	u64   method(Buffer, getTypeSize);
+	u64   method(Buffer, getItemNum);
+      	errvt method(Buffer, resize,, u64 num);
+      	errvt method(Buffer, cast,, u64 type_size);
 )
 
 Class(CMalloc,

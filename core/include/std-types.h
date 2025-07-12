@@ -82,6 +82,9 @@ typedef struct name##_Private{__VA_ARGS__}name##_Private; \
 	Interface(name, __VA_ARGS__)					\
 	extern name##_Interface name;					\
 
+#define Enum(name, ...) typedef enum {__VA_ARGS__} name; asClass(name){ passover }
+#define State(name, __INIT, ...) typedef enum {__VA_ARGS__} name; asClassExt(name, __INIT)
+
 #define Impl(name) name##_Interface name = 				\
 
 #define Class(name,__INIT, __FIELD, ...) 				\
