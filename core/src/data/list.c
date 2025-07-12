@@ -208,7 +208,7 @@ void* methodimpl(List,GetPointer,,u64 index){
 	return &(((u8*)priv->data)[index * priv->item_size]);
 }
 
-errvt methodimpl(List,Cast,, DSN_field_type new_type, u64 new_type_size){
+errvt methodimpl(List,Cast,, DSN_fieldType new_type, u64 new_type_size){
 	nonull(self, return nullerr)
 	
 	priv->items = (priv->items * priv->item_size) / new_type_size; 

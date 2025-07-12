@@ -3,7 +3,7 @@
 
 
 errvt imethodimpl(StringBuilder, Free){
-	inst(StringBuilder) self = object;
+	self(StringBuilder);
 	nonull(self, return nullerr);
 	del(priv->data);
 return OK;
@@ -129,7 +129,9 @@ inst(String) methodimpl(StringBuilder, CreateStr){
 return new(String, out_str, len);
 }
 
-u64 methodimpl(StringBuilder, Print,, FORMAT_ID* formats, inst(StringBuilder) out){
+u64 imethodimpl(StringBuilder, Print,, FORMAT_ID* formats, inst(StringBuilder) out){
+	
+	self(StringBuilder);
 
 	char buff[40];
 	List.Append(priv->data, "\0", 1);
@@ -153,7 +155,8 @@ u64 methodimpl(StringBuilder, Print,, FORMAT_ID* formats, inst(StringBuilder) ou
 return formated_len;
 }
 
-u64 methodimpl(StringBuilder, Scan,, FORMAT_ID* formats, inst(String) in){
+u64 imethodimpl(StringBuilder, Scan,, FORMAT_ID* formats, inst(String) in){
+	self(StringBuilder);
 
 return StringBuilder.Append(self, in);
 }
@@ -169,7 +172,8 @@ construct(StringBuilder,
 	.Replace = StringBuilder_Replace,
 	.Max = StringBuilder_Max,
 	.Set = StringBuilder_Set,
-	.Object= {.__DESTROY = StringBuilder_Free}
+	.Object = {.__DESTROY = StringBuilder_Free},
+	.Formatter = {.Print = StringBuilder_Print, .Scan = StringBuilder_Scan},
 ){
 	priv->data = new(List, 
 	 	.init_size = args.init_str == NULL ? 20 : args.init_str->len,

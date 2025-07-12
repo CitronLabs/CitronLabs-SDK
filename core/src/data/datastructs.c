@@ -30,19 +30,19 @@ errvt imethodimpl(Struct, __DESTROY){
 
 	    switch (field->type) {
 	    case DSN_LIST:{
-		List.Object.__DESTROY((inst(List))field->data);
+		List.Object.__DESTROY(generic (inst(List))field->data);
 	    break;}
 	    case DSN_QUEUE:{
-		Queue.Object.__DESTROY((inst(Queue))field->data);
+		Queue.Object.__DESTROY(generic (inst(Queue))field->data);
 	    break;}
 	    case DSN_STACK:{
-		Stack.Object.__DESTROY((inst(Stack))field->data);
+		Stack.Object.__DESTROY(generic (inst(Stack))field->data);
 	    break;}
 	    case DSN_MAP:{
-		Map.Object.__DESTROY((inst(Map))field->data);
+		Map.Object.__DESTROY(generic (inst(Map))field->data);
 	    break;}
 	    case DSN_STRING:{
-		String.Object.__DESTROY((inst(String))field->data);
+		String.Object.__DESTROY(generic (inst(String))field->data);
 	    break;}
 	    case DSN_NUMBER: break;
 	    case DSN_NULL:

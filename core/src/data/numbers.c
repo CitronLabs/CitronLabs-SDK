@@ -106,7 +106,7 @@ u64 imethodimpl(Number, Print,, FORMAT_ID* formats, inst(StringBuilder) out){
 	u64 formatted_len = 0;
 	char buff [50] = {0};
 	cstr format = NULL;
-	inst(Number) self = object;
+	self(Number);
 
 	if(formats[FORMAT_NUMS] != NUMS_DEFAULT)
 		switch(formats[FORMAT_NUMS]){
@@ -140,7 +140,7 @@ u64 imethodimpl(Number, Scan,, FORMAT_ID* formats, inst(String) in){
 	
 	FORMAT_ID number_format = NUMS_DEFAULT;
 	u64 cursor = 0;
-	inst(Number) self = object;
+	self(Number);
 	
 	if(in->txt[0] == '0'){
 		cursor++;
@@ -186,7 +186,6 @@ construct(Number,
 	  	.Print = Number_Print
 	}
 ){
-	set_methods(Number);
 	self->as_double = args.number;
 return self;
 }

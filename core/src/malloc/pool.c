@@ -12,7 +12,6 @@ void* methodimpl(Pool, Alloc,, u64 num){
 
 	inst(Buffer) alloc_buff = NULL;
 
-	 
 	if(priv->current_size + num > priv->alloc_size){
 		if(priv->isStatic){
 			ERR(MEMERR_OVERFLOW, "cannot grow a static pool");
@@ -91,7 +90,6 @@ construct(Pool,
 	  	.max_size = args.limit,
 		.current_size = args.init_size,
 		.member_size = args.member_size,
-		.data = alloc_new_pool(self, args.init_size)
 	};
 
 return self;

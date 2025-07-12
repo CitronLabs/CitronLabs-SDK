@@ -1,6 +1,6 @@
 #include "../datastructs.h"
 
-u64 parseListLikeDataStruct(inst(DSN) self, void* data, inst(String) in, DSN_field_type type, errvt(*append_func)(void*,void*,u64)){
+u64 parseListLikeDataStruct(inst(DSN) self, void* data, inst(String) in, DSN_fieldType type, errvt(*append_func)(void*,void*,u64)){
 	
 	u64 scanned_len = 0;
 
@@ -135,7 +135,7 @@ return scanned_len;
 u64 methodimpl(DSN, parseMap,, inst(Map)* data, inst(String) in){
 
 	u64 scanned_len = 0, prev_pos = 0;
-	DSN_field_type first_types[2] = {0};
+	DSN_fieldType first_types[2] = {0};
 	DSN_data key = {0}, value = {0};
 	data_entry currbucket = {0};
 	List(data_entry) buckets = pushList(data_entry);
@@ -280,5 +280,40 @@ return scanned_len;
 }
 
 
-u64 methodimpl(DSN, parseNumber,, inst(Number)* data, inst(String) in){}
-u64 methodimpl(DSN, parseString,, inst(String)* data, inst(String) in){}
+u64 methodimpl(DSN, parseNumber,, inst(Number)* data, inst(String) in){
+
+
+return 0;
+}
+u64 methodimpl(DSN, parseString,, inst(String)* data, inst(String) in){
+	
+	u64 scanned_len = 0;
+	inst(StringBuilder) strbldr = push(StringBuilder, NULL, UINT64_MAX);
+
+	if(
+	    in->txt[1] != '"'
+	)
+	{return 0;}
+
+	scanned_len++;
+
+	char buffer[256] = {0};
+	u64 cursor = 0;
+	loopat(i, scanned_len, in->len){
+		if(in->txt[i] == '"'){ break; }
+		
+		if(cursor == 255)
+			scanned_len += StringBuilder.Append(strbldr, str_cast(buffer, 256));
+		else{ 
+		    buffer[cursor] = in->txt[cursor];	
+		    cursor++;
+		}
+	}
+	buffer[cursor] = '\0';
+	scanned_len += StringBuilder.Append(strbldr, str_cast(buffer, 256));
+
+	*data = StringBuilder.CreateStr(strbldr);
+	pop(strbldr);
+
+return scanned_len;
+}

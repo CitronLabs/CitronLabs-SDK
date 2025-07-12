@@ -1,7 +1,7 @@
 #include "error.h"
 
 
-errvt methodimpl(Error, Set,, const char errmsg[], const char funcname[]){
+errvt methodimpl(Error, Set,, const cstr errmsg, const char funcname[]){
 
 	inst(Error) thrd_err = Thread.GetErr(Thread.GetCurrent());
 	u8 count = 0;

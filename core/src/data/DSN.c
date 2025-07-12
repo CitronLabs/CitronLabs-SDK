@@ -328,5 +328,5 @@ construct(DSN,
 	.searchField = DSN_searchField,
 ){ 
 	
-
+return self;
 }

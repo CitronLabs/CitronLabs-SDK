@@ -16,7 +16,7 @@ private(List,
 	u64 items_alloced, items, item_size, limit, 
 	    * free_slots_buff, free_slots_buff_alloced, free_slots_buff_size
 	;
-	DSN_field_type dsn_type;
+	DSN_fieldType dsn_type;
 )
 
 private(Map,
@@ -25,7 +25,7 @@ private(Map,
 	u32* bucket_indexes;
 	u32 default_index;
 	List(data_entry) buckets;
-	DSN_field_type key_dsn, data_dsn;
+	DSN_fieldType key_dsn, data_dsn;
 	u32(*key_hash_func)(inst(Object));
 )
 
@@ -34,7 +34,7 @@ private(Queue,
     	slot_status* writehead,* readhead,* start,* end, * jmp_point;
     	u16 itemsize;
 	u64 items, limit;
-	DSN_field_type dsn_type;
+	DSN_fieldType dsn_type;
 	void* to_pointer_buf;
 )
 
@@ -42,7 +42,7 @@ private(Stack,
 	void* start;
 	u64 allocednum, top, limit;
 	u16 itemsize;
-	DSN_field_type dsn_type;
+	DSN_fieldType dsn_type;
 )
 
 private(DSN,

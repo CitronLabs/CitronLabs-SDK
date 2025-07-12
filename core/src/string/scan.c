@@ -8,8 +8,8 @@
 #define scan_number(formatid, type) 				\
 	case formatid :{					\
 		Number_Instance res = {0};			\
-		actual_len = Number.Formatter.Scan 	\
-			(&res, formats, input);			\
+		actual_len = Number.Formatter.Scan 		\
+			(generic &res, formats, input);		\
 		*va_arg(args, type*) = res.as_##type;		\
 	break;}
 
@@ -34,7 +34,7 @@ u64 scanData(FORMAT_ID* formats, __Base_Type_ID__ typeid, va_list args, inst(Str
 
 		formats[NUMBERS_FORMAT] = NUMS_HEX;
 
-		actual_len = Number.Formatter.Scan(ptr_num,
+		actual_len = Number.Formatter.Scan(generic ptr_num,
 				formats,
 				input
 		);

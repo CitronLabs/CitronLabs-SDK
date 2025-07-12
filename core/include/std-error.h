@@ -104,7 +104,7 @@ __FIELD(errvt errorcode; cstr message;),
 	inst(Logger) STDLOG;
 
 	void method(Error, Print);
-	errvt method(Error, Set,, const char errname[], const char funcname[]);
+	errvt method(Error, Set,, const cstr errname, const char funcname[]);
       	void (*Show)();
       	void (*Clear)();
       	void (*Hide)();

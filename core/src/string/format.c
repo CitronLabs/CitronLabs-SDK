@@ -11,8 +11,8 @@
 			.len = num_len,				\
 			.as_##_type = va_arg(args, _type)	\
 		};						\
-		actual_len = Number.Formatter.Print 	\
-			(&res, formats, output);		\
+		actual_len = Number.Formatter.Print 		\
+			(generic &res, formats, output);	\
 	break;}
 
 u64 formatString(FORMAT_ID formats[FORMAT_DOMAIN_TOP], __Base_Type_ID__ typeid, va_list args, inst(StringBuilder) output){
@@ -48,7 +48,7 @@ u64 formatString(FORMAT_ID formats[FORMAT_DOMAIN_TOP], __Base_Type_ID__ typeid, 
 		char buff[3];
 		if(formats[FORMAT_STRINGS] == STRING_NUM)
 		    actual_len = Number.Formatter.Print(
-				&(Number_Instance){
+				generic &(Number_Instance){
 					.type = N_UNSIGNED,
 					.len = 0,
 					.as_u8 = va_arg(args, int),
@@ -68,7 +68,7 @@ u64 formatString(FORMAT_ID formats[FORMAT_DOMAIN_TOP], __Base_Type_ID__ typeid, 
 	break;}
 	case BASETYPE_FLOAT:{
 		    actual_len = Number.Formatter.Print(
-				&(Number_Instance){
+				generic &(Number_Instance){
 					.type = N_FLOATING,
 					.len = 3,
 					.as_u8 = va_arg(args, double),

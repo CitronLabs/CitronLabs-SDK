@@ -80,4 +80,5 @@ NEW_TEST("Domain Name Resolution"){
 
 
 }
+return TEST_RESULT;
 }

@@ -46,7 +46,7 @@ return scanned_len;
 
 u64 imethodimpl(String, Print,, FORMAT_ID* formats, inst(StringBuilder) out){
 	
-	inst(String) self = object;
+	self(String);
 
 	StringBuilder.Append(out, self);
 
@@ -55,10 +55,10 @@ return self->len;
 
 u64 imethodimpl(String, ScanFor,, FORMAT_ID* formats, inst(String) in){
 	
-	inst(String) self = object;
+	self(String);
 
 	if(self->txt == NULL) 
-		*self = *push(String, in->txt, self->len);
+		*self = *new(String, in->txt, self->len);
 	else
 	loop(i, self->len){
 		self->txt[i] = in->txt[i];

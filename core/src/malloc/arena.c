@@ -9,10 +9,11 @@ private(Arena,
 
 errvt methodimpl(Arena, Reserve,, u64 num_bytes){
 	if(priv->alloc_size - priv->current_size > num_bytes) return OK;
- 	
+ return OK;	
 }
 errvt methodimpl(Arena, Grow,, u64 num_bytes){
 
+ return OK;	
 }
 void* methodimpl(Arena, Alloc,, u64 num_bytes){
 
@@ -31,7 +32,7 @@ void* methodimpl(Arena, Alloc,, u64 num_bytes){
 			((priv->alloc_size / 2) + num_bytes) > priv->max_size ?
 			priv->max_size - priv->alloc_size : ((priv->alloc_size / 2) + num_bytes);
 
-		inst(Buffer) new_buff = new(Buffer, new_alloc_size);
+		inst(Buffer) new_buff = new(Buffer, new_alloc_size, 1, true);
 		List.Append(priv->arena_buffers, &new_buff, 1);
 
 		priv->alloc_size += new_alloc_size;

@@ -9,7 +9,6 @@
 #include "./time/time.c"
 #include "./malloc/malloc.c"
 
-
 __start{
 
 	println(YELLOW"--Extra C Tests--"NC);

@@ -1,6 +1,4 @@
-#pragma once
 #include "../../include/std-all.h"
-#include <stdio.h>
 
 #ifdef calloc
 #undef calloc

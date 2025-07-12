@@ -82,11 +82,9 @@ construct(TimeWatch,
 	.Start = TimeWatch_Start,
 	.Stop = TimeWatch_Stop,
 ){
-	set_priv(TimeWatch){
+	setpriv(TimeWatch){
 		.time_limit = args.limit
 	};
-
-	set_methods(TimeWatch);
 
 return self;
 }

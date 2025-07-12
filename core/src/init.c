@@ -25,6 +25,7 @@ return res;
 int main(int argc, cstr* argv){
 	if(init_ExtraC()) return -1;
 
+
 return extra_main(argc, argv);	
 }
 #define main extra_main

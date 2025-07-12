@@ -4,32 +4,6 @@
 #include "std-error.h"
 #include "std-types.h"
 
-typedef enum {CT_ASCI, CT_UTF8} chartype;
-
-typedef struct {
-	u64 str_offset;
-	u64 len;
-}str_regex_result;
-
-Class(StringBuilder,
-__INIT(inst(String) init_str; u64 limit;),
-__FIELD(),
-	#define endstr NULL, 0
-      	#define str_t String_Instance
-
-      	interface(Loggable);
-
-	u64 method(StringBuilder,Set,, ...);
-	u64 method(StringBuilder,Append,, inst(String) string, ...);
-	u64 method(StringBuilder,Prepend,, inst(String) string, ...);
-	u64 method(StringBuilder,Insert,, u64 index, inst(String) string, ...);
-	errvt method(StringBuilder,Replace,, u64 index, inst(String) string);
-	errvt method(StringBuilder,Clear);
-	errvt method(StringBuilder,Max,, u64 max_len);
-	str_t method(StringBuilder,GetStr);
-	inst(String) method(StringBuilder,CreateStr);
-)
-
 enum FORMAT_ID_DOMAIN{
 #ifdef __USER_TYPE_FORMAT_DOMAINS__
 	__USER_TYPE_FORMAT_DOMAINS__
@@ -79,6 +53,35 @@ Static(FormatUtils,
 	u64 (*FormatVArgs)(inst(StringBuilder) out, va_list args);
 	u64 (*ScanVArgs)(inst(String) in, va_list args);
 )
+
+
+Class(StringBuilder,
+__INIT(inst(String) init_str; u64 limit;),
+__FIELD(),
+	#define endstr NULL, 0
+      	#define str_t String_Instance
+
+      	interface(Loggable);
+      	interface(Formatter);
+
+	u64 method(StringBuilder,Set,, ...);
+	u64 method(StringBuilder,Append,, inst(String) string, ...);
+	u64 method(StringBuilder,Prepend,, inst(String) string, ...);
+	u64 method(StringBuilder,Insert,, u64 index, inst(String) string, ...);
+	errvt method(StringBuilder,Replace,, u64 index, inst(String) string);
+	errvt method(StringBuilder,Clear);
+	errvt method(StringBuilder,Max,, u64 max_len);
+	str_t method(StringBuilder,GetStr);
+	inst(String) method(StringBuilder,CreateStr);
+)
+
+
+Enum(chartype, CT_ASCI, CT_UTF8);
+
+Type(str_regex_result,
+	u64 str_offset;
+	u64 len;
+);
 
 Class(String,
 __INIT(cstr c_str; u64 len; bool inline_alloc),

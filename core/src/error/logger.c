@@ -39,7 +39,7 @@ static const data(Logger) std_logger = {
 	}
 };
 
-extern inst(Logger) error_logger = (inst(Logger))&std_logger;
+inst(Logger) error_logger = (inst(Logger))&std_logger;
 
 errvt methodimpl(Logger, Log,, LOG_TYPE type, inst(String) text){
 	nonull(self, return nullerr);

@@ -23,8 +23,11 @@ NEW_TEST("Arena Allocator Tests"){
 			PASS_TEST
 	}
 	NEW_SUBTEST("Setting Max"){
-		if(Arena.Allocator.Resize(generic arena, NULL, sizeof(u32) * 4, NULL) == )
-
+		if(Arena.Allocator.Resize(generic arena, NULL, sizeof(u32) * 4, NULL) != ERR_NONE){
+			FAIL_TEST
+			goto skip;
+		}else
+			PASS_TEST
 	}
 
 

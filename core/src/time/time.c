@@ -137,7 +137,7 @@ return false;
 }
 u64 imethodimpl(TimeLong, Print,, FORMAT_ID* formats, inst(StringBuilder) out){
 
-	inst(TimeLong) self = object;
+	self(TimeLong);
 
 	u64 formated_len =
 	StringBuilder.Append(out, NULL,
@@ -170,14 +170,12 @@ construct(TimeLong,
       	self->week = args.week;
       	self->day = args.day;
 	
-	set_methods(TimeLong);
-
 return self;
 }
 
 u64 imethodimpl(TimeShort, Print,, FORMAT_ID* formats, inst(StringBuilder) out){
 	
-	inst(TimeShort) self = object;
+	self(TimeShort);
 
 	u64 formated_len =
 	StringBuilder.Append(out, NULL,
@@ -188,7 +186,7 @@ return formated_len;
 
 u64 imethodimpl(TimeShort, Scan,, FORMAT_ID* formats, inst(String) in){
 	
-	inst(TimeShort) self = object;
+	self(TimeShort);
 	
 	TimeShort_Instance result = {
 		.__methods = self->__methods,
@@ -238,14 +236,12 @@ construct(TimeShort,
 	self->minute = args.minute;
 	self->second = args.second;
 	
-	set_methods(TimeShort);
-
 return self;
 }
 
 u64 imethodimpl(TimeTiny, Print,, FORMAT_ID* formats, inst(StringBuilder) out){
 
-	inst(TimeTiny) self = object;
+	self(TimeTiny);
 
 	u64 formated_len =
 	StringBuilder.Append(out, NULL, 
@@ -278,14 +274,12 @@ construct(TimeTiny,
 	self->microsecond = args.microsecond;
 	self->nanosecond = args.nanosecond;
 	
-	set_methods(TimeTiny);
-
 return self;
 }
 
 u64 imethodimpl(Time, Print,, FORMAT_ID* formats, inst(StringBuilder) out){
 	
-	inst(Time) self = object;
+	self(Time);
 
 	return StringBuilder.Append(out, NULL,
 		$(self->seconds), " secs, ",
@@ -312,8 +306,6 @@ construct(Time,
 
 	self->nanosec = args.nanosec;
 	self->seconds = args.seconds;
-
-	set_methods(Time);
 
 return self;
 }
