@@ -1,0 +1,13 @@
+import EBModule
+
+{
+	C = EBModule.Define: {
+		description = "C Language Build API",
+		language = "C",
+		sources = [
+			"./src/C/linkC.c",
+			"./src/C/compileC.c",
+		],
+		API = ["./langs/Lang-C.h"]
+	}
+}
