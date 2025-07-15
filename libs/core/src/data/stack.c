@@ -101,7 +101,7 @@ errvt imethodimpl(Stack, Free){
 return OK;
 }
 
-u64 imethodimpl(Stack, Scan,, FORMAT_ID* formats, inst(String) in){
+u64 imethodimpl(Stack, Scan,, FormatID* formats, inst(String) in){
 	nonull(object, return 0);
 	self(Stack);
 	
@@ -117,7 +117,7 @@ u64 imethodimpl(Stack, Scan,, FORMAT_ID* formats, inst(String) in){
 return len;
 }
 
-u64 imethodimpl(Stack, Print,, FORMAT_ID* formats, inst(StringBuilder) out){
+u64 imethodimpl(Stack, Print,, FormatID* formats, inst(StringBuilder) out){
 	nonull(object, return 0);
 	self(Stack); 
 

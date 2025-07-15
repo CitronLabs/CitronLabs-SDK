@@ -1,5 +1,5 @@
 #pragma once
-#include "../../include/std-all.h"
+#include "../../include/all.h"
 
 private(Logger,
 	inst(String) name;

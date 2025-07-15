@@ -1,14 +1,16 @@
 #pragma once
-#include "std-libc.h"
-#include "std-utils.h"
+#include "./libc.h"
+#include "./utils.h"
 #include <uchar.h>
 
 /*------------------------------|
        Class Preprocessors	|
 -------------------------------*/
+#define fn(name, ...) (*name)(__VA_ARGS__)
 
 #define method(Class,name, ...) (*name)(Class##_Instance* self __VA_ARGS__)
 #define imethod(name, ...) (*name)(inst(Object) object __VA_ARGS__)
+#define vmethod(name, ...) (*name)(__VA_ARGS__);
 
 #define methodimpl(Class,Routine, ...) 			\
 	Class##_##Routine(Class##_Instance* self __VA_ARGS__)
@@ -16,11 +18,18 @@
 #define imethodimpl(Class,Routine, ...) 		\
 	Class##_##Routine(inst(Object) object __VA_ARGS__)
 
+#define vmethodimpl(Class,Routine, ...) 		\
+	Class##_##Routine(__VA_ARGS__)
+
 #define __INIT(...) __VA_ARGS__;
 #define __FIELD(...) __VA_ARGS__;
 #define __METHODS(...) __VA_ARGS__
+
 #define interface(Class) const Class##_Interface Class
 #define inhert(Class) Class##_Instance Class
+
+#define interfaceAs(Class) const Class##_Interface 
+#define inhertAs(Class) Class##_Instance 
 
 #define construct(name, ...)						\
 	const u64 sizeof_##name##_Private = sizeof(name##_Private);	\
@@ -59,7 +68,7 @@ typedef struct name##_Private{__VA_ARGS__}name##_Private; \
 	static const u64 sizeof_##type##_Private = 0;			\
 	typedef type type##_Instance; 					\
 	typedef type type##_ConstructArgs;				\
-	inline static type##_Instance* type##_Construct(		\
+	static type##_Instance* type##_Construct(			\
 		type##_ConstructArgs args,				\
 		type##_Instance* self)					\
 
@@ -67,31 +76,55 @@ typedef struct name##_Private{__VA_ARGS__}name##_Private; \
 	static const u64 sizeof_##type##_Private = 0;			\
 	typedef type type##_Instance; 					\
 	typedef struct {construct_args;} type##_ConstructArgs;		\
-	inline static type##_Instance* type##_Construct(		\
+	static type##_Instance* type##_Construct(			\
 		type##_ConstructArgs args,				\
 		type##_Instance* self)					\
 
 
-#define Interface(name, ...) \
+#define Interface(name, ...) 						\
 	typedef struct name##_Interface					\
 	{__VA_ARGS__} name##_Interface; 				\
 
-#define Type(name, ...) typedef struct{__VA_ARGS__}name; asClass(name){ passover }
-#define Data(name, __INIT,...) typedef struct{__VA_ARGS__}name; asClassExt(name, __INIT)
+#define Type(name, ...) 						\
+	typedef struct name name; 					\
+	typedef struct name{__VA_ARGS__}name; 				\
+	asClass(name){ passover }
+
+
+#define Data(name, __INIT,...) 						\
+	typedef struct name name; 					\
+	typedef struct name{__VA_ARGS__}name;				\
+	asClassExt(name, __INIT)
+
+
 #define Static(name, ...)						\
 	Interface(name, __VA_ARGS__)					\
 	extern name##_Interface name;					\
 
-#define Enum(name, ...) typedef enum {__VA_ARGS__} name; asClass(name){ passover }
-#define State(name, __INIT, ...) typedef enum {__VA_ARGS__} name; asClassExt(name, __INIT)
+#define Enum(name, ...) 						\
+	typedef enum {__VA_ARGS__} name; 				\
+	asClass(name){ passover }
+
+#define State(name, __INIT, ...) 					\
+	typedef enum {__VA_ARGS__} 					\
+	name; asClassExt(name, __INIT)
 
 #define Impl(name) name##_Interface name = 				\
+
+#define Decl(name) 							\
+	typedef struct name##_Instance name##_Instance; 		\
+	typedef struct name##_ConstructArgs name##_ConstructArgs;	\
+	typedef struct name##_Interface	name##_Interface;		\
+	name##_Instance* name##_Construct(				\
+		name##_ConstructArgs args,				\
+		name##_Instance* self);					\
 
 #define Class(name,__INIT, __FIELD, ...) 				\
 	typedef struct name##_Private name##_Private;			\
 	extern const u64 sizeof_##name##_Private;			\
 	typedef struct name##_Instance name##_Instance; 		\
-	typedef struct {__INIT} name##_ConstructArgs;			\
+	typedef struct name##_ConstructArgs				\
+	{__INIT} name##_ConstructArgs;					\
 	Interface(name, interface(Object); __VA_ARGS__) 		\
 	extern name##_Interface name;					\
 	typedef struct name##_Instance{					\

@@ -1,14 +1,7 @@
 #pragma once
-#include "std-libc.h"
-#include "std-utils.h"
-#include "std-error.h"
-#include "std-types.h"
-#include "stdext-io.h"
-#include "stdext-string.h"
-
-#ifndef __USER_CONFIG__
-#include "xc-user-config.h"
-#endif
+#include "./utils.h"
+#include "./types.h"
+#include "./stringutils.h"
 
 #define getDSN_Type(var) _Generic((var),		\
 inst(Number)	: DSN_NUMBER,				\
@@ -30,12 +23,7 @@ Enum(DSN_fieldType,
 	DSN_MAP,
 	DSN_STRUCT
 );
-
-Type(DSN_data,
-	DSN_fieldType type;
-	void* data;
-);
-
+typedef struct DSN_data DSN_data;
 
 /**
  * Extra-C List Data Structure
@@ -57,13 +45,13 @@ Type(DSN_data,
 #define LISTINDEX_READ false
 
 #define List(type) inst(List) 
-#define newList(type, ...) new(List, 				\
+#define newList(type, ...) new(List, 			\
 		sizeof((type[]){__VA_ARGS__}) 		\
 		/ sizeof(type),				\
 		sizeof(type),	 			\
 		getDSN_Type((type){0}),			\
 		(type[]){__VA_ARGS__})
-#define pushList(type, ...) push(List, 				\
+#define pushList(type, ...) push(List, 			\
 		sizeof((type[]){__VA_ARGS__}) 		\
 		/ sizeof(type),				\
 		sizeof(type),	 			\
@@ -102,14 +90,14 @@ __FIELD(),
  *-----*/
 
 #define Stack(type) inst(Stack)
-#define newStack(type, ...) new(Stack,				\
+#define newStack(type, ...) new(Stack,			\
 		sizeof((type[]){__VA_ARGS__}) 		\
 		/ sizeof(type),				\
 		sizeof(type),	 			\
 		getDSN_Type((type){0}),			\
 		(type[]){__VA_ARGS__})
 
-#define pushStack(type, ...) push(Stack,			\
+#define pushStack(type, ...) push(Stack,		\
 		sizeof((type[]){__VA_ARGS__}) 		\
 		/ sizeof(type),				\
 		sizeof(type),	 			\
@@ -140,13 +128,13 @@ __FIELD(),
  *-----*/
 
 #define Queue(type) inst(Queue)
-#define newQueue(type, ...) new(Queue,				\
+#define newQueue(type, ...) new(Queue,			\
 		sizeof((type[]){__VA_ARGS__}) 		\
 		/ sizeof(type),				\
 		sizeof(type),	 			\
 		getDSN_Type((type){0}),			\
 		(type[]){__VA_ARGS__})
-#define pushQueue(type, ...) push(Queue,			\
+#define pushQueue(type, ...) push(Queue,		\
 		sizeof((type[]){__VA_ARGS__}) 		\
 		/ sizeof(type),				\
 		sizeof(type),	 			\
@@ -178,22 +166,24 @@ __FIELD(__Base_Type_ID__ ID; void* data),
  *-----*/
 
 #define Map(key,value) inst(Map)
-#define newMap(keytype, datatype, ...) new(Map,	 				\
-			sizeof((data_entry[]){__VA_ARGS__}) / sizeof(data_entry),\
-			sizeof(data(keytype)),	 				\
-			getDSN_Type((inst(keytype)){0}),			\
-			sizeof(data(datatype)),					\
-			getDSN_Type((inst(datatype)){0}),			\
-			(getMethods(keytype)).Object.__HASH,			\
-			(data_entry[]){__VA_ARGS__})
-#define pushMap(keytype, datatype, ...) push(Map,	 			\
-			sizeof((data_entry[]){__VA_ARGS__}) / sizeof(data_entry),\
-			sizeof(data(keytype)),	 				\
-			getDSN_Type((inst(keytype)){0}),			\
-			sizeof(data(datatype)),					\
-			getDSN_Type((inst(datatype)){0}),			\
-			(getMethods(keytype)).Object.__HASH,			\
-			(data_entry[]){__VA_ARGS__})
+#define newMap(keytype, datatype, ...) new(Map,	 	\
+		sizeof((data_entry[]){__VA_ARGS__}) 	\
+			/ sizeof(data_entry),		\
+		sizeof(data(keytype)),	 		\
+		getDSN_Type((inst(keytype)){0}),	\
+		sizeof(data(datatype)),			\
+		getDSN_Type((inst(datatype)){0}),	\
+		(getMethods(keytype)).Object.__HASH,	\
+		(data_entry[]){__VA_ARGS__})
+#define pushMap(keytype, datatype, ...) push(Map,	\
+		sizeof((data_entry[]){__VA_ARGS__}) 	\
+			/ sizeof(data_entry),		\
+		sizeof(data(keytype)),	 		\
+		getDSN_Type((inst(keytype)){0}),	\
+		sizeof(data(datatype)),			\
+		getDSN_Type((inst(datatype)){0}),	\
+		(getMethods(keytype)).Object.__HASH,	\
+		(data_entry[]){__VA_ARGS__})
 
 #define entry(key, data) data_entry
 
@@ -222,7 +212,7 @@ __FIELD(),
 	errvt 		method(Map,Limit,, u64 limit);
 	errvt 		method(Map,SetDefault,, void* data);
 	List(data_entry)method(Map,GetEntries);
-	errvt 		method(Map,Insert,, void* key, void* value);
+	errvt 		method(Map,Insert,, void* key, void* val);
 	void* 		method(Map,Search,, void* key);
 	u32 		method(Map,SearchIndex,, void* key);
 	void* 		method(Map,Index,, u32 index);
@@ -264,9 +254,9 @@ __FIELD(
 
 
 #define struct(allocmethod, ...) 		\
-	allocmethod(Struct, 		\
+	allocmethod(Struct, 			\
 	     (data_entry[]){__VA_ARGS__}, 	\
-	     sizeof((data_entry[]){__VA_ARGS__}) \
+	     sizeof((data_entry[]){__VA_ARGS__})\
 	     / sizeof(data_entry)		\
 	)
 
@@ -281,6 +271,20 @@ __FIELD(Map(String, DSN_data) fields),
 	errvt 		method(Struct, Merge,, inst(Struct) datastruct);
 	DSN_data*	method(Struct, SearchField,, inst(String) name);
 )
+
+Type(DSN_data,
+	DSN_fieldType type;
+	union{
+		inst(Number)	asNumber;
+		inst(String)	asString;
+		inst(List)  	asList;
+		inst(Queue) 	asQueue;
+		inst(Stack) 	asStack;
+		inst(Map)   	asMap;
+		inst(Struct)	asStruct;
+		void* 		data;
+     	};
+);
 
 Type(DSB_List,
 	

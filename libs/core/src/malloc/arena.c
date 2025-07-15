@@ -1,4 +1,4 @@
-#include "../../include/std-all.h"
+#include "../../include/all.h"
 #include <stdbool.h>
 
 private(Arena,

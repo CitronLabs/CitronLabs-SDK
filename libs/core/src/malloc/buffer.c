@@ -1,4 +1,4 @@
-#include "../../include/std-all.h"
+#include "../../include/all.h"
 
 private(Buffer,
 	u64 type_size, size, alloced_size;

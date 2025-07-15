@@ -1,4 +1,4 @@
-#include "./string.h"
+#include "./strings.h"
 
 #define ESC_VALUE 0
 #define FMT_VALUE 1
@@ -14,7 +14,7 @@
 	break;}
 
 
-u64 scanData(FORMAT_ID* formats, __Base_Type_ID__ typeid, va_list args, inst(String) input, u64 cursor){
+u64 scanData(FormatID* formats, __Base_Type_ID__ typeid, va_list args, inst(String) input, u64 cursor){
 	
 	u64 actual_len = 0;
 	
@@ -22,7 +22,7 @@ u64 scanData(FORMAT_ID* formats, __Base_Type_ID__ typeid, va_list args, inst(Str
 
 	switch(typeid){
 	case BASETYPE_POINTER :{
-		FORMAT_ID temp_store = formats[NUMBERS_FORMAT];
+		FormatID temp_store = formats[NUMBERS_FORMAT];
 
 		void** ptr_res = va_arg(args, void**);
 
@@ -105,7 +105,7 @@ u64 Scan_VArgs(inst(String) str, va_list args){
 	bool quit = false;
 	u64 cursor = 0;
 	
-	FORMAT_ID formats[FORMAT_DOMAIN_TOP + 1];
+	FormatID formats[FORMAT_DOMAIN_TOP + 1];
 	loop(i, FORMAT_DOMAIN_TOP + 1)
 		formats[i] = __default_formats[i];
 
@@ -131,14 +131,14 @@ u64 Scan_VArgs(inst(String) str, va_list args){
 		cursor += scanned_len;
 	    break;}
 	    case FMT_VALUE :{
-		enum FORMAT_ID_DOMAIN domain = va_arg(args, enum FORMAT_ID_DOMAIN);
+		enum FormatID_DOMAIN domain = va_arg(args, enum FORMAT_ID_DOMAIN);
 		
 		if(domain > FORMAT_DOMAIN_TOP){ 
 			ERR(STRINGERR_FORMAT, "invalid format");
 	       		return 0;
 		}
 
-		formats[domain] = va_arg(args, FORMAT_ID);
+		formats[domain] = va_arg(args, FormatID);
 	    break;}
 	    default:{
 		loop(i, str->len - cursor){

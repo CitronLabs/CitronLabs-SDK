@@ -1,23 +1,11 @@
 #pragma once
-#include "std-libc.h"
-#include "std-error.h"
-#include "std-types.h"
-#include "std-utils.h"
+#include "./all.h"
 
-#ifndef __USER_CONFIG__
-#include "xc-user-config.h"
-#endif
-
-#if STDMALLOC_HIJACKMALLOC
+#if __HijackMalloc
 #define malloc(size) CMalloc.Allocator.New(generic c_malloc, size, NULL)
 #define calloc(nmemb, size) CMalloc.Allocator.New(generic c_malloc, nmemb, &(u64){size}) 
 #define realloc(data, size) CMalloc.Allocator.Resize(generic c_malloc, data, size, NULL) 
 #define free(ptr) CMalloc.Allocator.Delete(generic c_malloc, ptr, NULL)
-#endif
-
-
-#ifdef EXPOSE_INIT 
-	errvt init_stdExtMalloc();
 #endif
 
 Interface(Allocator,

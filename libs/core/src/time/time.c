@@ -135,7 +135,7 @@ bool methodimpl(Time, Compare,, inst(Time) time_cmp, inst(Time) tolerence){
 		
 return false;
 }
-u64 imethodimpl(TimeLong, Print,, FORMAT_ID* formats, inst(StringBuilder) out){
+u64 imethodimpl(TimeLong, Print,, FormatID* formats, inst(StringBuilder) out){
 
 	self(TimeLong);
 
@@ -151,7 +151,7 @@ u64 imethodimpl(TimeLong, Print,, FORMAT_ID* formats, inst(StringBuilder) out){
 return formated_len;
 }
 
-u64 imethodimpl(TimeLong, Scan,, FORMAT_ID* formats, inst(String) in){
+u64 imethodimpl(TimeLong, Scan,, FormatID* formats, inst(String) in){
 	u64 scanned_len = 0;
 
 return scanned_len;
@@ -173,7 +173,7 @@ construct(TimeLong,
 return self;
 }
 
-u64 imethodimpl(TimeShort, Print,, FORMAT_ID* formats, inst(StringBuilder) out){
+u64 imethodimpl(TimeShort, Print,, FormatID* formats, inst(StringBuilder) out){
 	
 	self(TimeShort);
 
@@ -184,7 +184,7 @@ u64 imethodimpl(TimeShort, Print,, FORMAT_ID* formats, inst(StringBuilder) out){
 return formated_len;
 }
 
-u64 imethodimpl(TimeShort, Scan,, FORMAT_ID* formats, inst(String) in){
+u64 imethodimpl(TimeShort, Scan,, FormatID* formats, inst(String) in){
 	
 	self(TimeShort);
 	
@@ -239,7 +239,7 @@ construct(TimeShort,
 return self;
 }
 
-u64 imethodimpl(TimeTiny, Print,, FORMAT_ID* formats, inst(StringBuilder) out){
+u64 imethodimpl(TimeTiny, Print,, FormatID* formats, inst(StringBuilder) out){
 
 	self(TimeTiny);
 
@@ -254,7 +254,7 @@ u64 imethodimpl(TimeTiny, Print,, FORMAT_ID* formats, inst(StringBuilder) out){
 return formated_len;
 }
 
-u64 imethodimpl(TimeTiny, Scan,, FORMAT_ID* formats, inst(String) in){
+u64 imethodimpl(TimeTiny, Scan,, FormatID* formats, inst(String) in){
 	u64 scanned_len = 0;
 
 return scanned_len;
@@ -277,7 +277,7 @@ construct(TimeTiny,
 return self;
 }
 
-u64 imethodimpl(Time, Print,, FORMAT_ID* formats, inst(StringBuilder) out){
+u64 imethodimpl(Time, Print,, FormatID* formats, inst(StringBuilder) out){
 	
 	self(Time);
 

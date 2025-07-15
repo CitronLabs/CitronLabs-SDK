@@ -237,7 +237,7 @@ errvt methodimpl(Map, Limit,, u64 limit){
 	return List.Limit(priv->buckets, limit);
 }
 
-u64 imethodimpl(Map, Scan,, FORMAT_ID* formats, inst(String) in){
+u64 imethodimpl(Map, Scan,, FormatID* formats, inst(String) in){
 	nonull(object, return 0);
 	self(Map);
 	
@@ -253,7 +253,7 @@ u64 imethodimpl(Map, Scan,, FORMAT_ID* formats, inst(String) in){
 return len;
 }
 
-u64 imethodimpl(Map, Print,, FORMAT_ID* formats, inst(StringBuilder) out){
+u64 imethodimpl(Map, Print,, FormatID* formats, inst(StringBuilder) out){
 
 	self(Map)
 

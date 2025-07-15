@@ -53,7 +53,7 @@ errvt imethodimpl(Struct, __DESTROY){
 return OK;
 }
 
-u64 imethodimpl(Struct, Scan,, FORMAT_ID* formats, inst(String) in){
+u64 imethodimpl(Struct, Scan,, FormatID* formats, inst(String) in){
 	nonull(object, return 0);
 	self(Struct);
 	
@@ -69,7 +69,7 @@ u64 imethodimpl(Struct, Scan,, FORMAT_ID* formats, inst(String) in){
 return len;
 }
 
-u64 imethodimpl(Struct, Print,, FORMAT_ID* formats, inst(StringBuilder) out){
+u64 imethodimpl(Struct, Print,, FormatID* formats, inst(StringBuilder) out){
 	nonull(object, return 0;)
 	self(Struct); 
 	

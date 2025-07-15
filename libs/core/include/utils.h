@@ -1,5 +1,5 @@
 #pragma once
-#include "std-libc.h"
+#include "./libc.h"
 
 #define loop(loopvar, num) for(int loopvar = 0; loopvar < num; loopvar++)
 #define loopat(loopvar, init, num) for(int loopvar = init; loopvar < num; loopvar++)

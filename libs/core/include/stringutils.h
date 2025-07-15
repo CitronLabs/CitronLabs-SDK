@@ -1,55 +1,45 @@
 #pragma once
-#include "std-libc.h"
-#include "std-utils.h"
-#include "std-error.h"
-#include "std-types.h"
+#define __FORMAT_CODES__
+#include "./types.h"
+#include "./error.h"
+#undef __ERROR_CODES__
 
-enum FORMAT_ID_DOMAIN{
-#ifdef __USER_TYPE_FORMAT_DOMAINS__
-	__USER_TYPE_FORMAT_DOMAINS__
-#endif
-	FORMAT_NUMS, FORMAT_STRINGS, FORMAT_DATA,
+typedef enum FormatID{
+	#define FORMAT(domain, default, ...) __VA_ARGS__,
+		#include "config.h"
+	#undef FORMAT
+}FormatID;
+
+typedef enum Format_Domain{
+	#define FORMAT(domain, default, ...) FORMAT_##domain,
+		#include "config.h"
+	#undef FORMAT
+	FORMAT_DOMAIN_TOP
+}Format_Domain;
+
+
+static const FormatID __default_formats[] = {
+	#define FORMAT(domain, default, ...) [FORMAT_##domain] = default,
+		#include "config.h"
+	#undef FORMAT
 };
-typedef enum {
-	NUMS_REG, NUMS_HEX, NUMS_FLOAT, NUMS_BIN,
-	STRING_REG, STRING_WORD, STRING_NUM, 
-	DATA_DSN, DATA_DEBUG,
-#ifdef __USER_TYPE_FORMAT__
-	__USER_TYPE_FORMAT__
-#endif
-}FORMAT_ID;
-
-#define NUMS_DEFAULT NUMS_REG
-#define STRING_DEFAULT STRING_REG
-#define DATA_DEFAULT DATA_DSN
-
-#define FORMAT_DOMAIN_TOP FORMAT_DATA
-
-static const FORMAT_ID __default_formats[FORMAT_DOMAIN_TOP + 1] = 
-	{
-	[FORMAT_NUMS] = NUMS_DEFAULT,
-	[FORMAT_DATA] = DATA_DEFAULT,
-	[FORMAT_STRINGS] = STRING_DEFAULT,
-	#ifdef __USER_TYPE_FORMAT_DEFAULTS__
-		__USER_TYPE_FORMAT_DEFAULTS__
-	#endif
-	}; 
-
-#define FMT ((void*)1)
-#define F(format_type, format, ...) 				\
-	FMT, FORMAT_##format_type, format_type##_##format,	\
-	__VA_ARGS__, 						\
-	FMT,FORMAT_##format_type, format_type##_##format
 
 typedef struct String_Instance String_Instance;
 typedef struct StringBuilder_Instance StringBuilder_Instance;
 
 Interface(Formatter,
-	u64 imethod(Scan,, FORMAT_ID* format, inst(String) in);
-	u64 imethod(Print,, FORMAT_ID* format, inst(StringBuilder) out);
+	u64 imethod(Scan,, FormatID* format, inst(String) in);
+	u64 imethod(Print,, FormatID* format, inst(StringBuilder) out);
 )
 
 Static(FormatUtils,
+
+	#define FMT ((pntr)1)
+	#define F(format_type, format, ...) 				\
+		FMT, FORMAT_##format_type, format_type##_##format,	\
+		__VA_ARGS__, 						\
+		FMT,FORMAT_##format_type, format_type##_##format
+
 	u64 (*FormatVArgs)(inst(StringBuilder) out, va_list args);
 	u64 (*ScanVArgs)(inst(String) in, va_list args);
 )
@@ -129,6 +119,14 @@ __FIELD(u64 len; cstr txt; chartype type;),
 	#define str_cutf(str, by) str->txt = &str->txt[by]; str->len = str->len - by;
 
       	#define str_view(str, start, end) (&(str_t){NULL, &String, end - start, &str->txt[start]})
+	
+	#define CAT_XCSTRING false
+	#define CAT_CSTRING  true
+
+	#define cat(...)     (String.Cat(push(String), CAT_CSTRING, __VA_ARGS__))
+	#define catNew(...)  (String.Cat(new(String), CAT_CSTRING, __VA_ARGS__))
+	#define xcat(...)    (String.Cat(push(String), CAT_XCSTRING, __VA_ARGS__))
+	#define xcatNew(...) (String.Cat(new(String), CAT_XCSTRING, __VA_ARGS__))
 
 	#define switchs(string) inst(String) __string__switch = string; loop(__loop_once__,1)
 	#define cases(str) if(String.Compare(__string__switch, s(str)))
@@ -136,9 +134,10 @@ __FIELD(u64 len; cstr txt; chartype type;),
 	
 	interface(Formatter);
 
-	u64 method(String, Scan,, ...);
-	errvt method(String, ModCharLen,, chartype type);
-	bool method(String, Compare,, inst(String) string2);
-	i64 method(String, Regex,, inst(String) regex, str_regex_result* result_buffer, size_t buffer_max);
-	inst(String) method(String, Copy);
+	u64 		method(String, Scan,, ...);
+	errvt 		method(String, ModCharLen,, chartype type);
+	bool 		method(String, Compare,, inst(String) string2);
+	i64 		method(String, Regex,, inst(String) regex, str_regex_result* result_buffer, size_t buffer_max);
+	inst(String) 	method(String, Copy);
+	inst(String) 	method(String, Cat,, bool usingCstr, ...);
 )

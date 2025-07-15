@@ -1,4 +1,4 @@
-#include "../../include/std-all.h"
+#include "../../include/all.h"
 
 private(Pool,
 	size_t max_size, alloc_size, current_size;

@@ -201,7 +201,7 @@ errvt imethodimpl(Queue,Free){
 return OK;
 }
 
-u64 imethodimpl(Queue, Scan,, FORMAT_ID* formats, inst(String) in){
+u64 imethodimpl(Queue, Scan,, FormatID* formats, inst(String) in){
 	nonull(object, return 0);
 	self(Queue);
 	
@@ -217,7 +217,7 @@ u64 imethodimpl(Queue, Scan,, FORMAT_ID* formats, inst(String) in){
 return len;
 }
 
-u64 imethodimpl(Queue, Print,, FORMAT_ID* formats, inst(StringBuilder) out){
+u64 imethodimpl(Queue, Print,, FormatID* formats, inst(StringBuilder) out){
 	nonull(object, return 0);
 	self(Queue)
 

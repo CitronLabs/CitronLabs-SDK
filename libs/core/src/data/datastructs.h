@@ -1,5 +1,5 @@
 #pragma once
-#include "../../include/std-all.h"
+#include "../../include/all.h"
 
 #define DSN_Object_Print(dsntype, ptr) NULL, 							\
 	dsntype == DSN_STRUCT 	? &((inst(Struct))ptr)	->__methods->Formatter :	\

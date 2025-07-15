@@ -1,4 +1,5 @@
-#include "./string.h"
+#include "./strings.h"
+#include <cstring>
 
 
 #define ESC_VALUE 0
@@ -15,7 +16,7 @@
 			(generic &res, formats, output);	\
 	break;}
 
-u64 formatString(FORMAT_ID formats[FORMAT_DOMAIN_TOP], __Base_Type_ID__ typeid, va_list args, inst(StringBuilder) output){
+u64 formatString(FormatID* formats, __Base_Type_ID__ typeid, va_list args, inst(StringBuilder) output){
 	
 	u64 actual_len = 0;
 
@@ -102,7 +103,7 @@ u64 Print_VArgs(inst(StringBuilder) builder, va_list args){
 	bool quit = false;
 	u64 len = 0;
 	
-	FORMAT_ID formats[FORMAT_DOMAIN_TOP + 1];
+	FormatID formats[FORMAT_DOMAIN_TOP + 1];
 	loop(i, FORMAT_DOMAIN_TOP + 1)
 		formats[i] = __default_formats[i];
 
@@ -127,14 +128,14 @@ u64 Print_VArgs(inst(StringBuilder) builder, va_list args){
 		len += formatted_len;
 	    break;}
 	    case FMT_VALUE :{
-		enum FORMAT_ID_DOMAIN domain = va_arg(args, enum FORMAT_ID_DOMAIN);
+		Format_Domain domain = va_arg(args, Format_Domain);
 		
 		if(domain > FORMAT_DOMAIN_TOP){ 
 			ERR(STRINGERR_FORMAT, "invalid format");
 	       		return 0;
 		}
 
-		formats[domain] = va_arg(args, FORMAT_ID);
+		formats[domain] = va_arg(args, FormatID);
 	    break;}
 	    default:{
 		String_Instance str = {

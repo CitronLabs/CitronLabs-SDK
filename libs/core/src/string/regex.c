@@ -1,4 +1,4 @@
-#include "./string.h"
+#include "./strings.h"
 
 
 enum instruc_type{ ANY, EXACT, LIST };

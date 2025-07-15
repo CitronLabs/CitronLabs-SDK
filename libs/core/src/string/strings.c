@@ -1,4 +1,4 @@
-#include "./string.h"
+#include "./strings.h"
 
 errvt methodimpl(String, ModCharLen,, chartype type){
 
@@ -44,7 +44,7 @@ u64 methodimpl(String,Scan,, ...){
 return scanned_len;
 }
 
-u64 imethodimpl(String, Print,, FORMAT_ID* formats, inst(StringBuilder) out){
+u64 imethodimpl(String, Print,, FormatID* formats, inst(StringBuilder) out){
 	
 	self(String);
 
@@ -53,7 +53,7 @@ u64 imethodimpl(String, Print,, FORMAT_ID* formats, inst(StringBuilder) out){
 return self->len;
 }
 
-u64 imethodimpl(String, ScanFor,, FORMAT_ID* formats, inst(String) in){
+u64 imethodimpl(String, ScanFor,, FormatID* formats, inst(String) in){
 	
 	self(String);
 

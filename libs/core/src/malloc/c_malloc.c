@@ -1,4 +1,4 @@
-#include "../../include/std-all.h"
+#include "../../include/all.h"
 
 #ifdef calloc
 #undef calloc

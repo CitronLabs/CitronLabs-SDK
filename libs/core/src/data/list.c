@@ -250,7 +250,7 @@ void* methodimpl(List,FreeToPointer){
 return res;
 }
 
-u64 imethodimpl(List, Print,, FORMAT_ID* formats, inst(StringBuilder) out){
+u64 imethodimpl(List, Print,, FormatID* formats, inst(StringBuilder) out){
 	nonull(object, return 0);
 	u64 formated_len = 0;
 
@@ -279,7 +279,7 @@ u64 imethodimpl(List, Print,, FORMAT_ID* formats, inst(StringBuilder) out){
 return formated_len;
 }
 
-u64 imethodimpl(List, Scan,, FORMAT_ID* formats, inst(String) in){
+u64 imethodimpl(List, Scan,, FormatID* formats, inst(String) in){
 	nonull(object, return 0);
 	self(List);
 	

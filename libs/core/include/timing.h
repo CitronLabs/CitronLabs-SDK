@@ -1,9 +1,6 @@
 #pragma once
-#include "std-libc.h"
-#include "std-error.h"
-#include "std-utils.h"
-#include "stdext-string.h"
-#include "std-types.h"
+#include "./types.h"
+#include "./stringutils.h"
 
 #define SECONDS_IN_MINUTE 60
 #define SECONDS_IN_HOUR 3600

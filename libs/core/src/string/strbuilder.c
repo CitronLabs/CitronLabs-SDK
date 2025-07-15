@@ -1,4 +1,4 @@
-#include "./string.h"
+#include "./strings.h"
 #include <wchar.h>
 
 
@@ -129,7 +129,7 @@ inst(String) methodimpl(StringBuilder, CreateStr){
 return new(String, out_str, len);
 }
 
-u64 imethodimpl(StringBuilder, Print,, FORMAT_ID* formats, inst(StringBuilder) out){
+u64 imethodimpl(StringBuilder, Print,, FormatID* formats, inst(StringBuilder) out){
 	
 	self(StringBuilder);
 
@@ -155,7 +155,7 @@ u64 imethodimpl(StringBuilder, Print,, FORMAT_ID* formats, inst(StringBuilder) o
 return formated_len;
 }
 
-u64 imethodimpl(StringBuilder, Scan,, FORMAT_ID* formats, inst(String) in){
+u64 imethodimpl(StringBuilder, Scan,, FormatID* formats, inst(String) in){
 	self(StringBuilder);
 
 return StringBuilder.Append(self, in);

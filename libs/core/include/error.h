@@ -1,47 +1,18 @@
 #pragma once
-#include "std-libc.h"
-#include "std-utils.h"
-#include "std-types.h"
-
-#ifndef __USER_CONFIG__
-#include "xc-user-config.h"
-#endif
+#include "./utils.h"
+#include "./types.h"
+#include "config.h"
 
 /*----------------------\
        ERROR CODES	|
 -----------------------*/
 
 typedef enum{ 
-	ERR_NONE, ERR_INVALIDERR, ERR_NULLPTR, 	ERR_INITFAIL, 
-	ERR_NOTIMPLEM,
-
-	ERR_SEGFAULT, ERR_ABORT,
-
-	DATAERR_MEMALLOC, DATAERR_SIZETOOLARGE, 	
-	DATAERR_OUTOFRANGE,DATAERR_LIMIT, 		
-	DATAERR_EMPTY, DATAERR_DSN,		
-	
-	THREADERR_DESTROY, THREADERR_RUNNING, THREADERR_MUTEX_LOCKED,	
-	THREADERR_MUTEX_NOTINIT,THREADERR_SEM_FULL, 
-
-	NETERR_SOCKBIND, NETERR_CONNSEND, NETERR_CONNRECV, NETERR_CONNECT,
-	NETERR_SOCKLISTEN, NETERR_SOCKINVAL, NETERR_HOSTRESOLVE, NETERR_WATCH,	
-
-	IOERR_PERMS, IOERR_ALRDYEXST, IOERR_NOTFOUND, IOERR_ASYNC,		
-	IOERR_READ,IOERR_WRITE, IOERR_FAIL,
-
-	MEMERR_OVERFLOW, MEMERR_INITFAIL, MEMERR_LEAK, MEMERR_INVALIDSIZE,	
-
-	STRINGERR_REGEX,STRINGERR_FORMAT	
-
-	#ifdef __USER_ERRORCODES__
-		,__USER_ERRORCODES__
-	#endif
+	#define __ERROR_CODES__
+	#include "config.h"
 }errvt;
 typedef struct{	errvt val; const cstr msg; }std_err;
 #define errorstuff __func__
-
-
 
 /*----------------------\
        ERROR FUNCS	|
@@ -49,7 +20,7 @@ typedef struct{	errvt val; const cstr msg; }std_err;
 
 typedef struct String_Instance String_Instance;
 
-#ifdef DEBUG
+#if __Debug
 // utility for quickly removing debug statements
       #define debug(...) __VA_ARGS__
 #else
@@ -57,7 +28,7 @@ typedef struct String_Instance String_Instance;
 #endif
 
 Interface(Loggable,
-	errvt imethod(log,, inst(String) text);
+	errvt imethod(log,, inst(String) txt);
 )
 
 Type(LogBook,
@@ -80,7 +51,7 @@ __FIELD(),
       	inst(Logger) std_logger;
 
 	errvt method(Logger, logWithFormat,, LOG_TYPE type, ...);
-	errvt method(Logger, log,, LOG_TYPE type, inst(String) text);
+	errvt method(Logger, log,, LOG_TYPE type, inst(String) txt);
 )
 
 Class(Error,
@@ -90,7 +61,7 @@ __FIELD(errvt errorcode; cstr message;),
 	#define OK ERR_NONE
 
 	#define ERR(code, msg) Error.Set(&(Error_Instance){NULL,&Error,code, #code}, msg, __func__)
-	#define check(...) Error.Clear(); __VA_ARGS__ for(inst(Error) err = geterr(); err->errorcode != ERR_NONE; Error.Clear())
+	#define check(...) Error.Clear(); __VA_ARGS__; for(inst(Error) err = geterr(); err->errorcode != ERR_NONE; Error.Clear())
 	#define nonull(var, ...) if(var == NULL){errvt nullerr = ERR(ERR_NULLPTR, #var " is null"); __VA_ARGS__;}
 	#define NOT_IMPLEM(returnval) ERR(ERR_NOTIMPLEM, "not implemented yet..."); return returnval;
 

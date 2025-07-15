@@ -1,6 +1,6 @@
 #include "./datastructs.h"
 
-void numBinaryLiteral(FORMAT_ID* formats, inst(String) in, inst(Number) num){
+void numBinaryLiteral(FormatID* formats, inst(String) in, inst(Number) num){
 	
 	inst(StringBuilder) num_str = new(StringBuilder, NULL, UINT64_MAX);
 	u64 cursor = 0;
@@ -43,7 +43,7 @@ void numBinaryLiteral(FORMAT_ID* formats, inst(String) in, inst(Number) num){
 }
 
 #define isvalidhex(c) (isdigit(c) || ((c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F')))
-void numHexLiteral(FORMAT_ID* formats, inst(String) in, inst(Number) num){
+void numHexLiteral(FormatID* formats, inst(String) in, inst(Number) num){
 	
 	inst(StringBuilder) num_str = new(StringBuilder, NULL, UINT64_MAX);
 	u64 cursor = 0;
@@ -85,16 +85,16 @@ void numHexLiteral(FORMAT_ID* formats, inst(String) in, inst(Number) num){
 	num->as_u64 = strtoull(num_txt.txt, &end, 2);
 }
 
-void numFloatLiteral(FORMAT_ID* formats, inst(String) in, inst(Number) num){
+void numFloatLiteral(FormatID* formats, inst(String) in, inst(Number) num){
 	cstr end;
 	num->as_double = strtod(in->txt, &end);
 
 }
-void numIntegerLiteral(FORMAT_ID* formats, inst(String) in, inst(Number) num){
+void numIntegerLiteral(FormatID* formats, inst(String) in, inst(Number) num){
 	cstr end;
 	num->as_i64 = strtoll(in->txt, &end, 10);
 }
-void numUnsignedIntegerLiteral(FORMAT_ID* formats, inst(String) in, inst(Number) num){
+void numUnsignedIntegerLiteral(FormatID* formats, inst(String) in, inst(Number) num){
 	cstr end;
 	num->as_i64 = strtoll(in->txt, &end, 10);
 }
@@ -102,7 +102,7 @@ void numUnsignedIntegerLiteral(FORMAT_ID* formats, inst(String) in, inst(Number)
 #define format(formatstr, type) \
 	formatted_len = snprintf(buff, 50, formatstr, self->as_##type)
 
-u64 imethodimpl(Number, Print,, FORMAT_ID* formats, inst(StringBuilder) out){
+u64 imethodimpl(Number, Print,, FormatID* formats, inst(StringBuilder) out){
 	u64 formatted_len = 0;
 	char buff [50] = {0};
 	cstr format = NULL;
@@ -136,9 +136,9 @@ u64 imethodimpl(Number, Print,, FORMAT_ID* formats, inst(StringBuilder) out){
 	StringBuilder.Append(out, pushString(buff, 50));
 return formatted_len;
 }
-u64 imethodimpl(Number, Scan,, FORMAT_ID* formats, inst(String) in){
+u64 imethodimpl(Number, Scan,, FormatID* formats, inst(String) in){
 	
-	FORMAT_ID number_format = NUMS_DEFAULT;
+	FormatID number_format = NUMS_DEFAULT;
 	u64 cursor = 0;
 	self(Number);
 	

@@ -1,7 +1,7 @@
 #include "./datastructs.h"
 
 
-u64 imethodimpl(Bool, Print,, FORMAT_ID* formats, inst(StringBuilder) out){
+u64 imethodimpl(Bool, Print,, FormatID* formats, inst(StringBuilder) out){
 	return StringBuilder.Append(out, 
 		*(bool*)object ? 
 			s("true") : s("false")
@@ -15,7 +15,7 @@ u64 imethodimpl(Bool, Print,, FORMAT_ID* formats, inst(StringBuilder) out){
  * 	BOOL METHODS
 -----
 */
-u64 imethodimpl(Bool, Scan,, FORMAT_ID* formats, inst(String) in){
+u64 imethodimpl(Bool, Scan,, FormatID* formats, inst(String) in){
 
 	u64 off = 0;
 
@@ -62,7 +62,7 @@ static const BaseType_Interface Bool_Interface = {
 -----
 */
 
-u64 imethodimpl(ULong, Print,, FORMAT_ID* formats, inst(StringBuilder) out){
+u64 imethodimpl(ULong, Print,, FormatID* formats, inst(StringBuilder) out){
 	char buff[20] = {0};
 
 	u64 print_len = snprintf(buff, 20, "%lu", *(u64*)object);
@@ -70,7 +70,7 @@ u64 imethodimpl(ULong, Print,, FORMAT_ID* formats, inst(StringBuilder) out){
 
 return print_len;
 }
-u64 imethodimpl(ULong, Scan,, FORMAT_ID* formats, inst(String) in){
+u64 imethodimpl(ULong, Scan,, FormatID* formats, inst(String) in){
 	Number_Instance res = {0};			
 	u64 actual_len = Number.Formatter.Scan 	
 		(generic &res, formats, in);			
@@ -91,7 +91,7 @@ static const BaseType_Interface ULong_Interface = {
 -----
 */
 
-u64 imethodimpl(Long, Print,, FORMAT_ID* formats, inst(StringBuilder) out){
+u64 imethodimpl(Long, Print,, FormatID* formats, inst(StringBuilder) out){
 	char buff[20] = {0};
 
 	u64 print_len = snprintf(buff, 20, "%li", *(i64*)object);
@@ -100,7 +100,7 @@ u64 imethodimpl(Long, Print,, FORMAT_ID* formats, inst(StringBuilder) out){
 return print_len;	
 }
 
-u64 imethodimpl(Long, Scan,, FORMAT_ID* formats, inst(String) in){
+u64 imethodimpl(Long, Scan,, FormatID* formats, inst(String) in){
 	Number_Instance res = {0};			
 	u64 actual_len = Number.Formatter.Scan 	
 		(generic &res, formats, in);			
@@ -121,7 +121,7 @@ static const BaseType_Interface Long_Interface = {
 -----
 */
 
-u64 imethodimpl(UInt, Print,, FORMAT_ID* formats, inst(StringBuilder) out){
+u64 imethodimpl(UInt, Print,, FormatID* formats, inst(StringBuilder) out){
 	char buff[20] = {0};
 
 	u64 print_len = snprintf(buff, 20, "%u", *(u32*)object);
@@ -130,7 +130,7 @@ u64 imethodimpl(UInt, Print,, FORMAT_ID* formats, inst(StringBuilder) out){
 return print_len;	
 }
 
-u64 imethodimpl(UInt, Scan,, FORMAT_ID* formats, inst(String) in){
+u64 imethodimpl(UInt, Scan,, FormatID* formats, inst(String) in){
 	Number_Instance res = {0};			
 	u64 actual_len = Number.Formatter.Scan 	
 		(generic &res, formats, in);			
@@ -149,7 +149,7 @@ static const BaseType_Interface UInt_Interface = {
 -----
 */
 
-u64 imethodimpl(Int, Print,, FORMAT_ID* formats, inst(StringBuilder) out){
+u64 imethodimpl(Int, Print,, FormatID* formats, inst(StringBuilder) out){
 	char buff[20] = {0};
 
 	u64 print_len = snprintf(buff, 20, "%i", *(i32*)object);
@@ -157,7 +157,7 @@ u64 imethodimpl(Int, Print,, FORMAT_ID* formats, inst(StringBuilder) out){
 
 return print_len;	
 }
-u64 imethodimpl(Int, Scan,, FORMAT_ID* formats, inst(String) in){
+u64 imethodimpl(Int, Scan,, FormatID* formats, inst(String) in){
 	Number_Instance res = {0};			
 	u64 actual_len = Number.Formatter.Scan 	
 		(generic &res, formats, in);			
@@ -177,7 +177,7 @@ static const BaseType_Interface Int_Interface = {
 -----
 */
 
-u64 imethodimpl(Pointer, Print,, FORMAT_ID* formats, inst(StringBuilder) out){
+u64 imethodimpl(Pointer, Print,, FormatID* formats, inst(StringBuilder) out){
 	char buff[20] = {0};
 
 	u64 print_len = snprintf(buff, 20, "%p", *(void**)object);
@@ -186,7 +186,7 @@ u64 imethodimpl(Pointer, Print,, FORMAT_ID* formats, inst(StringBuilder) out){
 return print_len;	
 }
 
-u64 imethodimpl(Pointer, Scan,, FORMAT_ID* formats, inst(String) in){
+u64 imethodimpl(Pointer, Scan,, FormatID* formats, inst(String) in){
 	Number_Instance res = {0};			
 	u64 actual_len = Number.Formatter.Scan 	
 		(generic &res, formats, in);			
@@ -206,7 +206,7 @@ static const BaseType_Interface Pointer_Interface = {
  * 	FLOAT METHODS
 -----
 */
-u64 imethodimpl(Float, Print,, FORMAT_ID* formats, inst(StringBuilder) out){
+u64 imethodimpl(Float, Print,, FormatID* formats, inst(StringBuilder) out){
 	char buff[20] = {0};
 
 	u64 print_len = snprintf(buff, 20, "%f", *(double*)object);
@@ -215,7 +215,7 @@ u64 imethodimpl(Float, Print,, FORMAT_ID* formats, inst(StringBuilder) out){
 return print_len;	
 }
 
-u64 imethodimpl(Float, Scan,, FORMAT_ID* formats, inst(String) in){
+u64 imethodimpl(Float, Scan,, FormatID* formats, inst(String) in){
 	Number_Instance res = {0};			
 	u64 actual_len = Number.Formatter.Scan 	
 		(generic &res, formats, in);			
@@ -235,7 +235,7 @@ static const BaseType_Interface Float_Interface = {
  * 	CSTRING METHODS
 -----
 */
-u64 imethodimpl(CString, Print,, FORMAT_ID* formats, inst(StringBuilder) out){
+u64 imethodimpl(CString, Print,, FormatID* formats, inst(StringBuilder) out){
 	char* string_ptr = *(char**)object;
 	inst(String) string = str_cast(string_ptr, UINT64_MAX);
 	u64 actual_len = 0;
@@ -248,7 +248,7 @@ u64 imethodimpl(CString, Print,, FORMAT_ID* formats, inst(StringBuilder) out){
 return actual_len;
 }
 
-u64 imethodimpl(CString, Scan,, FORMAT_ID* formats, inst(String) in){
+u64 imethodimpl(CString, Scan,, FormatID* formats, inst(String) in){
 	char* str_arg = *(char**)object;
 	u64 cursor = 0;
 	loop(i, in->len){
@@ -273,7 +273,7 @@ static const BaseType_Interface CString_Interface = {
  * 	CHAR METHODS
 -----
 */
-u64 imethodimpl(Char, Print,, FORMAT_ID* formats, inst(StringBuilder) out){
+u64 imethodimpl(Char, Print,, FormatID* formats, inst(StringBuilder) out){
 	u64 actual_len = 1;
 	char buff[4] = {0};
 	if(formats[FORMAT_STRINGS] == STRING_NUM)
@@ -295,7 +295,7 @@ u64 imethodimpl(Char, Print,, FORMAT_ID* formats, inst(StringBuilder) out){
 
 return actual_len;
 }
-u64 imethodimpl(Char, Scan,, FORMAT_ID* formats, inst(String) in){
+u64 imethodimpl(Char, Scan,, FormatID* formats, inst(String) in){
 	*(char*)object = in->txt[0];
 	return 1;
 }

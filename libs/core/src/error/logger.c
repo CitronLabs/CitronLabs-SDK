@@ -1,6 +1,6 @@
 #include "error.h"
 
-#include "../../include/std-all.h"
+#include "../../include/all.h"
 #include "error.h"
 
 static errvt imethodimpl(STD_LOG, Log,, inst(String) text){
