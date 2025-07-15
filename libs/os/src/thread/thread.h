@@ -1,6 +1,6 @@
 #pragma once
 #ifndef NO_HEADERS
-#include "../../include/std-all.h"
+#include "../../include/all.h"
 #endif
 
 static List(inst(Thread)) active_threads = NULL;

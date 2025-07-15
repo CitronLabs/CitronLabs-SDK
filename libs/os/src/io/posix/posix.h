@@ -10,13 +10,13 @@
 private(File, 
 	int fd;
 	u16 char_size;
-	dirpath path;
+	fsPath path;
 	u8 flags;
 	void* async_store;
 );
 private(Dir,
 	DIR* dir;
-	dirpath path;
+	fsPath path;
 );
 
 errvt File_PrintTo(inst(File) file, ...);

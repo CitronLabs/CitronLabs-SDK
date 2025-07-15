@@ -33,7 +33,7 @@ int getFileFlags(u8 flags){
 return res;
 }
 
-inst(File) File_Create(dirpath path, u8 flags, u16 char_size){
+inst(File) File_Create(fsPath path, u8 flags, u16 char_size){
 
 	int fd;
 	struct stat statbuf;
@@ -121,7 +121,7 @@ return bytes_written;
 }
 
 
-errvt methodimpl(File, Copy,, inst(File)* new_file, dirpath path){
+errvt methodimpl(File, Copy,, inst(File)* new_file, fsPath path){
 	
 	u64 bytes_to_transfer = 0, cursor_offset = 0;
 
@@ -198,7 +198,7 @@ errvt methodimpl(File, Copy,, inst(File)* new_file, dirpath path){
 
 return OK;
 }
-errvt methodimpl(File, Move,, dirpath path){
+errvt methodimpl(File, Move,, fsPath path){
 
 	nonull(self, return nullerr)
 	nonull(path, return nullerr)
@@ -236,7 +236,7 @@ errvt methodimpl(File, Remove){
 return OK;
 }
 
-u64 methodimpl(File, Print,, FORMAT_ID* formats, inst(StringBuilder) out){
+u64 methodimpl(File, Print,, FormatID* formats, inst(StringBuilder) out){
 
 	u64 formated_len = 0;
 	u64 characters_read = 0;
@@ -256,7 +256,7 @@ u64 methodimpl(File, Print,, FORMAT_ID* formats, inst(StringBuilder) out){
 
 return formated_len;
 }
-u64 methodimpl(File, Scan,, FORMAT_ID* formats, inst(String) in){
+u64 methodimpl(File, Scan,, FormatID* formats, inst(String) in){
 
 	u32 cursor = 0;
 	while(isblank(in->txt[cursor])) cursor++;
@@ -315,7 +315,7 @@ construct(File,
 	.Object = {.__DESTROY = File_Close}
 ){
 	
-	dir_entry entdata = {0};
+	fsEntry entdata = {0};
 	
 	if(getFileSystemEntry(args.path, &entdata) != ERR_NONE) return self;
 	

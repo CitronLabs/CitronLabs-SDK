@@ -10,7 +10,7 @@ private(Media,
 )
 
 u64 getMediaFileSize(const char* path){
-	dir_entry file_ent = {0};
+	fsEntry file_ent = {0};
 
 	if(getFileSystemEntry((char*)path, &file_ent) != ERR_NONE){
 		ERR(RESOURCERR_INVALID, "could not find media file from path");
@@ -249,7 +249,7 @@ construct(Media,
 	.create = Media_Create,
 	.__COLLECT = Media___COLLECT
 ){
-	dir_entry file_ent = {0};
+	fsEntry file_ent = {0};
 
 	if(getFileSystemEntry((char*)args.path, &file_ent) != ERR_NONE){
 		ERR(RESOURCERR_INVALID, "could not find media file from path");

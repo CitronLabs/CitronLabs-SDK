@@ -2,7 +2,7 @@
 #define __EXT_IO_SOURCE_DEF__
 #include "./posix.h"
 
-errvt getFileSystemEntry(dirpath path, dir_entry* ent){
+errvt getFileSystemEntry(fsPath path, fsEntry* ent){
 
 	struct stat statbuf;
 	
@@ -22,10 +22,10 @@ errvt getFileSystemEntry(dirpath path, dir_entry* ent){
 	ent->is_dir = S_ISDIR(statbuf.st_mode);
 	
 	Time.FromCTime(time_buff, statbuf.st_ctim);
-	ent->time_created = Time.ToTimeShort(time_buff);
+	ent->time_created = time_buff;
 
 	Time.FromCTime(time_buff, statbuf.st_mtim);
-	ent->time_modified = Time.ToTimeShort(time_buff);
+	ent->time_modified = time_buff;
 
 	u32 nameoffset = 0, pathlen = strnlen(path, 255);
 	
@@ -41,7 +41,7 @@ errvt getFileSystemEntry(dirpath path, dir_entry* ent){
 return OK;
 }
 
-errvt Dir_SetCurrent (dirpath path){
+errvt Dir_SetCurrent (fsPath path){
 
 	if(chdir(path) != 0){
 	switch(errno){
@@ -54,7 +54,7 @@ return OK;
 }
 
 
-inst(Dir) Dir_Create (dirpath path, u8 flags){
+inst(Dir) Dir_Create (fsPath path, u8 flags){
 	
 	struct stat statbuf;
 
@@ -83,7 +83,7 @@ inst(Dir) Dir_Create (dirpath path, u8 flags){
 return self;
 }
 
-i64 methodimpl(Dir, Read,, dir_entry* output, u64 max_entries){
+i64 methodimpl(Dir, Read,, fsEntry* output, u64 max_entries){
 	struct dirent* entries = NULL; 
 	u64 ent_count = 0;
 	nonull(self, return -1)	
@@ -108,10 +108,10 @@ i64 methodimpl(Dir, Read,, dir_entry* output, u64 max_entries){
 		output[ent_count].is_dir = S_ISDIR(stat_buf.st_mode);
 
 		Time.FromCTime(time_buff, stat_buf.st_ctim);
-		output[ent_count].time_created = Time.ToTimeShort(time_buff);
+		output[ent_count].time_created = time_buff;
 
 		Time.FromCTime(time_buff, stat_buf.st_mtim);
-		output[ent_count].time_modified = Time.ToTimeShort(time_buff);
+		output[ent_count].time_modified = time_buff;
 
 		strncpy(output[ent_count].name, entries->d_name, 255);
 
@@ -120,7 +120,7 @@ i64 methodimpl(Dir, Read,, dir_entry* output, u64 max_entries){
 	
 return ent_count;
 };
-i64 methodimpl(Dir, Write,, dir_entry* entries, u64 num_entries){
+i64 methodimpl(Dir, Write,, fsEntry* entries, u64 num_entries){
 
 	inst(StringBuilder) path = push(StringBuilder, NULL, 256);
 	u64 ent_count = 0;
@@ -145,7 +145,7 @@ i64 methodimpl(Dir, Write,, dir_entry* entries, u64 num_entries){
 return ent_count;
 }
 
-errvt methodimpl(Dir, Copy,, inst(Dir)* new_dir, dirpath path){
+errvt methodimpl(Dir, Copy,, inst(Dir)* new_dir, fsPath path){
 	
 	nonull(self, return nullerr;)	
 	
@@ -157,9 +157,9 @@ errvt methodimpl(Dir, Copy,, inst(Dir)* new_dir, dirpath path){
 	
 
 	i64 entries_read = 0;
-	dir_entry temp_entries_store[10] = {0};
+	fsEntry temp_entries_store[10] = {0};
 	Stack(Inst(Dir)) nested_dirs = pushStack(inst(Dir));
-	List(dir_entry) entries_list = pushList(dir_entry);
+	List(fsEntry) entries_list = pushList(dir_entry);
 	
 	Stack.Push(nested_dirs, &self, 1);
 	do{
@@ -174,10 +174,10 @@ errvt methodimpl(Dir, Copy,, inst(Dir)* new_dir, dirpath path){
 		
 		Dir.Write(curr_new_dir, List.GetPointer(entries_list, 0), List.Size(entries_list));
 
-		ListForEach(entries_list, dir_entry, entry){
+		ListForEach(entries_list, fsEntry, entry){
 
 			if(entry.is_dir){
-				dirpath next, next_new; 
+				fsPath next, next_new; 
 				catNameandDirPath(next, curr_dir->__private->path, entry.name)
 				catNameandDirPath(next_new, curr_new_dir->__private->path, entry.name)
 				inst(Dir) 
@@ -186,7 +186,7 @@ errvt methodimpl(Dir, Copy,, inst(Dir)* new_dir, dirpath path){
 				Stack.Push(nested_dirs, dir_next, 1);
 				Stack.Push(nested_dirs, dir_next_new, 1);
 			}else{
-				dirpath origin;
+				fsPath origin;
 				inst(File) file = NULL,* cpyfile = NULL;
 				catNameandDirPath(origin, curr_dir->__private->path, entry.name)
 				file = push(File, origin, FFL_READ | FFL_WRITE);
@@ -206,7 +206,7 @@ errvt methodimpl(Dir, Copy,, inst(Dir)* new_dir, dirpath path){
 return OK;
 }
 
-errvt methodimpl(Dir, Move,, dirpath path){
+errvt methodimpl(Dir, Move,, fsPath path){
 	nonull(self, return nullerr);
 	inst(Dir) new_dir = NULL;
 	Dir.Copy(self, &new_dir, path);
@@ -238,7 +238,7 @@ errvt methodimpl(Dir, Remove){
 return OK;
 }
 
-u64 methodimpl(Dir, Scan,, FORMAT_ID* formats, inst(String) in){
+u64 methodimpl(Dir, Scan,, FormatID* formats, inst(String) in){
 
 	u32 cursor = 0;
 	while(isblank(in->txt[cursor])) cursor++;
@@ -251,12 +251,12 @@ u64 methodimpl(Dir, Scan,, FORMAT_ID* formats, inst(String) in){
 return cursor;
 }
 
-u64 methodimpl(Dir, Print,, FORMAT_ID* formats, inst(StringBuilder) out){
+u64 methodimpl(Dir, Print,, FormatID* formats, inst(StringBuilder) out){
 
 	u64 formated_len = 0;
 	u8 entries_read = 0;
 
-	dir_entry entries[10] = {0};
+	fsEntry entries[10] = {0};
 
 	formated_len += StringBuilder.Append(out, NULL,
 		"name:", $(priv->path), ":\n", endstr);
