@@ -1,15 +1,6 @@
 #pragma once
-#include "./xc_additions.h"
-#include <stddef.h>
 
-#ifndef __USER_ERRORCODES__
-	#define __USER_ERRORCODES__ RESOURCE_ERRORCODES
-#endif
-#ifndef __USER_CLASS_METHODS__
-	#define __USER_CLASS_METHODS__(Class) RESOURCE_METHODS(Class)
-#endif
-
-#include "../../core/include/std-all.h"
+#include "extern.h"
 
 /*------------------------------\
            Memory Tree	    	|
