@@ -4,8 +4,8 @@ ExtraC CORE Configuration File
 
 #if defined (			__ERROR_CODES__				)
 /*---------------------------------------------------------------------------*/
-	ERR_NONE, ERR_INVALIDERR, ERR_NULLPTR, 	ERR_INITFAIL, 
-	ERR_NOTIMPLEM,
+	ERR_NONE, ERR_INVALID, ERR_NULLPTR, ERR_INITFAIL, 
+	ERR_NOTIMPLEM, ERR_FAIL,
 
 	ERR_SEGFAULT, ERR_ABORT,
 
@@ -18,6 +18,7 @@ ExtraC CORE Configuration File
 	STRINGERR_REGEX,STRINGERR_FORMAT,
 
 	#include "./xc-os.c"
+	#include "./xc-resource.c"
 
 #elif defined( 			__FORMAT_CODES__			)
 /*---------------------------------------------------------------------------*/
@@ -34,19 +35,28 @@ ExtraC CORE Configuration File
 			DATA_DSN, DATA_DEBUG)
 	
 	#include "./xc-os.c"
+	#include "./xc-resource.c"
 
 #undef FORMAT
+#elif defined( 			__GLOBAL_METHODS__			)
+/*---------------------------------------------------------------------------*/
+#include "./xc-resource.c"
+
+#define CORE_METHODS(Class)							\	
+	u32 imethod(__HASH);							\
+	u32 imethod(__DESTROY);							\
+	RESOURCE_METHODS(Class)							\
+	
 #else
 /*---------------------------------------------------------------------------*/
 #ifndef XC_CORE_CONFIG
 #define XC_CORE_CONFIG
-#include "__common.h"
+#include "__config_start.h"
 
 define(XC_DataStructs){
-	setting autoGrow;
 	value maxSize;
 }; 
-
+global bool(*__Init_Func)()		= NULL; 
 global setting __AutoInit 		= true;
 global setting __HeaderOnly		= false;
 
@@ -54,25 +64,23 @@ global setting __Debug 			= true;
 
 global setting __HijackMalloc 		= true;
 
+global setting __DataAutoGrow		= true;
+
 global config(XC_DataStructs) 
 __List = { 
-	.autoGrow 			= true,
-	.maxSize 			= UINT64_MAX
+	.maxSize 			= INT64_MAX
 },
 __Queue = { 
-	.autoGrow 			= true,
-	.maxSize 			= UINT64_MAX
+	.maxSize 			= INT64_MAX
 },
 __Stack = { 
-	.autoGrow 			= true,
-	.maxSize 			= UINT64_MAX
+	.maxSize 			= INT64_MAX
 },
 __Map = { 
-	.autoGrow 			= true,
-	.maxSize 			= UINT64_MAX
+	.maxSize 			= INT64_MAX
 };
 
-
+#include "__config_end.h"
 #endif
 #endif
 

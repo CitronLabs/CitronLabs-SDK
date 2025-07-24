@@ -1,5 +1,6 @@
 #include <stdint.h>
 #include <stdbool.h>
+#include <stddef.h>
 
 #define global static 
 #define define(name) 	typedef struct name##_Config name##_Config; struct name##_Config
