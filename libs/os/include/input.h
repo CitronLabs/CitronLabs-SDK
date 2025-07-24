@@ -2,14 +2,21 @@
 #include "./extern.h"
 #include "types.h"
 
-typedef struct{float x, y, z, max, min;}* posData;
-Interface(Position,
+Type(Vector,
+	float x,y,z;
+)
+Static(VectorUtils,
+
+)
+
+typedef struct{data(Vector) pos; float max, min;}* posData;
+Interface(PosDevice,
 	posData imethod(get);	
 	errvt imethod(update,, posData pos);	
 )
 
 typedef struct{u32 code; bool cont;} keyCode;
-Interface(Key,
+Interface(KeyDevice,
 	keyCode imethod(get);
 )
 
@@ -18,14 +25,14 @@ __INIT(),
 __FIELD(inputHandle handle),
       	#define MOUSEBUTTON_LEFT  0
       	#define MOUSEBUTTON_RIGHT 1
-	interface(Position);
+	interface(PosDevice);
 	bool method(Mouse, buttonPressed,, u32 buttonID);
 )
 
 Class(Keyboard,
 __INIT(),
 __FIELD(inputHandle handle),
-      	interface(Key);
+      	interface(KeyDevice);
 )
 
 
