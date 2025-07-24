@@ -1,11 +1,10 @@
+#include "./error.h"
 #include "error.h"
-
-#include "../../include/all.h"
-#include "error.h"
+#include <stdio.h>
 
 static errvt imethodimpl(STD_LOG, Log,, inst(String) text){
 	nonull(text, return nullerr);
-	fprint(File.err, $(text));
+	fprintf(stderr, "%s", text->txt);
 return OK;
 }
 
@@ -41,25 +40,25 @@ static const data(Logger) std_logger = {
 
 inst(Logger) error_logger = (inst(Logger))&std_logger;
 
-errvt methodimpl(Logger, Log,, LOG_TYPE type, inst(String) text){
+errvt methodimpl(Logger, Log,, LogType type, inst(String) text){
 	nonull(self, return nullerr);
 	nonull(text, return nullerr);
 
 	switch(type){
-	case LOG_INFO:
+	case LOGGER_INFO:
 		return priv->info == NULL ? 0 : priv->info->interface->log(priv->info->object, text);
-	case LOG_ERROR:
+	case LOGGER_ERROR:
 		return priv->error == NULL ? 0 : priv->error->interface->log(priv->error->object, text);
 	default:{
-		ERR(ERR_INVALIDERR, "invalid log type");
+		ERR(ERR_INVALID, "invalid log type");
 		return 0;
 	}
 	}
 
-return ERR(ERR_INVALIDERR, "error unreachable code");
+return ERR(ERR_INVALID, "error unreachable code");
 }
 
-errvt methodimpl(Logger, LogWithFormat,, LOG_TYPE type, ...){
+errvt methodimpl(Logger, LogWithFormat,, LogType type, ...){
 	nonull(self, return nullerr);
 
 	va_list args;
@@ -69,19 +68,19 @@ errvt methodimpl(Logger, LogWithFormat,, LOG_TYPE type, ...){
 	inst(StringBuilder) textbldr = push(StringBuilder, NULL, UINT64_MAX);
 	
 	if(FormatUtils.FormatVArgs(textbldr, args) == 0)
-		return ERR(ERR_INVALIDERR, "failed to format text for log");
+		return ERR(ERR_INVALID, "failed to format text for log");
 
 	data(String) text = StringBuilder.GetStr(textbldr);
 
 	switch(type){
-	case LOG_INFO:
+	case LOGGER_INFO:
 		formatted_len = priv->info == NULL ? 0 :
 			priv->info->interface->log(priv->info->object, &text);
-	case LOG_ERROR:
+	case LOGGER_ERROR:
 		formatted_len = priv->error == NULL ? 0 : 
 			priv->error->interface->log(priv->error->object, &text);
 	default:{
-		ERR(ERR_INVALIDERR, "invalid log type");
+		ERR(ERR_INVALID, "invalid log type");
 		formatted_len = 0;
 	}
 	}
@@ -104,9 +103,7 @@ construct(Logger,
 	.std_logger = (inst(Logger))&STD_LOG,
 	.log = Logger_Log,
 	.logWithFormat = Logger_LogWithFormat,
-	.Object = {
-		.__DESTROY = Logger_Destroy 
-	}
+	.__DESTROY = Logger_Destroy 
 ){
 	nonull(args.name, return NULL);
 

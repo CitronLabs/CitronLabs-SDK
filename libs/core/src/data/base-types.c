@@ -1,21 +1,23 @@
 #include "./datastructs.h"
+#include "data.h"
+#include "types.h"
+#include <stdlib.h>
+
+#define skipWS(in, num) while(isblank(in->txt[num])) num++;
 
 
-u64 imethodimpl(Bool, Print,, FormatID* formats, inst(StringBuilder) out){
+/*----------------------------------------------------
+	BOOL METHODS
+-----*/
+
+u64 imethodimpl(Boolean, Print,, FormatID* formats, inst(StringBuilder) out){
 	return StringBuilder.Append(out, 
 		*(bool*)object ? 
 			s("true") : s("false")
      	);
 }
 
-#define skipWS(in, num) while(isblank(in->txt[num])) num++;
-
-/*----------------------------------------------------*/
-/**
- * 	BOOL METHODS
------
-*/
-u64 imethodimpl(Bool, Scan,, FormatID* formats, inst(String) in){
+u64 imethodimpl(Boolean, Scan,, FormatID* formats, inst(String) in){
 
 	u64 off = 0;
 
@@ -39,7 +41,7 @@ u64 imethodimpl(Bool, Scan,, FormatID* formats, inst(String) in){
 return 0;
 }
 
-u32 imethodimpl(Bool, __HASH){
+u32 imethodimpl(Boolean, __HASH){
 	return Map.Hash(
 		*(bool*)object ? 
 			&(u8){1} : &(u8){0},
@@ -48,129 +50,75 @@ u32 imethodimpl(Bool, __HASH){
 }
 
 
-static const BaseType_Interface Bool_Interface = {
+Impl(Boolean){
 	.Formatter = {
-		.Scan = Bool_Scan,
-		.Print = Bool_Print
+		.Scan = Boolean_Scan,
+		.Print = Boolean_Print
 	},
-	.Object = {.__HASH = Bool___HASH } 
+	.__HASH = Boolean___HASH 
 };
 
-/*----------------------------------------------------*/
-/**
- * 	ULONG METHODS
------
-*/
+/*----------------------------------------------------
+	INT METHODS
+-----*/
 
-u64 imethodimpl(ULong, Print,, FormatID* formats, inst(StringBuilder) out){
-	char buff[20] = {0};
-
-	u64 print_len = snprintf(buff, 20, "%lu", *(u64*)object);
-	StringBuilder.Append(out, str_cast(buff, print_len));
-
-return print_len;
+u64 imethodimpl(Integer, Print,, FormatID* formats, inst(StringBuilder) out){
+self(Integer);
+return Number.Formatter.Print(
+	generic &(Number_Instance){
+		.type = self->sign ? N_SIGNED : N_UNSIGNED,
+		.len = self->longint ? sizeof(u64) : sizeof(u32),
+		.as_u64 = *cast(u64*)object,
+	},
+	formats, out 
+);
 }
-u64 imethodimpl(ULong, Scan,, FormatID* formats, inst(String) in){
+
+u64 imethodimpl(Integer, Scan,, FormatID* formats, inst(String) in){
 	Number_Instance res = {0};			
 	u64 actual_len = Number.Formatter.Scan 	
 		(generic &res, formats, in);			
-	*(u64*)object = res.as_u64;		
+	*cast(u64*)object = res.as_u64;	
 return actual_len;
 }
-
-static const BaseType_Interface ULong_Interface = {
+Impl(Integer){
 	.Formatter = {
-		.Scan = ULong_Scan,
-		.Print = ULong_Print
-	}
-};
-
-/*----------------------------------------------------*/
-/**
- * 	LONG METHODS
------
-*/
-
-u64 imethodimpl(Long, Print,, FormatID* formats, inst(StringBuilder) out){
-	char buff[20] = {0};
-
-	u64 print_len = snprintf(buff, 20, "%li", *(i64*)object);
-	StringBuilder.Append(out, str_cast(buff, print_len));
-
-return print_len;	
-}
-
-u64 imethodimpl(Long, Scan,, FormatID* formats, inst(String) in){
-	Number_Instance res = {0};			
-	u64 actual_len = Number.Formatter.Scan 	
-		(generic &res, formats, in);			
-	*(i64*)object = res.as_i64;		
-return actual_len;
-}
-
-static const BaseType_Interface Long_Interface = {
-	.Formatter = {
-		.Scan = Long_Scan,
-		.Print = Long_Print
+		.Scan = Integer_Scan,
+		.Print = Integer_Print
 	},
 };
 
-/*----------------------------------------------------*/
-/**
- * 	UINT METHODS
------
-*/
+/*----------------------------------------------------
+	FLOAT METHODS
+-----*/
 
-u64 imethodimpl(UInt, Print,, FormatID* formats, inst(StringBuilder) out){
-	char buff[20] = {0};
-
-	u64 print_len = snprintf(buff, 20, "%u", *(u32*)object);
-	StringBuilder.Append(out, str_cast(buff, print_len));
-
-return print_len;	
+u64 imethodimpl(Float, Print,, FormatID* formats, inst(StringBuilder) out){
+self(Float);
+return Number.Formatter.Print(
+	generic &(Number_Instance){
+		.len = self->dbl ? sizeof(double) : sizeof(float),
+		.as_u64 = *cast(u64*)object,
+	},
+	formats, out 
+);
 }
 
-u64 imethodimpl(UInt, Scan,, FormatID* formats, inst(String) in){
+u64 imethodimpl(Float, Scan,, FormatID* formats, inst(String) in){
 	Number_Instance res = {0};			
 	u64 actual_len = Number.Formatter.Scan 	
 		(generic &res, formats, in);			
-	*(u32*)object = res.as_u32;		
-return actual_len;
-}
-static const BaseType_Interface UInt_Interface = {
-	.Formatter = {
-		.Scan = UInt_Scan,
-		.Print = UInt_Print
-	},
-};
-/*----------------------------------------------------*/
-/**
- * 	INT METHODS
------
-*/
-
-u64 imethodimpl(Int, Print,, FormatID* formats, inst(StringBuilder) out){
-	char buff[20] = {0};
-
-	u64 print_len = snprintf(buff, 20, "%i", *(i32*)object);
-	StringBuilder.Append(out, str_cast(buff, print_len));
-
-return print_len;	
-}
-u64 imethodimpl(Int, Scan,, FormatID* formats, inst(String) in){
-	Number_Instance res = {0};			
-	u64 actual_len = Number.Formatter.Scan 	
-		(generic &res, formats, in);			
-	*(i32*)object = res.as_i32;		
+	*(double*)object = res.as_double;		
 return actual_len;
 }
 
-static const BaseType_Interface Int_Interface = {
+Impl(Float){
 	.Formatter = {
-		.Scan = Int_Scan,
-		.Print = Int_Print
+		.Scan = Float_Scan,
+		.Print = Float_Print
 	},
 };
+
+
 /*----------------------------------------------------*/
 /**
  * 	POINTER METHODS
@@ -194,41 +142,14 @@ u64 imethodimpl(Pointer, Scan,, FormatID* formats, inst(String) in){
 return actual_len;
 }
 
-static const BaseType_Interface Pointer_Interface = {
+Impl(Pointer){
 	.Formatter = {
 		.Scan = Pointer_Scan,
 		.Print = Pointer_Print
 	},
 };
 
-/*----------------------------------------------------*/
-/**
- * 	FLOAT METHODS
------
-*/
-u64 imethodimpl(Float, Print,, FormatID* formats, inst(StringBuilder) out){
-	char buff[20] = {0};
 
-	u64 print_len = snprintf(buff, 20, "%f", *(double*)object);
-	StringBuilder.Append(out, str_cast(buff, print_len));
-
-return print_len;	
-}
-
-u64 imethodimpl(Float, Scan,, FormatID* formats, inst(String) in){
-	Number_Instance res = {0};			
-	u64 actual_len = Number.Formatter.Scan 	
-		(generic &res, formats, in);			
-	*(double*)object = res.as_double;		
-return actual_len;
-}
-
-static const BaseType_Interface Float_Interface = {
-	.Formatter = {
-		.Scan = Float_Scan,
-		.Print = Float_Print
-	},
-};
 
 /*----------------------------------------------------*/
 /**
@@ -262,7 +183,7 @@ u64 imethodimpl(CString, Scan,, FormatID* formats, inst(String) in){
 
 return cursor;
 }
-static const BaseType_Interface CString_Interface = {
+Impl(CString){
 	.Formatter = {
 		.Scan = CString_Scan,
 		.Print = CString_Print
@@ -276,7 +197,7 @@ static const BaseType_Interface CString_Interface = {
 u64 imethodimpl(Char, Print,, FormatID* formats, inst(StringBuilder) out){
 	u64 actual_len = 1;
 	char buff[4] = {0};
-	if(formats[FORMAT_STRINGS] == STRING_NUM)
+	if(formats[FORMAT_STRING] == STRING_NUM)
 	    actual_len = Number.Formatter.Print(
 			generic &(Number_Instance){
 				.type = N_UNSIGNED,
@@ -300,54 +221,9 @@ u64 imethodimpl(Char, Scan,, FormatID* formats, inst(String) in){
 	return 1;
 }
 
-static const BaseType_Interface Char_Interface = {
+Impl(Char){
 	.Formatter = {
 		.Scan = Char_Scan,
 		.Print = Char_Print
 	},
 };
-
-private(BaseType);
-construct(BaseType){
-
-	if(args.ID == BASETYPE_OBJECT || args.ID == BASETYPE_NULL)
-		return NULL;
-
-	self->ID = args.ID;
-	self->data = self->data;
-
-	switch(args.ID){
-	case BASETYPE_BOOL:
-		self->__methods = &Bool_Interface;
-	break;
-	case BASETYPE_ULONG:
-		self->__methods = &ULong_Interface;
-	break;
-	case BASETYPE_LONG:
-		self->__methods = &Long_Interface;
-	break;
-	case BASETYPE_UINT:
-		self->__methods = &UInt_Interface;
-	break;
-	case BASETYPE_INT:
-		self->__methods = &Int_Interface;
-	break;
-	case BASETYPE_POINTER:
-		self->__methods = &Pointer_Interface;
-	break;
-	case BASETYPE_FLOAT:
-		self->__methods = &Float_Interface;
-	break;
-	case BASETYPE_STRING:
-		self->__methods = &CString_Interface;
-	break;
-	case BASETYPE_CHAR:
-		self->__methods = &Char_Interface;
-	break;
-	default:{
-		return NULL;
-	}
-	}
-
-return self;
-}

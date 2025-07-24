@@ -36,7 +36,7 @@ for(int __##item##_iterator = 0; 	\
 		    LONGOPT = NULL;		\
 		}				\
 	    switch (argv[i][1])			\
-	    __VA_ARGS__				\
+     	    {__VA_ARGS__}			\
 	    };					\
 	}
 

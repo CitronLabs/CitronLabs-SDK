@@ -1,4 +1,5 @@
 #include "datastructs.h"
+#include "types.h"
 
 
 #if !(STDDATA_MAP_OVERIDEHASH)
@@ -264,8 +265,10 @@ u64 imethodimpl(Map, Print,, FormatID* formats, inst(StringBuilder) out){
 	break;
 	case DATA_DEBUG:
 		StringBuilder.Append(out, s("(Map){"));
-		
-		StringBuilder.Append(out, NULL, ".data = ", $((void*)priv->buckets), ", ", endstr);
+
+		void* data = priv->buckets;
+
+		StringBuilder.Append(out, NULL, ".data = ", $(data), ", ", endstr);
 		StringBuilder.Append(out, NULL, ".item_size = ", $(priv->item_size), ", ", endstr);
 
 		StringBuilder.Append(out, s(" }"));			
@@ -291,7 +294,7 @@ construct(Map,
 	.Remove = Map_Remove,
 	.Limit = Map_Limit,
 	.Hash = Map_Hash,
-	.Object.__DESTROY = Map_Free
+	.__DESTROY = Map_Free
 ){
 
 	u64 init_size = args.init_size == 0 ? 10 : args.init_size;

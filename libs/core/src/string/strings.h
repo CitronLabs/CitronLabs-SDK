@@ -1,8 +1,6 @@
 #pragma once
-#ifndef NO_HEADERS
-#include "../../include/all.h"
-#include <ctype.h>
-#endif
+#include "../../include/stringutils.h"
+#include "../../include/data.h"
 
 private(StringBuilder,
 	List(char) data;

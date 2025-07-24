@@ -1,5 +1,6 @@
 #pragma once
-#include "../../include/all.h"
+#include "../../include/error.h"
+#include "../../include/stringutils.h"
 
 private(Logger,
 	inst(String) name;

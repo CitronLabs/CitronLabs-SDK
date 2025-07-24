@@ -1,5 +1,6 @@
 #pragma once
-#include "./all.h"
+#include "./types.h"
+#include "./error.h"
 
 #if __HijackMalloc
 #define malloc(size) CMalloc.Allocator.New(generic c_malloc, size, NULL)

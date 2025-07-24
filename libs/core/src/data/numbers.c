@@ -1,4 +1,6 @@
 #include "./datastructs.h"
+#include "string.h"
+#include "stringutils.h"
 
 void numBinaryLiteral(FormatID* formats, inst(String) in, inst(Number) num){
 	
@@ -108,9 +110,9 @@ u64 imethodimpl(Number, Print,, FormatID* formats, inst(StringBuilder) out){
 	cstr format = NULL;
 	self(Number);
 
-	if(formats[FORMAT_NUMS] != NUMS_DEFAULT)
-		switch(formats[FORMAT_NUMS]){
-		case NUMS_HEX:
+	if(formats[FORMAT_NUM] != __default_formats[FORMAT_NUM])
+		switch(formats[FORMAT_NUM]){
+		case NUM_HEX:
 			format = "%x";		
 		break;
 		default: {return 0;}
@@ -138,22 +140,22 @@ return formatted_len;
 }
 u64 imethodimpl(Number, Scan,, FormatID* formats, inst(String) in){
 	
-	FormatID number_format = NUMS_DEFAULT;
+	FormatID number_format = __default_formats[FORMAT_NUM];
 	u64 cursor = 0;
 	self(Number);
 	
 	if(in->txt[0] == '0'){
 		cursor++;
 		switch(in->txt[cursor]){
-		case 'x': number_format = NUMS_HEX; break;
-		case 'b': number_format = NUMS_BIN; break;
+		case 'x': number_format = NUM_HEX; break;
+		case 'b': number_format = NUM_BIN; break;
 		}
 	}else{
 	    if(in->txt[cursor] == '-'){ cursor++;}
 	
 	    while(isdigit(in->txt[cursor]) || in->txt[cursor] == '.'){
-		if(in->txt[cursor] == '.' && number_format == NUMS_DEFAULT){
-			number_format = NUMS_FLOAT;
+		if(in->txt[cursor] == '.' && number_format == __default_formats[FORMAT_NUM]){
+			number_format = NUM_FLOAT;
 			cursor++;
 		}
 		else{
@@ -161,13 +163,13 @@ u64 imethodimpl(Number, Scan,, FormatID* formats, inst(String) in){
 		}
 	    }
 	}
-	if(number_format != formats[FORMAT_NUMS] || cursor == 0) return 0;
+	if(number_format != formats[FORMAT_NUM] || cursor == 0) return 0;
 
 	switch(number_format){
-	case NUMS_FLOAT:{numFloatLiteral(formats, str_cutbcpy(in, in->len - cursor), self); break;}
-	case NUMS_HEX:{	numHexLiteral(formats, str_cutbcpy(in, in->len - cursor), self); break;}
-	case NUMS_BIN:{ numBinaryLiteral(formats, str_cutbcpy(in, in->len - cursor), self); break; }
-	case NUMS_DEFAULT:{ 
+	case NUM_FLOAT:{numFloatLiteral(formats, str_cutbcpy(in, in->len - cursor), self); break;}
+	case NUM_HEX:{	numHexLiteral(formats, str_cutbcpy(in, in->len - cursor), self); break;}
+	case NUM_BIN:{ numBinaryLiteral(formats, str_cutbcpy(in, in->len - cursor), self); break; }
+	case NUM_REG:{ 
 		if(in->txt[0] == '-') 
 			numIntegerLiteral(formats, str_cutbcpy(in, in->len - cursor), self);
 		else 

@@ -1,4 +1,5 @@
 #include "datastructs.h"
+#include "types.h"
 
 #define EMPTY 0
 #define FULL 1
@@ -230,8 +231,8 @@ u64 imethodimpl(Queue, Print,, FormatID* formats, inst(StringBuilder) out){
 	case DATA_DEBUG:
 	
 		formated_len += StringBuilder.Append(out, s("(Queue){"));
-		
-		formated_len += StringBuilder.Append(out, NULL, ".data = ", $(priv->start), ", ", endstr);
+		void* data = priv->start;	
+		formated_len += StringBuilder.Append(out, NULL, ".data = ", $(data), ", ", endstr);
 		formated_len += StringBuilder.Append(out, NULL, ".items = ", $(priv->items), ", ", endstr);
 		formated_len += StringBuilder.Append(out, NULL, ".item_size = ", $(priv->itemsize), ", ", endstr);
 		
@@ -252,7 +253,7 @@ construct(Queue,
 	.Limit = Queue_Limit,
 	.ToPointer = Queue_ToPointer,
 	.Grow = Queue_Grow,
-	.Object.__DESTROY = Queue_Free,
+	.__DESTROY = Queue_Free,
 	.Formatter = {
 	  	.Print = Queue_Print,
 	  	.Scan = Queue_Scan

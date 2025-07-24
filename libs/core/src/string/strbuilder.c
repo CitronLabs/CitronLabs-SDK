@@ -172,7 +172,7 @@ construct(StringBuilder,
 	.Replace = StringBuilder_Replace,
 	.Max = StringBuilder_Max,
 	.Set = StringBuilder_Set,
-	.Object = {.__DESTROY = StringBuilder_Free},
+	.__DESTROY = StringBuilder_Free,
 	.Formatter = {.Print = StringBuilder_Print, .Scan = StringBuilder_Scan},
 ){
 	priv->data = new(List, 

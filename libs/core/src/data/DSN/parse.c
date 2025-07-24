@@ -220,13 +220,13 @@ u64 methodimpl(DSN, parseMap,, inst(Map)* data, inst(String) in){
 		     .init_size = List.Size(buckets),
 		     .literal = List.GetPointer(buckets, 0),
 		     .key_hash_func = 
-		     first_types[0] == DSN_STRING ? 	String.Object.__HASH :
-		     first_types[0] == DSN_NUMBER ? 	Number.Object.__HASH :
-		     first_types[0] == DSN_LIST   ? 	List.Object.__HASH   :
-		     first_types[0] == DSN_MAP    ? 	Map.Object.__HASH    :
-		     first_types[0] == DSN_QUEUE  ? 	Queue.Object.__HASH  :
-		     first_types[0] == DSN_STACK  ? 	Stack.Object.__HASH  :
-		     first_types[0] == DSN_STRUCT ? 	Struct.Object.__HASH :
+		     first_types[0] == DSN_STRING ? 	String.__HASH :
+		     first_types[0] == DSN_NUMBER ? 	Number.__HASH :
+		     first_types[0] == DSN_LIST   ? 	List.__HASH   :
+		     first_types[0] == DSN_MAP    ? 	Map.__HASH    :
+		     first_types[0] == DSN_QUEUE  ? 	Queue.__HASH  :
+		     first_types[0] == DSN_STACK  ? 	Stack.__HASH  :
+		     first_types[0] == DSN_STRUCT ? 	Struct.__HASH :
 		     NULL
 	);
 

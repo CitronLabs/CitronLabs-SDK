@@ -109,7 +109,8 @@ typedef struct name##_Private{__VA_ARGS__}name##_Private; \
 	typedef enum {__VA_ARGS__} 					\
 	name; asClassExt(name, __INIT)
 
-#define Impl(name) name##_Interface name = 				\
+#define Impl(name) 	    name##_Interface name = 				
+#define ImplAs(Class, name) Class##_Interface name = 				
 
 #define Decl(name) 							\
 	typedef struct name##_Instance name##_Instance; 		\
@@ -119,13 +120,17 @@ typedef struct name##_Private{__VA_ARGS__}name##_Private; \
 		name##_ConstructArgs args,				\
 		name##_Instance* self);					\
 
+#define __GLOBAL_METHODS__
+#include "config.h"
+#undef __GLOBAL_METHODS__
+
 #define Class(name,__INIT, __FIELD, ...) 				\
 	typedef struct name##_Private name##_Private;			\
 	extern const u64 sizeof_##name##_Private;			\
 	typedef struct name##_Instance name##_Instance; 		\
 	typedef struct name##_ConstructArgs				\
 	{__INIT} name##_ConstructArgs;					\
-	Interface(name, interface(Object); __VA_ARGS__) 		\
+	Interface(name, CORE_METHODS(name) __VA_ARGS__) 		\
 	extern name##_Interface name;					\
 	typedef struct name##_Instance{					\
 		name##_Private* __private;				\
@@ -141,7 +146,8 @@ typedef struct name##_Private{__VA_ARGS__}name##_Private; \
 
 #define inst(Class) Class##_Instance*
 #define intf(Class) const Class##_Interface*
-#define data(DataClass) DataClass##_Instance
+#define data(Class) Class##_Instance
+#define ifob(Class) struct{intf(Class) intf; inst(Object) obj;}
 
 #define generic (inst(Object))
 #define class(type) (inst(type))
@@ -152,15 +158,14 @@ typedef struct name##_Private{__VA_ARGS__}name##_Private; \
 #define new(name, ...) init(name, malloc(sizeof(name##_Instance) + sizeof_##name##_Private), __VA_ARGS__)
 #define push(name, ...) init(name, alloca(sizeof(name##_Instance) + sizeof_##name##_Private), __VA_ARGS__)
 
-#define del(object) if(object->__methods->Object.__DESTROY == NULL) ERR(ERR_NULLPTR,"no destructor specified for this object"); \
-		    else if(object->__methods->Object.__DESTROY(generic object) == ERR_NONE) free(object);
-#define pop(object) if(object->__methods->Object.__DESTROY == NULL) ERR(ERR_NULLPTR,"no destructor specified for this object"); \
-		    else object->__methods->Object.__DESTROY(generic object)
+#define del(object) if(object->__methods->__DESTROY == NULL) ERR(ERR_NULLPTR,"no destructor specified for this object"); \
+		    else if(object->__methods->__DESTROY(generic object) == ERR_NONE) free(object);
+#define pop(object) if(object->__methods->__DESTROY == NULL) ERR(ERR_NULLPTR,"no destructor specified for this object"); \
+		    else object->__methods->__DESTROY(generic object)
 
 /*----------------------|
        Base Types	|
 ----------------------*/
-
 
 typedef uint64_t u64;
 asClass(u64){ passover }
@@ -200,8 +205,8 @@ asClass(c16){ passover }
 typedef char32_t c32;
 asClass(c32){ passover }
 
-typedef wchar_t  cwide;
-asClass(cwide){ passover }
+typedef wchar_t  rune;
+asClass(rune){ passover }
 
 typedef char* cstr;
 asClass(cstr){ passover }
@@ -210,84 +215,12 @@ typedef wchar_t* wstr;
 asClass(wstr){ passover }
 
 typedef void* pntr;
+#define arry(type) type*
 #define pntr_shift(ptr, shift_amt) ptr = ((void*)(&(((uint8_t*)ptr)[shift_amt])))
 #define pntr_shiftcpy(ptr, shift_amt) ((void*)(&(((uint8_t*)ptr)[shift_amt])))
 #define pntr_asVal(addr) (*(uint64_t*)&addr)
 asClass(pntr){ passover }
 
-Type(Object);
+typedef u32 errvt;
 
-Interface(Object,
-	u32 imethod(__HASH);			
-	u32 imethod(__DESTROY);		
-#ifdef __USER_CLASS_METHODS__
-	__USER_CLASS_METHODS__				
-#endif
-
-)
-
-typedef enum {
-	BASETYPE_NULL,	BASETYPE_INT,    	
-	BASETYPE_LONG,	BASETYPE_UINT,    	
-	BASETYPE_ULONG, BASETYPE_FLOAT,   	
-        BASETYPE_STRING, BASETYPE_CHAR,    	
-        BASETYPE_POINTER, BASETYPE_BOOL,			
-        BASETYPE_OBJECT		
-}__Base_Type_ID__;
-
-#define __Base_Type__(object) 			\
-_Generic((object), 				\
-i32:    	BASETYPE_INT,			\
-u32:		BASETYPE_UINT, 			\
-i64:    	BASETYPE_LONG,   		\
-u64:    	BASETYPE_ULONG,   		\
-i16:   		BASETYPE_INT,   		\
-u16:   		BASETYPE_UINT,			\
-u8:   		BASETYPE_UINT,		   	\
-i8:   		BASETYPE_INT,		   	\
-float:   	BASETYPE_FLOAT,   		\
-double:  	BASETYPE_FLOAT,			\
-const char*: 	BASETYPE_STRING,		\
-char *:  	BASETYPE_STRING,		\
-c8:	    	BASETYPE_CHAR,   		\
-void *:  	BASETYPE_POINTER,		\
-bool:		BASETYPE_BOOL, 			\
-default: 	BASETYPE_OBJECT)		
-
-
-#define asObject(var)					\
-_Generic((var), 					\
-i32:    	push(BaseType, BASETYPE_INT, &var),	\
-u32:		push(BaseType, BASETYPE_UINT, &var), 	\
-i64:    	push(BaseType, BASETYPE_LONG, &var),   	\
-u64:    	push(BaseType, BASETYPE_ULONG, &var),   \
-i16:   		push(BaseType, BASETYPE_INT, &var),   	\
-u16:   		push(BaseType, BASETYPE_UINT, &var),	\
-u8:   		push(BaseType, BASETYPE_UINT, &var),	\
-i8:   		push(BaseType, BASETYPE_INT, &var),	\
-float:   	push(BaseType, BASETYPE_FLOAT, &var),   \
-double:  	push(BaseType, BASETYPE_FLOAT, &var),	\
-const char*: 	push(BaseType, BASETYPE_STRING, &var),	\
-cstr:	  	push(BaseType, BASETYPE_STRING, &var),	\
-c8:	    	push(BaseType, BASETYPE_CHAR, &var),   	\
-void *:  	push(BaseType, BASETYPE_POINTER, &var),	\
-bool:		push(BaseType, BASETYPE_BOOL, &var), 	\
-default: 	var)		
-
-#define getMethods(type)							  \
-_Generic(((data(type)){0}), 							  \
-i32:    	*(push(BaseType, BASETYPE_INT, 	  &(data(type)){0})->__methods),\
-u32:		*(push(BaseType, BASETYPE_UINT,   &(data(type)){0})->__methods),\
-i64:    	*(push(BaseType, BASETYPE_LONG,   &(data(type)){0})->__methods),\
-u64:    	*(push(BaseType, BASETYPE_ULONG,  &(data(type)){0})->__methods),\
-i16:   		*(push(BaseType, BASETYPE_INT, 	  &(data(type)){0})->__methods),\
-u16:   		*(push(BaseType, BASETYPE_UINT,   &(data(type)){0})->__methods),\
-u8:   		*(push(BaseType, BASETYPE_UINT,   &(data(type)){0})->__methods),\
-i8:   		*(push(BaseType, BASETYPE_INT, 	  &(data(type)){0})->__methods),\
-float:   	*(push(BaseType, BASETYPE_FLOAT,  &(data(type)){0})->__methods),\
-double:  	*(push(BaseType, BASETYPE_FLOAT,  &(data(type)){0})->__methods),\
-const char*: 	*(push(BaseType, BASETYPE_STRING, &(data(type)){0})->__methods),\
-cstr:	  	*(push(BaseType, BASETYPE_STRING, &(data(type)){0})->__methods),\
-pntr: 	 	*(push(BaseType, BASETYPE_POINTER,&(data(type)){0})->__methods),\
-bool:		*(push(BaseType, BASETYPE_BOOL,   &(data(type)){0})->__methods),\
-default: 	type)		
+Class(Object,,,);

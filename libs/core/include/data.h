@@ -155,12 +155,6 @@ __FIELD(),
 	bool method(Queue,Check);
 );
 
-Class(BaseType, 
-__INIT(__Base_Type_ID__ ID; void* data),
-__FIELD(__Base_Type_ID__ ID; void* data),
-	interface(Formatter);
-)
-
 /**
  * Extra-C Map Data Structure
  *-----*/

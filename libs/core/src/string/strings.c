@@ -87,10 +87,8 @@ construct(String,
 	.Print = String_Print,
 	.Scan = String_ScanFor
 	},
-	.Object = {
 	.__DESTROY = String_Free,
 	.__HASH = String_Hash,
-	}
 ){
 	if(!args.inline_alloc){
 		self->len = strnlen(args.c_str, args.len);

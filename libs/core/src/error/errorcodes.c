@@ -3,15 +3,15 @@
 
 errvt methodimpl(Error, Set,, const cstr errmsg, const char funcname[]){
 
-	inst(Error) thrd_err = Thread.GetErr(Thread.GetCurrent());
+	inst(Error) curr_err = geterr();
 	u8 count = 0;
 	
-	thrd_err->message = errmsg == NULL ? self->message : errmsg;
-	thrd_err->errorcode = self->errorcode;
+	curr_err->message = errmsg == NULL ? self->message : errmsg;
+	curr_err->errorcode = self->errorcode;
 	
 	if(showErrors && self->errorcode != ERR_NONE){
 		fprintf(stderr,
-		 RED"[ERROR] %s\n"NC"In the function: %s\nerrormsg: %s\n\n",self->message, funcname, thrd_err->message);
+		 RED"[ERROR] %s\n"NC"In the function: %s\nerrormsg: %s\n\n",self->message, funcname, curr_err->message);
 	}
 
 return self->errorcode;
@@ -41,9 +41,9 @@ void Error_Show(){
 }
 
 void Error_Clear(){
-	inst(Error) thrd_err = Thread.GetErr(Thread.GetCurrent());
-	thrd_err->errorcode = 0;
-	thrd_err->message = "No Error";
+	inst(Error) curr_err = geterr();
+	curr_err->errorcode = 0;
+	curr_err->message = "No Error";
 }
 
 private(Error);
@@ -53,7 +53,7 @@ construct(Error,
 	.Show = Error_Show,
 	.Hide = Error_Hide,
 	.Clear = Error_Clear,
-	.SetLogger = Error_SetLogger
+	.setLogger = Error_SetLogger,
 ){
 	self->errorcode = args.errorcode;
 	self->message = args.message;

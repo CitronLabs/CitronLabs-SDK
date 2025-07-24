@@ -2,7 +2,7 @@
 #define NO_AUTO_INIT
 
 #ifndef NO_HEADERS
-#include "../include/std-all.h"
+#include "../../APIs/XC/core.h"
 #endif
 
 #undef main
@@ -17,9 +17,9 @@ Impl(FormatUtils){
 };
 
 errvt init_ExtraC(){
-	errvt res = ERR_NONE;
-	if(__USER_INIT__ != NULL) res  = __USER_INIT__();
-return res;
+	if(__Init_Func != NULL) if(__Init_Func() == false) return ERR_INITFAIL;
+
+return OK;
 }
 
 int main(int argc, cstr* argv){

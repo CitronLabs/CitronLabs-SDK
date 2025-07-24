@@ -101,7 +101,6 @@ u64 resolveReference(inst(DSN) self, DSN_data* ds, inst(String) in){
 
 	if(reference == NULL){
 		ERR(DATAERR_DSN, "reference not found");
-		println("invalid reference: ", $(str_cutbcpy(in, in->len - reference_len)));
 		return 0;
 	}
 	
@@ -282,13 +281,11 @@ DSN_data* methodimpl(DSN, searchField,, inst(String) name){
 		result = Struct.SearchField(curr_struct, view);
 	 	if(result == NULL){
 			ERR(DATAERR_DSN, "unable to resolve reference");
-			println("unknown reference: ", $O(name));
 			return NULL;
 	    	}
 		if(name->txt[i] == '.'){
 			if(result->type != DSN_STRUCT){
 				ERR(DATAERR_DSN, "only structs ({}) can be subreferenced");
-				println("unknown reference: ", $O(name));
 				return NULL;
 			}
 			curr_struct = result->data;
@@ -301,7 +298,6 @@ DSN_data* methodimpl(DSN, searchField,, inst(String) name){
 	}
 
 ERR(DATAERR_DSN, "unexpected end of reference");
-println("unknown reference: ", $O(name));
 return NULL;
 };
 

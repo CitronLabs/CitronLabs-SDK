@@ -46,11 +46,11 @@ errvt methodimpl(List,Append,, void* in, u64 len){
 	nonull(in, return nullerr;)
 
 	if(priv->items + len > priv->items_alloced)
-#if STDDATA_AUTOGROW
+#if __DataAutoGrow
 		List.Grow(self, priv->items_alloced + (priv->items_alloced / 2) + len);
 #else
 		return ERR(
-		DATAERR_OUTOFRANGE, "grow the priv to fit new data")
+		DATAERR_OUTOFRANGE, "grow the list to fit new data");
 #endif
 	insertIntoListAt(priv->items, in, len)
 	
@@ -106,11 +106,11 @@ errvt methodimpl(List,Insert,, u64 len, u64 index, void* in){
 		len = priv->limit - priv->items;
 
 	if(priv->items + len > priv->items_alloced)
-#if STDDATA_AUTOGROW
+#if __DataAutoGrow 
 		List.Grow(self, len + (priv->items_alloced / 2));
 #else
 		return ERR(
-		DATAERR_OUTOFRANGE, "grow the priv to fit new data")
+		DATAERR_OUTOFRANGE, "grow the priv to fit new data");
 #endif
 	
 
@@ -311,7 +311,7 @@ construct(List,
 	.SetFree = List_SetFree,
 	.FillSlot = List_FillSlot,
 	.GetPointer = List_GetPointer,
-	.Object.__DESTROY = List_Free,
+	.__DESTROY = List_Free,
 	.Formatter = {
 		.Print = List_Print,
 	  	.Scan = List_Scan
@@ -321,7 +321,7 @@ construct(List,
 		.items_alloced = args.init_size  == 0 ? 1 : args.init_size,
         	.items = 0,
         	.item_size = args.type_size,
-        	.limit = UINT64_MAX
+        	.limit = __List.maxSize
 	};
 
 	if(NULL ==  (priv->data = calloc(priv->items_alloced, priv->item_size))) { 

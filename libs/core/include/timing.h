@@ -62,7 +62,7 @@ __FIELD(u64 seconds; u64 nanosec;),
 )
 
 Class(TimeWatch,
-__INIT(inst(Time) limit),
+__INIT(inst(Time) limit; bool start),
 __FIELD(),
       	
       	interface(Formatter);
@@ -70,6 +70,7 @@ __FIELD(),
 	errvt method(TimeWatch,Start);
 	inst(Time) method(TimeWatch,Check);
 	inst(Time) method(TimeWatch,Stop);
+	inst(Time) method(TimeWatch, getStartTime);
 
 )
 

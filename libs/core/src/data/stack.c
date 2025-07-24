@@ -154,7 +154,7 @@ construct(Stack,
 	.Limit = Stack_Limit,
 	.Index = Stack_Index,
 	.Grow = Stack_Grow,
-	.Object.__DESTROY = Stack_Free,
+	.__DESTROY = Stack_Free,
 	.Formatter = {
 		.Scan = Stack_Scan,
 	  	.Print = Stack_Print

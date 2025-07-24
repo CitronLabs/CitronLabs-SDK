@@ -6,7 +6,7 @@ errvt methodimpl(Time, GetNow){
 
 	if(TIME_UTC != timespec_get(&res, TIME_UTC)){ 
 	      return ERR(
-		ERR_INVALIDERR, "could not get current time");
+		ERR_FAIL, "could not get current time");
 	}
 
 return Time.FromCTime(self, res);
@@ -201,7 +201,7 @@ u64 imethodimpl(TimeShort, Scan,, FormatID* formats, inst(String) in){
 	    in->txt[i + 2] != 'y' ||
 	    in->txt[i + 3] != ' '
 	){
-	    ERR(ERR_INVALIDERR, "invalid time string format");
+	    ERR(ERR_INVALID, "invalid time string format");
 	    return 0;
 	}
 
@@ -209,7 +209,7 @@ u64 imethodimpl(TimeShort, Scan,, FormatID* formats, inst(String) in){
 	i += String.Scan(str_cutfcpy(in, i), $(result.day), endstr) + 1;
 
 	if(' ' != in->txt[i]){
-		ERR(ERR_INVALIDERR, "invalid time string format");
+		ERR(ERR_INVALID, "invalid time string format");
 		return 0;
 	}
 

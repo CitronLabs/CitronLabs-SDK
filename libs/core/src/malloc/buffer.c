@@ -1,4 +1,5 @@
-#include "../../include/all.h"
+#include "../../include/alloc.h"
+#include "../../include/data.h"
 
 private(Buffer,
 	u64 type_size, size, alloced_size;
@@ -94,7 +95,7 @@ construct(Buffer,
 	    .New = Buffer_New,
     	    .Resize = Buffer_Realloc
 	},
-	.Object = {.__DESTROY = Buffer_Destroy, .__HASH = Buffer_Hash}
+	.__DESTROY = Buffer_Destroy, .__HASH = Buffer_Hash
 ){
 	if(args.size == 0){
 	  	ERR(MEMERR_INVALIDSIZE, "buffer size cannot be 0"); 
