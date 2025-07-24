@@ -1,5 +1,5 @@
 #pragma once
-#ifdef __unix__
+#include "../../include/all.h"
 #include "../network.h"
 #include <netdb.h>
 #include <sys/socket.h>
@@ -123,5 +123,4 @@ return OK;
 #include "./connections.c"
 #include "./sockets.c"
 #include "./netinfo.c"
-#endif
 #endif

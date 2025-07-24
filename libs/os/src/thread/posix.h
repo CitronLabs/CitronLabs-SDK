@@ -1,10 +1,12 @@
 #pragma once
-#ifdef __unix__
-#include "../thread.h"
+#include "../../include/all.h"
 #include <pthread.h>
 #include <unistd.h>
 #include <bits/pthreadtypes.h>
 #include "semaphore.h"
+
+static List(inst(Thread)) active_threads = NULL;
+static Stack(inst(Thread)) freed_threads = NULL;
 
 private(Thread,
 	pthread_t thread;
@@ -46,4 +48,3 @@ static inst(Thread) init_thread =
 #include "./semaphore.c"
 #endif
 
-#endif

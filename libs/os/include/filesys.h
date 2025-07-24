@@ -1,7 +1,5 @@
 #pragma once
-#include "./types.h"
-#include "./error.h"
-#include "./timing.h"
+#include "./extern.h"
 
 #define pathtostr(path) str_cast(path, sizeof(fsPath))
 
@@ -16,49 +14,21 @@
 #define DFL_READ 	0x01
 #define DFL_WRITE 	0x02
 
-#define $(expr)    NULL, __Base_Type__(expr), NULL, expr
-#define $O(object) NULL, BASETYPE_OBJECT, &object->__methods->Formatter, object
-
-#define endprint NULL, BASETYPE_NULL
-#define endscan  NULL, BASETYPE_NULL
-
-#define print(...) 	 File.PrintTo(File.out, __VA_ARGS__, endprint)
-#define fprint(file,...) File.PrintTo(file, 	__VA_ARGS__, endprint)
-#define println(...) 	 File.PrintTo(File.out, __VA_ARGS__, "\n" , endprint)
-
-#define scan(delim, ...) 	   File.ScanFrom(File.in, delim,__VA_ARGS__, endscan)
-#define fscan(file, delim,...) 	   File.ScanFrom(file,    delim,__VA_ARGS__, endscan)
-#define scanln(...) 		   File.ScanFrom(File.in, "\n", __VA_ARGS__, endscan)
-
-typedef char fsPath[256];
-Type(fsEntry,
-	u8 is_dir : 1;
-	char name[256];
-	size_t size;
-	inst(Time) time_created;
-	inst(Time) time_modified;
+Static(FileSys,
+	errvt vmethod(search, fsPath path, fsEntry* result);
+	errvt vmethod(setCurrent);
 )
-
-Interface(VirtFS,
-	i64 	imethod(write,,   pntr handle, pntr data, size_t size);
-	i64 	imethod(read,,    pntr handle, pntr data, size_t size);
-	errvt 	imethod(search,,  fsPath path, fsEntry* ent);
-	pntr  	imethod(open,,    fsPath path);
-	errvt  	imethod(close,,   pntr handle);
-)
-
-Class(FileSys,
-__INIT(intf(VirtFS) interface; inst(Object) fs),
-__FIELD(),
-	errvt method(FileSys, search,, fsPath path, fsEntry* result);
-	errvt method(FileSys, setCurrent);
-)
-
-extern inst(FileSys) sys_fs;
 
 Class(File,
 __INIT(cstr path; u8 flags; u16 char_size),
 __FIELD(),
+	#define print(...) 	 File.PrintTo(File.out, __VA_ARGS__, endprint)
+	#define fprint(file,...) File.PrintTo(file, 	__VA_ARGS__, endprint)
+	#define println(...) 	 File.PrintTo(File.out, __VA_ARGS__, "\n" , endprint)
+
+	#define scan(delim, ...) 	   File.ScanFrom(File.in, delim,__VA_ARGS__, endscan)
+	#define fscan(file, delim,...) 	   File.ScanFrom(file,    delim,__VA_ARGS__, endscan)
+	#define scanln(...) 		   File.ScanFrom(File.in, "\n", __VA_ARGS__, endscan)
 
 	interface(Loggable);
 
@@ -75,8 +45,9 @@ __FIELD(),
 	errvt 		method(File, Remove);
 	errvt 		method(File, SetFlags,, u8 flags);
 
-	inst(File)  	vmethod(Create, cstr path,  u8 flags, u16 char_size);
-	inst(File)  	vmethod(FromC,  FILE* file, u8 flags, u16 char_size);
+	inst(File)  	vmethod(CreateTemp, 	cstr name,  u8 flags, u16 char_size);
+	inst(File)  	vmethod(Create, 	cstr path,  u8 flags, u16 char_size);
+	inst(File)  	vmethod(FromC,  	FILE* file, u8 flags, u16 char_size);
 )
 
 Class(Dir,

@@ -1,44 +1,18 @@
 #pragma once
-#define __EXT_IO_SOURCE_DEF__
-#include "./posix.h"
+#include "./io.h"
+#include "types.h"
 
-
-int getFileFlags(u8 flags){
-	getbitflagsinit
-	int res = 0;
-
-	getbitflags(flags, {
-	case FFL_WRITE:{
-		if(getbitflag(res, O_RDONLY)){
-			res ^= O_RDONLY;
-			res |= O_RDWR;
-		}else
-			res |= O_WRONLY;
-	break;}
-	case FFL_READ:{
-		if(getbitflag(res, O_WRONLY)){
-			res ^= O_WRONLY;
-			res |= O_RDWR;
-		}else
-			res |= O_RDONLY;
-	break;}
-	case FFL_ASYNC:{
-		res |= O_NONBLOCK;	
-	break;}
-	case FFL_APPEND:{
-		res |= O_APPEND;	
-	break;}
-	})
-
-return res;
-}
+private(File,
+	fsHandle handle;
+	u16 char_size;
+	u8 flags;
+)
 
 inst(File) File_Create(fsPath path, u8 flags, u16 char_size){
 
-	int fd;
-	struct stat statbuf;
+	fsEntry fbuf;
 
-	if(0 == stat(path, &statbuf)){ ERR(
+	if(0 == userOS->filesys.search(path, &fbuf)){ ERR(
 		IOERR_ALRDYEXST, "file already exists");
 		return NULL;
 	}
@@ -47,7 +21,7 @@ inst(File) File_Create(fsPath path, u8 flags, u16 char_size){
 
 	inst(File) self = calloc(1, sizeof(File_Instance));
 
-	if(-1 == (priv->fd = open(path, o_flags | O_CREAT | O_TRUNC, S_IWUSR | S_IRUSR))){
+	if(NULL == (priv->handle = userOS->filesys.open(path, o_flags | userOS->filesys.CREATE_FLAG))){
 	  	ERR(IOERR_FAIL, "failed to open file");
 		free(self);
 		return NULL;

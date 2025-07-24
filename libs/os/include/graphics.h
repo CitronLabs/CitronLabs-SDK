@@ -8,24 +8,18 @@ extern inst(Display) root_display;
 Interface(Render,
 	errvt imethod(setDisplay,, inst(Display) display);
 	errvt imethod(renderFrame);
+      	errvt imethod(swapBuffers);
 )
 
 
-Class(Surface,
-__INIT(inst(Display) display),
-__FIELD(), 
-
-);
-
-
+#define DISPLAY_SIZE 0x01
+#define DISPLAY_POS  0x02
 Class(Display, 
-__INIT(inst(Display) parent; char* name; u64 w,h,x,y),
+__INIT(inst(Display) parent; char* name; u64 w,h,x,y;),
 __FIELD(inst(Display) parent; char* name; u64 w,h,x,y),
       	errvt 		method(Display, addChild,, inst(Display) display);
       	errvt 		method(Display, update);
-      	errvt 		method(Display, setBuffers,, inst(Surface) back, inst(Surface) front);
-      	errvt 		method(Display, swapBuffers);
-      	inst(Surface) 	method(Display, createSurface);
+      	errvt 		method(Display, lock,,  u8 attrb_to_lock);
 	bool 		method(Display, isRunning);
 	
 )
@@ -46,14 +40,6 @@ void test(){
 		return;
 	}
 
-	check(
-	Display.setBuffers(window,
-		push(Surface, window),
-		push(Surface, window)
-	)){
-		ERR(ERR_INITFAIL, "failed to set window buffers");
-	}
-
 	inst(Vulkin) vk = new(Vulkin);
 	
 	Vulkin.Render.setDisplay(generic vk, window);
@@ -61,5 +47,6 @@ void test(){
 	while(Display.isRunning(window)){
 		
 		Vulkin.Render.renderFrame(generic vk);
+		Vulkin.Render.swapBuffers(generic vk);
 	}
 }

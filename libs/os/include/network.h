@@ -1,7 +1,7 @@
 #pragma once
-#include "./utils.h"
-#include "./types.h"
-#include "./error.h"
+#include "./extern.h"
+#include "./scheduler.h"
+#include "types.h"
 
 #define SOCKET_PROTOCAL_NULL 0x00
 #define SOCKET_PROTOCAL_UDP 0x01
@@ -17,25 +17,38 @@
 #define D_IPV6 SOCKET_DOMAIN_IPV6
 #define D_LOCAL SOCKET_DOMAIN_LOCAL
 
-#define msgSend(conn, error_handling, ...){ 	\
-	msg_packet __parent_packet = {0};	\
+
+#define Protocal(name, ...) 					\
+	typedef struct{ __VA_ARGS__ } name##_header; 		\
+	inline Packet msg##name(name##_header header, Packet body)
+
+#define msgHandler(protocal, ...) 				\
+	inline Packet msg##name(name##_header header, Packet body)
+
+#define msgBuild(packet, ...){ 			\
+	Packet __parent_packet = {0};		\
 		__VA_ARGS__; 			\
-	if(connectSend(conn, __parent_packet))	\
-		error_handling; 		\
+	packet = __parent_packet;		\
+} 
+#define msgSend(conn, ...){ 			\
+	Packet __parent_packet = {0};		\
+		__VA_ARGS__; 			\
+	Connection.Send(conn, __parent_packet);	\
 } 
 
 #define msgReturn(...){			 	\
-	msg_packet __parent_packet = {0};	\
+	Packet __parent_packet = {0};		\
 		__VA_ARGS__; 			\
 	return __parent_packet;			\
-} 
-#define msgBuff(buff, size) (msg_packet){size,buff}
-#define msgText(string) __parent_packet = (msg_packet){strnlen(string, UINT64_MAX), string}; 
-#define msgInline(...) msgText(#__VA_ARGS__)
+}
+
+#define msgBuff(buff, size) (Packet){size,buff}
+#define msgString(string) __parent_packet = (Packet){strnlen(string, UINT64_MAX), string}; 
+#define msgText(...) msgString(#__VA_ARGS__)
 #define msg(protocal, ...)	 		\
-	 msg_packet* protocal##_packet 		\
+	 Packet* protocal##_packet 		\
 		 = &__parent_packet; 		\
-	for(msg_packet __parent_packet = {0};	\
+	for(Packet __parent_packet = {0};	\
 	    protocal##_packet->size == 0; 	\
 	    *protocal##_packet = msg##protocal(	\
 		(protocal##_header){__VA_ARGS__}\
@@ -67,15 +80,6 @@ Type(socket_settings,
 	u8 blocking : 1;
 )
 
-Type(nethost_resolve,
-	inst(String) host_name;
-	ipv4_netaddress* ipv4_addrs;
-	ipv6_netaddress* ipv6_addrs;
-)
-
-errvt netDomainResolve(nethost_resolve* resolve, inst(String) host_name, u8 domain_type);
-
-
 typedef struct Connection_Instance Connection_Instance;
 
 Class(Socket,
@@ -90,7 +94,7 @@ __FIELD(),
 );
 
 
-Type(msg_packet,
+Type(Packet,
 	u32 size;
 	void* buff;
 );
@@ -99,23 +103,32 @@ Class(Connection,
 __INIT(socket_settings settings; void* address;), 
 __FIELD(),
 
-	errvt method(Connection,Send,, msg_packet message);
-	errvt method(Connection,Recieve,, msg_packet message);
+	errvt method(Connection,Send,, Packet message);
+	errvt method(Connection,Recieve,, Packet message);
 	errvt method(Connection,Watch);
 	errvt method(Connection,UnWatch);
 	bool method(Connection,Check);
 	errvt method(Connection,GroupJoin,, void* address, void* interface_addr);
 	errvt method(Connection,GroupLeave);
-	errvt method(Connection,GroupSend,, msg_packet message);
-	errvt method(Connection,GroupRecive,, msg_packet message);
+	errvt method(Connection,GroupSend,, Packet message);
+	errvt method(Connection,GroupRecive,, Packet message);
 	socket_settings method(Connection,GetSettings);
+      	errvt method(Socket, GetAddress,, void* address);
 );
 
-enum HTTP_Method{
-	HTTP_GET,
-	HTTP_POST,
-	HTTP_PUT,
-};
 
-typedef struct{enum HTTP_Method method; cstr route;} HTTP_header;
-msg_packet msgHTTP(HTTP_header header, msg_packet body);
+Interface(Server,
+	errvt imethod(handlePacket,, inst(Connection) client, inst(Packet) packet);
+	errvt imethod(reviewNewClient,, inst(Connection) client);
+)
+
+Class(ServerManager,
+__INIT(ifob(Server) server; inst(Logger) logger; u16 max_threads),
+__FIELD(
+	inst(Thread) 	main_thread;
+     	inst(TimeWatch) active_timewatch;
+     	inst(Logger)	logger
+),
+	errvt method(ServerManager, startServer);
+	errvt method(ServerManager, limitThreads,, u16 limit);
+)
