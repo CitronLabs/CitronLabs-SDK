@@ -1,7 +1,6 @@
 #pragma once
 #include "./extern.h"
 #include "./scheduler.h"
-#include "types.h"
 
 #define SOCKET_PROTOCAL_NULL 0x00
 #define SOCKET_PROTOCAL_UDP 0x01
@@ -53,25 +52,6 @@
 	    *protocal##_packet = msg##protocal(	\
 		(protocal##_header){__VA_ARGS__}\
 		, __parent_packet))
-
-typedef u8 ipv4_netaddress[4];
-typedef u16 ipv6_netaddress[8];
-
-Type(address_sockipv4,
-	u16 port;
-	ipv4_netaddress address;
-)
-
-
-Type(address_sockipv6,
-	u16 port;
-	ipv6_netaddress address;
-)
-
-
-Type(address_socklocal,
-	inst(String) path;
-)
 
 
 Type(socket_settings,
