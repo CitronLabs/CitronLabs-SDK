@@ -1,193 +1,273 @@
 #include "./datastructs.h"
-#include "string.h"
-#include "stringutils.h"
+#include "Number/number.h"
+#include "Number/integers/operations.c"
+#include "Number/integers/format.c"
+#include "Number/integers/parse.c"
+#include "Number/floats/operations.c"
+#include "Number/floats/format.c"
+#include "Number/floats/parse.c"
 
-void numBinaryLiteral(FormatID* formats, inst(String) in, inst(Number) num){
-	
-	inst(StringBuilder) num_str = new(StringBuilder, NULL, UINT64_MAX);
-	u64 cursor = 0;
-	
-	//Parsing the 0b\*number*\ Format
-	if(in->txt[cursor] == '\\'){
-		cursor++;
-		while(in->txt[cursor] != '\\'){
-			//Checking the character is not 1 or 0 and not whitespace
-			if((in->txt[cursor] < '0' || 
-			    in->txt[cursor] > '1') &&
-			   !isblank(in->txt[cursor])) break;
-			
-			if(in->txt[cursor] <= ' '){ cursor++; continue;}
-	
-			if(in->txt[cursor] == '1') 
-				StringBuilder.Append(num_str, s("1"));
-			else 
-				StringBuilder.Append(num_str, s("0"));
-
-			cursor++;
-		}
-	}
-	//Parsing the 0b*number* Format
-	else{
-		while(in->txt[cursor] == '0' || in->txt[cursor] == '1'){
-
-			if(in->txt[cursor] == '1') 
-				StringBuilder.Append(num_str, s("1"));
-			else 
-				StringBuilder.Append(num_str, s("0"));
-			
-			cursor++;
-		}
-	
-	}
-	cstr end;
-	String_Instance num_txt = StringBuilder.GetStr(num_str);
-	num->as_u64 = strtoull(num_txt.txt, &end, 2);
-}
-
-#define isvalidhex(c) (isdigit(c) || ((c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F')))
-void numHexLiteral(FormatID* formats, inst(String) in, inst(Number) num){
-	
-	inst(StringBuilder) num_str = new(StringBuilder, NULL, UINT64_MAX);
-	u64 cursor = 0;
-	
-	//Parsing the 0b\*number*\ Format
-	if(in->txt[cursor] == '\\'){
-		cursor++;
-		while(in->txt[cursor] != '\\'){
-			//Checking the character is not 1 or 0 and not whitespace
-			if(!isvalidhex(in->txt[cursor]) &&
-			   !isblank(in->txt[cursor])) 
-				break;
-			
-			if(isblank(in->txt[cursor])){ cursor++; continue;}
-	
-			if(in->txt[cursor] == '1') 
-				StringBuilder.Append(num_str, s("1"));
-			else 
-				StringBuilder.Append(num_str, s("0"));
-
-			cursor++;
-		}
-	}
-	//Parsing the 0b*number* Format
-	else{
-		while(in->txt[cursor] == '0' || in->txt[cursor] == '1'){
-
-			if(in->txt[cursor] == '1') 
-				StringBuilder.Append(num_str, s("1"));
-			else 
-				StringBuilder.Append(num_str, s("0"));
-			
-			cursor++;
-		}
-	
-	}
-	cstr end;
-	String_Instance num_txt = StringBuilder.GetStr(num_str);
-	num->as_u64 = strtoull(num_txt.txt, &end, 2);
-}
-
-void numFloatLiteral(FormatID* formats, inst(String) in, inst(Number) num){
-	cstr end;
-	num->as_double = strtod(in->txt, &end);
-
-}
-void numIntegerLiteral(FormatID* formats, inst(String) in, inst(Number) num){
-	cstr end;
-	num->as_i64 = strtoll(in->txt, &end, 10);
-}
-void numUnsignedIntegerLiteral(FormatID* formats, inst(String) in, inst(Number) num){
-	cstr end;
-	num->as_i64 = strtoll(in->txt, &end, 10);
-}
-
-#define format(formatstr, type) \
-	formatted_len = snprintf(buff, 50, formatstr, self->as_##type)
 
 u64 imethodimpl(Number, Print,, FormatID* formats, inst(StringBuilder) out){
-	u64 formatted_len = 0;
-	char buff [50] = {0};
-	cstr format = NULL;
 	self(Number);
 
-	if(formats[FORMAT_NUM] != __default_formats[FORMAT_NUM])
-		switch(formats[FORMAT_NUM]){
-		case NUM_HEX:
-			format = "%x";		
-		break;
-		default: {return 0;}
-		}
-	switch(self->type){
-	case N_SIGNED: {
-		switch(self->len){
-		case 1:{format(format != NULL ? format : "%hi", i32); break;}
-		case 2:{format(format != NULL ? format : "%i", i32); break;}
-		case 3:{format(format != NULL ? format : "%li" ,i64); break;}
-		}
-	break;}
-	case N_UNSIGNED: {	
-		switch(self->len){
-		case 1:{format(format != NULL ? format : "%hu", u64); break;}
-		case 2:{format(format != NULL ? format : "%u", u32); break;}
-		case 3:{format(format != NULL ? format : "%lu", u32); break;}
-		}
-	break;}
-	case N_FLOATING:{format(format != NULL ? format : "%lf", double); break;}
-	default:{ return 0; }
-	}
-	StringBuilder.Append(out, pushString(buff, 50));
-return formatted_len;
+	if(priv->floating)
+		return Number_FloatPrint(self, out);
+	else
+	    switch(formats[FORMAT_NUM]){
+	    case NUM_BIN:
+		return Number_IntPrintBin(self, out); break;
+	    case NUM_HEX:
+		return Number_IntPrintHex(self, out); break;
+	    case NUM_REG:
+	    default:
+		return Number_IntPrintDeci(self, out); break;
+	    }
 }
 u64 imethodimpl(Number, Scan,, FormatID* formats, inst(String) in){
-	
-	FormatID number_format = __default_formats[FORMAT_NUM];
-	u64 cursor = 0;
 	self(Number);
-	
-	if(in->txt[0] == '0'){
-		cursor++;
-		switch(in->txt[cursor]){
-		case 'x': number_format = NUM_HEX; break;
-		case 'b': number_format = NUM_BIN; break;
-		}
-	}else{
-	    if(in->txt[cursor] == '-'){ cursor++;}
-	
-	    while(isdigit(in->txt[cursor]) || in->txt[cursor] == '.'){
-		if(in->txt[cursor] == '.' && number_format == __default_formats[FORMAT_NUM]){
-			number_format = NUM_FLOAT;
-			cursor++;
-		}
-		else{
-			cursor++;
-		}
-	    }
-	}
-	if(number_format != formats[FORMAT_NUM] || cursor == 0) return 0;
-
-	switch(number_format){
-	case NUM_FLOAT:{numFloatLiteral(formats, str_cutbcpy(in, in->len - cursor), self); break;}
-	case NUM_HEX:{	numHexLiteral(formats, str_cutbcpy(in, in->len - cursor), self); break;}
-	case NUM_BIN:{ numBinaryLiteral(formats, str_cutbcpy(in, in->len - cursor), self); break; }
-	case NUM_REG:{ 
-		if(in->txt[0] == '-') 
-			numIntegerLiteral(formats, str_cutbcpy(in, in->len - cursor), self);
-		else 
-			numUnsignedIntegerLiteral(formats, str_cutbcpy(in, in->len - cursor), self);
-	}
-	default:
-		return 0;
-	}
-return in->len - cursor;
+	return formats[FORMAT_NUM] == NUM_FLOAT ? 
+		Number_FloatScan(self, formats[FORMAT_NUM], in) : 
+		Number_IntScan(self, formats[FORMAT_NUM], in)
+	;
 }
 
-private(Number);
-construct(Number,
-	.Formatter = {
-		.Scan = Number_Scan,
-	  	.Print = Number_Print
+errvt imethodimpl(Number, Destroy) {
+	self(Number); 
+	del(priv->digits);
+return OK;
+}
+
+#define apriv (a->__private)
+#define bpriv (b->__private)
+
+inst(Number) methodimpl(Number, Add,,      inst(Number) other){
+	nonull(self, 		return NULL);
+    	nonull(other,  		return NULL);
+	
+	inst(Number) result = new(Number);
+	nonull(result,		return NULL);
+
+	iferr(Number.AddInto(result, self, other)){
+		del(result); return NULL;
 	}
+
+return result;
+}
+errvt methodimpl(Number, AddInto,,      inst(Number) a, inst(Number) b);
+
+inst(Number) methodimpl(Number, Subtract,, inst(Number) other){
+	nonull(self, 		return NULL);
+    	nonull(other,  		return NULL);
+	
+	inst(Number) result = new(Number);
+	nonull(result,		return NULL);
+
+	iferr(Number.SubtractInto(result, self, other)){
+		del(result); return NULL;
+	}
+
+return result;
+}
+errvt methodimpl(Number, SubtractInto,, inst(Number) a, inst(Number) b);
+
+inst(Number) methodimpl(Number, Multiply,, inst(Number) other){
+	nonull(self, 		return NULL);
+    	nonull(other,  		return NULL);
+	
+	inst(Number) result = new(Number);
+	nonull(result,		return NULL);
+
+	iferr(Number.MultiplyInto(result, self, other)){
+		del(result); return NULL;
+	}
+
+return result;
+}
+errvt methodimpl(Number, MultiplyInto,, inst(Number) a, inst(Number) b){
+
+	nonull(b, return NULL);
+	nonull(a, return NULL);
+	
+	if (isZero(a) || isZero(b)) {
+		return OK;
+	}
+	
+	// The maximum size of the product can be the sum of sizes of operands.
+	// Ensure result array has enough space.
+	if (List.Size(apriv->digits) + List.Size(bpriv->digits) > apriv->precision) {
+		ERR(DATAERR_OUTOFRANGE, "number overflows");
+		return NULL;
+	}
+	List.Reserve(priv->digits, RESERVE_EXACT,
+		List.Size(priv->digits) + List.Size(bpriv->digits));
+
+
+}
+
+inst(Number) methodimpl(Number, Divide,,   inst(Number) other, inst(Number) remainder){
+	nonull(self, 		return NULL);
+    	nonull(other,  		return NULL);
+    	nonull(remainder,  	return NULL);
+	
+	inst(Number) result = new(Number);
+	nonull(result,		return NULL);
+
+	iferr(Number.DivideInto(result, self, other, remainder)){
+		del(result); return NULL;
+	}
+
+return result;
+}
+errvt methodimpl(Number, DivideInto,,   inst(Number) a, inst(Number) b, inst(Number) remainder){
+
+	nonull(b, 		return NULL);
+    	nonull(a,  		return NULL);
+    	nonull(remainder,  	return NULL);
+
+	if (isZero(b)) {
+		ERR(ERR_INVALID, "cannot divide by 0");
+		return NULL;
+	}else if (isZero(a)) {
+		return OK;
+	}
+	
+	Number_setZero(rmpriv); // Remainder is zero
+	
+	switch(Number.Compare(a, b)) {
+	// If abs(dividend) < abs(divisor), result is 0, remainder is dividend.
+	case NUM_LESSER:
+		List.Append(
+			rmpriv->digits, 
+			apriv->digits->__private->data, // direct accessing private variables for speed
+			apriv->digits->__private->items
+		);
+	break;
+	// If abs(dividend) == abs(divisor), result is 1 (with appropriate sign), remainder is 0.
+	case NUM_EQUALS:
+		List.Index(priv->digits, LISTINDEX_WRITE, 0, 1, &(u32){1});
+		priv->sign = (apriv->sign == bpriv->sign) ? 1 : -1;
+	break;
+	default:{
+		data(Number) *a = a, *b = b;
+
+		if(apriv->floating != bpriv->floating){ // ensuring both are either int or float and casting to float if bwise
+			if(!apriv->floating){
+				a = &(data(Number)){makeTempNum(ListCopy(apriv->digits), apriv->precision)};
+				Number.castToFloat(a);
+			}else{
+				b = &(data(Number)){makeTempNum(ListCopy(bpriv->digits), bpriv->precision)};
+				Number.castToFloat(b);
+			}
+		}
+
+		check(
+			if(priv->floating)
+				Number_FloatDivide(a, b, remainder, self);
+			else
+				Number_IntDivide(a, b, remainder, self);
+		){
+			 return err->errorcode;
+		}
+	}
+	}
+	
+return OK;
+
+
+}
+numEquality methodimpl(Number, Compare,, inst(Number) other) {
+
+    nonull(other, return NUM_NULL);
+    nonull(self, return NUM_NULL);
+
+    // Handle zero cases first
+    if (isZero(self) && isZero(other)) return NUM_EQUALS; 			 // Both are zero
+    if (isZero(self))  return (opriv->sign == 1) ? NUM_LESSER : NUM_GREATER; // 0 < positive, 0 > negative
+    if (isZero(other)) return (priv->sign == 1) ? NUM_GREATER : NUM_LESSER;  // positive > 0, negative < 0
+    
+
+    // Different signs: positive is always greater than negative
+    if (priv->sign == 1 && opriv->sign == -1) return NUM_GREATER;
+    if (priv->sign == -1 && opriv->sign == 1) return -NUM_LESSER;
+
+    // Same signs: compare absolute values
+    numEquality cmp_abs = Number_absoluteCompare(priv, opriv);
+    if (priv->sign == 1) {
+        return cmp_abs; // Both positive: direct comparison of absolute values
+    } else {
+        // Both negative: inverse comparison of absolute values e.g., -5 > -10, but abs(-5) < abs(-10)
+        return -cmp_abs;
+    }
+}
+
+bool   methodimpl(Number, isFloat){nonull(self, return -1); return priv->floating;}
+errvt  methodimpl(Number, zeroOut){nonull(self, return nullerr); Number_setZero(priv); return OK;}
+
+
+float methodimpl(Number, castToFloat){
+	if(!priv->floating) Number.castToBigFloat(self);
+}
+double methodimpl(Number, castToLongFloat){
+	if(!priv->floating) Number.castToBigFloat(self);
+}
+i32 methodimpl(Number, castToInt){
+	if(priv->floating) Number.castToBigInt(self);
+	
+	i64 result = 0;
+	
+	iferr(List.Index(priv->digits, LISTINDEX_READ, 0, sizeof(u64) / sizeof(u32),&result)){
+		return 0;
+	}
+return 
+	result > INT32_MAX ? INT32_MAX :
+	result < INT32_MIN ? INT32_MIN : 
+	priv->sign == -1 ? -result : result;
+}
+i64 methodimpl(Number, castToLongInt){
+	if(priv->floating) Number.castToBigInt(self);
+
+	i64 result = 0;
+	
+	iferr(List.Index(priv->digits, LISTINDEX_READ, 0, sizeof(u64) / sizeof(u32),&result)){
+		return 0;
+	}
+
+return List.Size(priv->digits) > sizeof(u64) / sizeof(u32) ?
+	priv->sign == -1 ? LONG_MIN : LONG_MAX :
+	priv->sign == -1 ? -result : result;
+}
+
+
+construct(Number,
+	.Add = Number_Add,
+	.Subtract = Number_Subtract,
+	.Multiply = Number_Multiply,
+	.Divide = Number_Divide,
+	
+	.AddInto = Number_AddInto,
+	.SubtractInto = Number_SubtractInto,
+	.MultiplyInto = Number_MultiplyInto,
+	.DivideInto = Number_DivideInto,
+	
+	.Compare = Number_Compare,
+	
+	.setZero = Number_zeroOut,
+	.isFloat = Number_isFloat,
+	.Formatter = {
+	    .Scan = Number_Scan,
+	    .Print = Number_Print
+	},
+	.__DESTROY = Number_Destroy 
 ){
-	self->as_double = args.number;
-return self;
+	setpriv(Number){
+		.digits = newList(u64)
+	};
+	List.Append(priv->digits, &(u64){0}, 1);
+
+	if (args.initVal != NULL) {
+	    Number.Formatter.Scan(generic self, (FormatID*)__default_formats, str_cast(args.initVal, 10280));
+	}
+
+return self; 
 }

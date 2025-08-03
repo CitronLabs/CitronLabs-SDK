@@ -1,4 +1,5 @@
 #include "datastructs.h"
+#include "types.h"
 
 #define insertIntoListAt(index, _data, len) \
 	memcpy(&(((u8*)priv->data)[index * priv->item_size]), _data, priv->item_size * len);
@@ -15,7 +16,7 @@ errvt methodimpl(List, Limit,, u64 limit_size){
 		priv->data = realloc(priv->data, priv->item_size * priv->limit);
 		
 		if(NULL == priv->data ) ERR( 
-			DATAERR_MEMALLOC, "failed to reallocate priv");
+			DATAERR_MEMALLOC, "failed to reallocate list");
 
 		priv->items = priv->items > priv->limit ? limit_size : priv->items;
 		priv->items_alloced = limit_size;
@@ -23,6 +24,7 @@ errvt methodimpl(List, Limit,, u64 limit_size){
 
 return OK;
 ;}
+
 errvt methodimpl(List,Grow,, u64 plus_amount){
 
 	nonull(self, return nullerr;)
@@ -41,13 +43,20 @@ errvt methodimpl(List,Grow,, u64 plus_amount){
 return OK;
 }
 
+errvt methodimpl(List, Reserve,, bool exact, u64 amount){
+	if(exact)
+		return List_Grow(self, amount);
+	else
+		return List_Grow(self, priv->items_alloced + (priv->items_alloced / 2) + amount);
+}
+
 errvt methodimpl(List,Append,, void* in, u64 len){
 	nonull(self, return nullerr;)
 	nonull(in, return nullerr;)
 
 	if(priv->items + len > priv->items_alloced)
 #if __DataAutoGrow
-		List.Grow(self, priv->items_alloced + (priv->items_alloced / 2) + len);
+		List_Grow(self, priv->items_alloced + (priv->items_alloced / 2) + len);
 #else
 		return ERR(
 		DATAERR_OUTOFRANGE, "grow the list to fit new data");
@@ -89,7 +98,6 @@ u64 methodimpl(List, FillSlot,, void* in){
 return index;
 }
 
-
 errvt methodimpl(List,Insert,, u64 len, u64 index, void* in){
 
 	nonull(self, return nullerr;)
@@ -107,10 +115,10 @@ errvt methodimpl(List,Insert,, u64 len, u64 index, void* in){
 
 	if(priv->items + len > priv->items_alloced)
 #if __DataAutoGrow 
-		List.Grow(self, len + (priv->items_alloced / 2));
+		List_Grow(self, len + (priv->items_alloced / 2));
 #else
 		return ERR(
-		DATAERR_OUTOFRANGE, "grow the priv to fit new data");
+		DATAERR_OUTOFRANGE, "grow the list to fit new data");
 #endif
 	
 
@@ -230,10 +238,10 @@ void methodimpl(List,Flush){
 	
 	priv->items = 0;
 }
-void methodimpl(List,Pop){
+void methodimpl(List,Pop,, u32 num){
 	nonull(self, return)
-	
-	priv->items--;
+	if(num > priv->items)num = priv->items;
+	priv->items -= num;
 }
 
 errvt imethodimpl(List,Free){
@@ -306,7 +314,7 @@ construct(List,
 	.Size = List_Size,
 	.Pop = List_Pop,
 	.Merge = List_Merge,
-	.Grow = List_Grow,
+	.Reserve = List_Reserve,
 	.Cast = List_Cast,
 	.SetFree = List_SetFree,
 	.FillSlot = List_FillSlot,

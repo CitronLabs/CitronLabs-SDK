@@ -1,4 +1,5 @@
 #include "../datastructs.h"
+#include "stringutils.h"
 
 u64 parseListLikeDataStruct(inst(DSN) self, void* data, inst(String) in, DSN_fieldType type, errvt(*append_func)(void*,void*,u64)){
 	
@@ -288,32 +289,17 @@ return 0;
 u64 methodimpl(DSN, parseString,, inst(String)* data, inst(String) in){
 	
 	u64 scanned_len = 0;
-	inst(StringBuilder) strbldr = push(StringBuilder, NULL, UINT64_MAX);
 
-	if(
-	    in->txt[1] != '"'
-	)
-	{return 0;}
+	if(in->txt[0] != '"') return 0;
+	scanned_len ++;
 
-	scanned_len++;
-
-	char buffer[256] = {0};
 	u64 cursor = 0;
-	loopat(i, scanned_len, in->len){
-		if(in->txt[i] == '"'){ break; }
-		
-		if(cursor == 255)
-			scanned_len += StringBuilder.Append(strbldr, str_cast(buffer, 256));
-		else{ 
-		    buffer[cursor] = in->txt[cursor];	
-		    cursor++;
-		}
-	}
-	buffer[cursor] = '\0';
-	scanned_len += StringBuilder.Append(strbldr, str_cast(buffer, 256));
+	for(; cursor < in->len && in->txt[cursor] != '"'; cursor++);
 
-	*data = StringBuilder.CreateStr(strbldr);
-	pop(strbldr);
+	if(in->len == cursor + 1 && in->txt[in->len] == '"')
+	scanned_len += cursor;
 
+	check(*data = newString(&in->txt[1], cursor)) return 0;
+	
 return scanned_len;
 }

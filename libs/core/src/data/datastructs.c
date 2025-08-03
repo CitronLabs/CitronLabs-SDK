@@ -30,19 +30,19 @@ errvt imethodimpl(Struct, __DESTROY){
 
 	    switch (field->type) {
 	    case DSN_LIST:{
-		List.Object.__DESTROY(generic (inst(List))field->data);
+		List.__DESTROY(generic (inst(List))field->data);
 	    break;}
 	    case DSN_QUEUE:{
-		Queue.Object.__DESTROY(generic (inst(Queue))field->data);
+		Queue.__DESTROY(generic (inst(Queue))field->data);
 	    break;}
 	    case DSN_STACK:{
-		Stack.Object.__DESTROY(generic (inst(Stack))field->data);
+		Stack.__DESTROY(generic (inst(Stack))field->data);
 	    break;}
 	    case DSN_MAP:{
-		Map.Object.__DESTROY(generic (inst(Map))field->data);
+		Map.__DESTROY(generic (inst(Map))field->data);
 	    break;}
 	    case DSN_STRING:{
-		String.Object.__DESTROY(generic (inst(String))field->data);
+		String.__DESTROY(generic (inst(String))field->data);
 	    break;}
 	    case DSN_NUMBER: break;
 	    case DSN_NULL:
@@ -120,7 +120,7 @@ construct(Struct,
 	.Merge = Struct_Merge,
 	.AddField = Struct_AddField,
 	.SearchField = Struct_SearchField,
-	.Object.__DESTROY = Struct___DESTROY,
+	.__DESTROY = Struct___DESTROY,
 	.Formatter = {
 	  	.Scan = Struct_Scan,
 		.Print = Struct_Print
@@ -131,7 +131,7 @@ construct(Struct,
 	   args.num_of_fields != 0){
 		self->fields = new(Map, 
 		     .init_size = args.num_of_fields,
-		     .key_hash_func = String.Object.__HASH, 
+		     .key_hash_func = String.__HASH, 
 		     .key_type_size = sizeof(inst(String)), 
 		     .data_type_size = sizeof(DSN_data),
 		     .literal = args.fields
@@ -139,6 +139,5 @@ construct(Struct,
 	}else{
 		self->fields = newMap(String, DSN_data);
 	}
-	
 return self;
 }

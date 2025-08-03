@@ -2,6 +2,7 @@
 #include "./utils.h"
 #include "./types.h"
 #include "./stringutils.h"
+#include "./mathematics.h"
 
 #define getDSN_Type(var) _Generic((var),		\
 inst(Number)	: DSN_NUMBER,				\
@@ -24,6 +25,9 @@ Enum(DSN_fieldType,
 	DSN_STRUCT
 );
 typedef struct DSN_data DSN_data;
+
+#define RESERVE_EXACT   true
+#define RESERVE_ATLEAST false
 
 /**
  * Extra-C List Data Structure
@@ -61,6 +65,7 @@ typedef struct DSN_data DSN_data;
 #define ListCast(list, type) \
 List.Cast(list, getDSN_Type((type){0}), sizeof(type))
 
+#define ListCopy(list) List.SubList(list, 0, List.Size(list))
 
 Class(List,
 __INIT(u64 init_size; u64 type_size; DSN_fieldType dsn_type; void* literal;),
@@ -71,7 +76,7 @@ __FIELD(),
 	errvt 		method(List,Limit,, u64 limit_size);
 	errvt 		method(List,Append,, void* in, u64 len);
 	errvt 		method(List,Insert,, u64 len, u64 index, void* in);
-	void 		method(List,Pop);
+	void 		method(List,Pop,, u32 num);
 	void 		method(List,Flush);
 	errvt 		method(List,Index,, bool write, u64 index, u64 len, void* data);
 	errvt		method(List,SetFree,, u64 index);
@@ -81,7 +86,7 @@ __FIELD(),
 	void* 		method(List,FreeToPointer);
 	inst(List)	method(List,SubList,, u64 index, u64 len);
 	errvt 		method(List,Merge,, inst(List) merged_list,u64 index);
-	errvt 		method(List,Grow,, u64 add_amount);
+	errvt 		method(List,Reserve,, bool exact, u64 amount);
 	errvt   	method(List,Cast,, DSN_fieldType dsn_type, u64 new_type_size);
 )
 
@@ -116,9 +121,10 @@ __FIELD(),
 	errvt method(Stack,Index,, bool write, u64 index, void* data);
 	void* method(Stack,ToPointer);
 	errvt method(Stack,Limit,, u64 limit);
-	errvt method(Stack,Grow,, u64 add_amount);
+	errvt method(Stack,Reserve,, bool exact, u64 amount);
 	errvt method(Stack,Push,, void* item, u64 num);
 	errvt method(Stack,Pop,, void* out, u64 num);
+	void* method(Stack,FreeToPointer);
 	u64 method(Stack,Count);
 	bool method(Stack,Check);
 )
@@ -145,10 +151,11 @@ __INIT(u64 init_size; u64 type_size; DSN_fieldType dsn_type; void* literal;),
 __FIELD(),
 
 	interface(Formatter);
-	errvt method(Queue,Index,, bool write, u64 index, void* data);
+	errvt method(Queue,Index,,   bool write, u64 index, void* data);
 	void* method(Queue,ToPointer);
-	errvt method(Queue,Limit,, u64 limit);
-	errvt method(Queue,Grow,, u64 add_amount);
+	errvt method(Queue,Limit,,   u64 limit);
+	void* method(Queue,FreeToPointer);
+	errvt method(Queue,Reserve,, bool exact, u64 amount);
 	errvt method(Queue,Enqueue,, void* item, u64 num);
 	errvt method(Queue,Dequeue,, void* out, u64 num);
 	u64 method(Queue,Count);
@@ -167,7 +174,7 @@ __FIELD(),
 		getDSN_Type((inst(keytype)){0}),	\
 		sizeof(data(datatype)),			\
 		getDSN_Type((inst(datatype)){0}),	\
-		(getMethods(keytype)).Object.__HASH,	\
+		(getMethods(keytype)).__HASH,		\
 		(data_entry[]){__VA_ARGS__})
 #define pushMap(keytype, datatype, ...) push(Map,	\
 		sizeof((data_entry[]){__VA_ARGS__}) 	\
@@ -176,7 +183,7 @@ __FIELD(),
 		getDSN_Type((inst(keytype)){0}),	\
 		sizeof(data(datatype)),			\
 		getDSN_Type((inst(datatype)){0}),	\
-		(getMethods(keytype)).Object.__HASH,	\
+		(getMethods(keytype)).__HASH,		\
 		(data_entry[]){__VA_ARGS__})
 
 #define entry(key, data) data_entry
@@ -215,44 +222,20 @@ __FIELD(),
 )
 
 
-
-#define N_NULL	   0
-#define N_SIGNED   1
-#define N_UNSIGNED 2
-#define N_FLOATING 3
-#define N(number) new(Number, number)
-#define n(number) push(Number, number)
-
-Class(Number,
-__INIT(double number;),
-__FIELD(
-	u8 type : 2;
-	u8 len : 2;
-	union{
-		u64 as_u64 : 64;
-		u64 as_u32 : 32;
-		u64 as_u16 : 16;
-		u64 as_u8  : 8;
-		
-		i64 as_i64 : 64;
-		i64 as_i32 : 32;
-		i64 as_i16 : 16;
-		i64 as_i8  : 8;
-
-		float as_float;		
-		double as_double;		
-	};
-),
-	interface(Formatter);
-);
-
-
-#define struct(allocmethod, ...) 		\
-	allocmethod(Struct, 			\
+#define pushStruct(...) 			\
+	push(Struct, 				\
 	     (data_entry[]){__VA_ARGS__}, 	\
 	     sizeof((data_entry[]){__VA_ARGS__})\
 	     / sizeof(data_entry)		\
 	)
+
+#define newStruct(...) 				\
+	new(Struct, 				\
+	     (data_entry[]){__VA_ARGS__}, 	\
+	     sizeof((data_entry[]){__VA_ARGS__})\
+	     / sizeof(data_entry)		\
+	)
+
 
 #define D(name, data) (data_entry){s(name), new(DSN_data, getDSN_Type(data), asObject(data))}
 
@@ -269,6 +252,7 @@ __FIELD(Map(String, DSN_data) fields),
 Type(DSN_data,
 	DSN_fieldType type;
 	union{
+		void* 		data;
 		inst(Number)	asNumber;
 		inst(String)	asString;
 		inst(List)  	asList;
@@ -276,13 +260,27 @@ Type(DSN_data,
 		inst(Stack) 	asStack;
 		inst(Map)   	asMap;
 		inst(Struct)	asStruct;
-		void* 		data;
      	};
 );
 
-Type(DSB_List,
-	
-
+//DSB:D
+#define DSB_Magic {'D','S','B',':','D'}
+Type(DSB_Header,
+     	char magic[5];
+	u16 version;
+	u8 charlen;
+     	u64 namelen; void* name;
+	u64 body_size;
+)
+Type(DSB_Chain,
+	DSN_fieldType ID;
+     	u64 elmnt_size, len;
+	void* data;
+);
+Type(DSB_Map,
+	DSN_fieldType ID;
+     	u64 keylen; void* key;
+	u64 datalen; void* data;
 );
 
 Class(DSN, 

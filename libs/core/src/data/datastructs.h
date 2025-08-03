@@ -2,6 +2,7 @@
 #include "../../include/config.h"
 #include "../../include/data.h"
 #include "../../include/stringutils.h"
+#include "../../include/alloc.h"
 
 #define DSN_Object_Print(dsntype, ptr) NULL, 							\
 	dsntype == DSN_STRUCT 	? &((inst(Struct))ptr)	->__methods->Formatter :	\

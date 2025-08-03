@@ -89,36 +89,8 @@ return formated_len;
 }
 
 
-#define format(formatstr, type) \
-	formatted_len = snprintf(buff, 50, formatstr, data->as_##type)
 u64 methodimpl(DSN, formatNumber,, inst(Number) data, inst(StringBuilder) out){
 	
-	u64 formatted_len = 0;
-	char buff [50] = {0};
-	char* format = NULL;
-
-	switch(data->type){
-	case N_SIGNED: {
-		switch(data->len){
-		case 1:{format(format != NULL ? format : "%hi", i32); break;}
-		case 2:{format(format != NULL ? format : "%i", i32); break;}
-		case 3:{format(format != NULL ? format : "%li" ,i64); break;}
-		}
-	break;}
-	case N_UNSIGNED: {	
-		switch(data->len){
-		case 1:{format(format != NULL ? format : "%hu", u64); break;}
-		case 2:{format(format != NULL ? format : "%u", u32); break;}
-		case 3:{format(format != NULL ? format : "%lu", u32); break;}
-		}
-	break;}
-	case N_FLOATING:{format(format != NULL ? format : "%lf", double); break;}
-	default:{ return 0; }
-	}
-
-	StringBuilder.Append(out, s(buff));
-
-return formatted_len;
 }
 u64 methodimpl(DSN, formatString,, inst(String) data, inst(StringBuilder) out){
 

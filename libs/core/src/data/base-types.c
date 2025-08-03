@@ -94,6 +94,7 @@ Impl(Integer){
 
 u64 imethodimpl(Float, Print,, FormatID* formats, inst(StringBuilder) out){
 self(Float);
+	
 return Number.Formatter.Print(
 	generic &(Number_Instance){
 		.len = self->dbl ? sizeof(double) : sizeof(float),
