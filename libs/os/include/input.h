@@ -2,14 +2,16 @@
 #include "./extern.h"
 #include "types.h"
 
-Type(Vector,
-	float x,y,z;
-)
-Static(VectorUtils,
 
-)
 
-typedef struct{data(Vector) pos; float max, min;}* posData;
+typedef struct {
+	inhert(VecData);
+     	float x,y,z;
+}Pos3D;
+asClassExt(Pos3D, __INIT(float x,y,z;));
+
+
+typedef struct{inhertAs(Pos3D) pos; float max, min;}* posData;
 Interface(PosDevice,
 	posData imethod(get);	
 	errvt imethod(update,, posData pos);	
@@ -34,7 +36,3 @@ __INIT(),
 __FIELD(inputHandle handle),
       	interface(KeyDevice);
 )
-
-
-
-
