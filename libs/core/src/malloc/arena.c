@@ -1,6 +1,5 @@
 #include "../../include/alloc.h"
 #include "../../include/data.h"
-#include <stdbool.h>
 
 private(Arena,
 	size_t max_size, alloc_size, current_size;
@@ -10,9 +9,26 @@ private(Arena,
 
 errvt methodimpl(Arena, Reserve,, u64 num_bytes){
 	if(priv->alloc_size - priv->current_size > num_bytes) return OK;
+
+	Arena.Grow(self, num_bytes);
  return OK;	
 }
 errvt methodimpl(Arena, Grow,, u64 num_bytes){
+
+	if(priv->isStatic){
+		return ERR(MEMERR_OVERFLOW, "cannot grow a static arena");
+	}
+	if(priv->current_size + num_bytes > priv->max_size){
+		return ERR(MEMERR_OVERFLOW, "size goes beyond the specified maximum");
+	}
+	u64 new_alloc_size = 
+		((priv->alloc_size / 2) + num_bytes) > priv->max_size ?
+		priv->max_size - priv->alloc_size : ((priv->alloc_size / 2) + num_bytes);
+
+	inst(Buffer) new_buff = new(Buffer, new_alloc_size, 1, true);
+	List.Append(priv->arena_buffers, &new_buff, 1);
+
+	priv->alloc_size += new_alloc_size;
 
  return OK;	
 }
@@ -21,22 +37,7 @@ void* methodimpl(Arena, Alloc,, u64 num_bytes){
 	inst(Buffer) alloc_buff = NULL;
 
 	if(priv->current_size + num_bytes > priv->alloc_size){
-		if(priv->isStatic){
-			ERR(MEMERR_OVERFLOW, "cannot grow a static arena");
-			return NULL;
-		}
-		if(priv->current_size + num_bytes > priv->max_size){
-			ERR(MEMERR_OVERFLOW, "size goes beyond the specified maximum");
-			return NULL;
-		}
-		u64 new_alloc_size = 
-			((priv->alloc_size / 2) + num_bytes) > priv->max_size ?
-			priv->max_size - priv->alloc_size : ((priv->alloc_size / 2) + num_bytes);
-
-		inst(Buffer) new_buff = new(Buffer, new_alloc_size, 1, true);
-		List.Append(priv->arena_buffers, &new_buff, 1);
-
-		priv->alloc_size += new_alloc_size;
+		Arena.Grow(self, num_bytes);
 	}else{
 	    ListForEach(priv->arena_buffers, inst(Buffer), buff){
 		if(!Buffer.isMaxed(buff) && 
@@ -81,6 +82,13 @@ bool imethodimpl(Arena, isStatic){
 	self(Arena);
 return priv->isStatic;
 }
+errvt imethodimpl(Arena, Destroy){
+	self(Arena);
+	ListForEach(priv->arena_buffers, inst(Buffer), buff){
+		del(buff);
+	}
+return OK;
+}
 
 construct(Arena,
 	.Alloc = Arena_Alloc,
@@ -93,7 +101,8 @@ construct(Arena,
 	  	.isStatic = Arena_isStatic,
 	  	.getBytesAlloced = Arena_getBytesAlloced,
 	  	.setMax = Arena_setMax
-	}
+	},
+	.__DESTROY = Arena_Destroy
 ){
 	if(args.init_size == 0) {
 	    ERR(MEMERR_INVALIDSIZE, "initial size cannot be 0 for priv");

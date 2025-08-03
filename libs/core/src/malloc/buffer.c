@@ -106,9 +106,7 @@ construct(Buffer,
 	if(args.isStatic){
 		priv->data = pntr_shiftcpy(self, sizeof(Buffer_Instance) + sizeof(Buffer_Private));
 	}else{
-	  check(
-	    priv->data = calloc(args.size, args.type_size);
-       	  ){
+	  check(priv->data = calloc(args.size, args.type_size)){
 		ERR(err->errorcode, err->message); return NULL;
 	  }
 	}

@@ -1,5 +1,6 @@
 #include "../../include/alloc.h"
 #include "../../include/data.h"
+#include "types.h"
 
 private(Pool,
 	size_t max_size, alloc_size, current_size;
@@ -14,22 +15,7 @@ void* methodimpl(Pool, Alloc,, u64 num){
 	inst(Buffer) alloc_buff = NULL;
 
 	if(priv->current_size + num > priv->alloc_size){
-		if(priv->isStatic){
-			ERR(MEMERR_OVERFLOW, "cannot grow a static pool");
-			return NULL;
-		}
-		if(priv->current_size + num > priv->max_size){
-			ERR(MEMERR_OVERFLOW, "size goes beyond the specified maximum");
-			return NULL;
-		}
-		u64 new_alloc_size = 
-			((priv->alloc_size / 2) + num) > priv->max_size ?
-			priv->max_size - priv->alloc_size : ((priv->alloc_size / 2) + num);
 
-		inst(Buffer) new_buff = new(Buffer, new_alloc_size, priv->member_size);
-		List.Append(priv->pool_buffers, &new_buff, 1);
-
-		priv->alloc_size += new_alloc_size;
 	}else{
 	    ListForEach(priv->pool_buffers, inst(Buffer), buff){
 		if(!Buffer.isMaxed(buff) && 
@@ -43,7 +29,6 @@ void* methodimpl(Pool, Alloc,, u64 num){
 	priv->current_size += num;
 
 return Buffer.Allocator.New(generic alloc_buff, num, NULL);
-
 }
 
 void* imethodimpl(Pool, New,, size_t size, void* ex_args){
@@ -63,11 +48,41 @@ errvt imethodimpl(Pool, Delete,, void* instance, void* ex_args){
 return OK;
 }
 
+errvt methodimpl(Pool, Grow,, u64 num){
+
+	if(priv->isStatic){
+		return ERR(MEMERR_OVERFLOW, "cannot grow a static pool");
+	}
+	if(priv->current_size + num > priv->max_size){
+		return ERR(MEMERR_OVERFLOW, "size goes beyond the specified maximum");
+	}
+	u64 new_alloc_size = 
+		((priv->alloc_size / 2) + num) > priv->max_size ?
+		priv->max_size - priv->alloc_size : ((priv->alloc_size / 2) + num);
+
+	inst(Buffer) new_buff = new(Buffer, new_alloc_size, priv->member_size);
+	List.Append(priv->pool_buffers, &new_buff, 1);
+
+	priv->alloc_size += new_alloc_size;
+
+return OK;
+}
+
+errvt methodimpl(Pool, Reserve,, u64 num){
+	if(priv->alloc_size - priv->current_size > num) return OK;
+
+	Pool.Grow(self, num);
+return OK;}
+
 construct(Pool,
 	.Allocator = {
 		.New = Pool_New,
 		.Delete = Pool_Delete,
-	}
+	},
+	.Return = Pool_Return,
+	.Grow = Pool_Grow,
+	.Alloc = Pool_Alloc,
+	.Reserve = Pool_Reserve
 ){
 
 	if(0 == args.member_size){
