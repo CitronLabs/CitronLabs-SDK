@@ -1,6 +1,4 @@
 #include "./error.h"
-#include "error.h"
-#include <stdio.h>
 
 static errvt imethodimpl(STD_LOG, Log,, inst(String) text){
 	nonull(text, return nullerr);
@@ -23,8 +21,8 @@ static const data(Logger) std_logger = {
 			.__private = NULL,
 			.__methods = &String,
 			.__init = true,
-			.txt = "LOG",
-			.len = sizeof("LOG") - 1,
+			.txt = __stdLoggerName,
+			.len = sizeof(__stdLoggerName) - 1,
 			.type = CT_ASCI
 		},
 		.info = &(data(LogBook)){
@@ -35,7 +33,8 @@ static const data(Logger) std_logger = {
 			.object = NULL,
 			.interface = &STD_LOG.Loggable
 		}
-	}
+	},
+	.hideName = true
 };
 
 inst(Logger) error_logger = (inst(Logger))&std_logger;
@@ -43,7 +42,14 @@ inst(Logger) error_logger = (inst(Logger))&std_logger;
 errvt methodimpl(Logger, Log,, LogType type, inst(String) text){
 	nonull(self, return nullerr);
 	nonull(text, return nullerr);
+	
+	inst(StringBuilder) textbldr = push(StringBuilder, NULL, UINT64_MAX);
 
+	if(!self->hideName){
+		StringBuilder.Set(textbldr, NULL, $(priv->name), " :: ", $(text), endprint);
+		data(String) textfmt = StringBuilder.GetStr(textbldr);
+		text = &textfmt;
+	}
 	switch(type){
 	case LOGGER_INFO:
 		return priv->info == NULL ? 0 : priv->info->interface->log(priv->info->object, text);
@@ -54,6 +60,7 @@ errvt methodimpl(Logger, Log,, LogType type, inst(String) text){
 		return 0;
 	}
 	}
+	pop(textbldr);
 
 return ERR(ERR_INVALID, "error unreachable code");
 }
@@ -66,7 +73,10 @@ errvt methodimpl(Logger, LogWithFormat,, LogType type, ...){
 	va_start(args, type);
 
 	inst(StringBuilder) textbldr = push(StringBuilder, NULL, UINT64_MAX);
-	
+
+	if(!self->hideName)
+		StringBuilder.Set(textbldr, NULL, $(priv->name), " :: ", endprint);
+
 	if(FormatUtils.FormatVArgs(textbldr, args) == 0)
 		return ERR(ERR_INVALID, "failed to format text for log");
 
@@ -76,9 +86,11 @@ errvt methodimpl(Logger, LogWithFormat,, LogType type, ...){
 	case LOGGER_INFO:
 		formatted_len = priv->info == NULL ? 0 :
 			priv->info->interface->log(priv->info->object, &text);
+	break;
 	case LOGGER_ERROR:
 		formatted_len = priv->error == NULL ? 0 : 
 			priv->error->interface->log(priv->error->object, &text);
+	break;
 	default:{
 		ERR(ERR_INVALID, "invalid log type");
 		formatted_len = 0;
@@ -100,9 +112,9 @@ return OK;
 }
 
 construct(Logger,
-	.std_logger = (inst(Logger))&STD_LOG,
+	.std_logger = (inst(Logger))&std_logger,
 	.log = Logger_Log,
-	.logWithFormat = Logger_LogWithFormat,
+	.logf = Logger_LogWithFormat,
 	.__DESTROY = Logger_Destroy 
 ){
 	nonull(args.name, return NULL);
