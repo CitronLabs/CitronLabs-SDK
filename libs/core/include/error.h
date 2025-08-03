@@ -47,11 +47,13 @@ __INIT( const cstr name;
       * errorlog,
       * infolog
 ),
-__FIELD(),
+__FIELD(bool hideName),
+      	#define loginfo(...) Logger.logf(Logger.std_logger, LOGGER_INFO, __VA_ARGS__,"\n", endprint)
+      	#define logerr(...)  Logger.logf(Logger.std_logger, LOGGER_ERROR, __VA_ARGS__,"\n", endprint)
       	inst(Logger) std_logger;
 
-	errvt method(Logger, logWithFormat,, LogType type, ...);
-	errvt method(Logger, log,, LogType type, inst(String) txt);
+	errvt method(Logger, logf,, LogType type, ...);
+	errvt method(Logger, log,,  LogType type, inst(String) txt);
 )
 Enum(ErrorSignal,
 	SIG_FGPE = 1 , 
@@ -71,7 +73,14 @@ __FIELD(errvt errorcode; cstr message;),
 
 	#define ERR(code, msg) Error.Set(&(Error_Instance){NULL,&Error,code, #code}, msg, __func__)
 	#define check(...) Error.Clear(); __VA_ARGS__; for(inst(Error) err = geterr(); err->errorcode != ERR_NONE; Error.Clear())
+	
+	#define try(...) Error.Clear(); 								\
+			if(!Error.Try()) { __VA_ARGS__; } 						\
+			else for(inst(Error) err = geterr(); err->errorcode != ERR_NONE; Error.Clear())
+
+	#define throw(code, msg) ERR(code, msg); Error.Throw();
 	#define nonull(var, ...) if(var == NULL){errvt nullerr = ERR(ERR_NULLPTR, #var " is null"); __VA_ARGS__;}
+	#define iferr(errorable) for(errvt err = (errorable); err; Error.Clear())
 	#define NOT_IMPLEM(returnval) ERR(ERR_NOTIMPLEM, "not implemented yet..."); return returnval;
 
 
@@ -87,6 +96,8 @@ __FIELD(errvt errorcode; cstr message;),
       	void vmethod(Show);
       	void vmethod(Clear);
       	void vmethod(Hide);
+      	errvt vmethod(Try);
+      	void vmethod(Throw);
 	void vmethod(setLogger, inst(Logger) logger);
 	void vmethod(setSignalHandler, u8 signals_to_handle, void fn(sighandler, ErrorSignal signal))
 )

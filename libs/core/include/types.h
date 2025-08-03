@@ -144,6 +144,7 @@ typedef struct name##_Private{__VA_ARGS__}name##_Private; \
 
 #define isinit(object) (object->__init)
 
+typedef void* inst;
 #define inst(Class) Class##_Instance*
 #define intf(Class) const Class##_Interface*
 #define data(Class) Class##_Instance
@@ -160,8 +161,8 @@ typedef struct name##_Private{__VA_ARGS__}name##_Private; \
 
 #define del(object) if(object->__methods->__DESTROY == NULL) ERR(ERR_NULLPTR,"no destructor specified for this object"); \
 		    else if(object->__methods->__DESTROY(generic object) == ERR_NONE) free(object);
-#define pop(object) if(object->__methods->__DESTROY == NULL) ERR(ERR_NULLPTR,"no destructor specified for this object"); \
-		    else object->__methods->__DESTROY(generic object)
+#define pop(object) if((object)->__methods->__DESTROY == NULL) ERR(ERR_NULLPTR,"no destructor specified for this object"); \
+		    else (object)->__methods->__DESTROY(generic (object))
 
 /*----------------------|
        Base Types	|
@@ -209,7 +210,8 @@ typedef wchar_t  rune;
 asClass(rune){ passover }
 
 typedef char* cstr;
-asClass(cstr){ passover }
+asClassExt(cstr, __INIT(cstr txt; u64 len))
+{ *self = calloc(args.len, sizeof(char)); strncpy(*self, args.txt, args.len); return self;}
 
 typedef wchar_t* wstr;
 asClass(wstr){ passover }

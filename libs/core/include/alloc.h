@@ -26,13 +26,13 @@ __FIELD(),
 	#define newBuffer(type, size)		 					\
       		init(Buffer, malloc(							\
 			sizeof(Buffer) + sizeof_Buffer_Private + (sizeof(type) * size)),\
-	     		size, sizeof(type), isStatic					\
+	     		size, sizeof(type), true					\
 	     	)
 	
 	#define pushBuffer(type, size)		 					\
       		init(Buffer, alloca(							\
 			sizeof(Buffer) + sizeof_Buffer_Private + (sizeof(type) * size)),\
-	     		size, sizeof(type), isStatic					\
+	     		size, sizeof(type), true					\
 	     	)
 
 	interface(Allocator);

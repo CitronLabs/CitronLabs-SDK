@@ -59,7 +59,7 @@ __FIELD(),
       	interface(Loggable);
       	interface(Formatter);
 
-	u64 method(StringBuilder,Set,, ...);
+	u64 method(StringBuilder,Set,, inst(String) string, ...);
 	u64 method(StringBuilder,Append,, inst(String) string, ...);
 	u64 method(StringBuilder,Prepend,, inst(String) string, ...);
 	u64 method(StringBuilder,Insert,, u64 index, inst(String) string, ...);
@@ -93,7 +93,7 @@ __FIELD(u64 len; cstr txt; chartype type;),
 	
 	#define newString(string, max_len) String_Construct(			\
 		(String_ConstructArgs){string, strnlen(string, max_len), true},	\
-		alloca(								\
+		malloc(								\
 	 		sizeof(String_Instance)  + 				\
 	 		sizeof_String_Private    + 				\
 	 		strnlen(string, max_len) + 1				\
@@ -176,40 +176,41 @@ __FIELD(void* data),
 	interface(Formatter);
 )
 
-#define asObject(var)								\
-_Generic((var), 								\
-i32:    	(&(data(Integer)){NULL, &Integer, &(var), true,  false}),	\
-u32:		(&(data(Integer)){NULL, &Integer, &(var), false, false}), 	\
-i64:    	(&(data(Integer)){NULL, &Integer, &(var), true,  true }), 	\
-u64:    	(&(data(Integer)){NULL, &Integer, &(var), false, true }), 	\
-i16:   		(&(data(Integer)){NULL, &Integer, &(var), true,  false}), 	\
-u16:   		(&(data(Integer)){NULL, &Integer, &(var), false, false}),	\
-i8:   		(&(data(Integer)){NULL, &Integer, &(var), true,  false}),	\
-u8:   		(&(data(Integer)){NULL, &Integer, &(var), false, false}),	\
-float:   	(&(data(Float))  {NULL, &Float,   &(var), false}),		\
-double:   	(&(data(Float))  {NULL, &Float,   &(var), true}),		\
-const char*: 	(&(data(CString)){NULL, &CString, &(var)}),			\
-cstr:	 	(&(data(CString)){NULL, &CString, &(var)}),			\
-c8:	 	(&(data(Char))   {NULL, &Char,    &(var)}),			\
-void*:	  	(&(data(Pointer)){NULL, &Pointer, &(var)}),			\
-bool:		(&(data(Boolean)){NULL, &Boolean, &(var)}), 			\
+#define asObject(var)										\
+_Generic((var), 										\
+i32:    	(&(data(Integer)){NULL, &Integer, &((typeof(var)){var}), true,  false}),	\
+u32:		(&(data(Integer)){NULL, &Integer, &((typeof(var)){var}), false, false}), 	\
+i64:    	(&(data(Integer)){NULL, &Integer, &((typeof(var)){var}), true,  true }), 	\
+u64:    	(&(data(Integer)){NULL, &Integer, &((typeof(var)){var}), false, true }), 	\
+i16:   		(&(data(Integer)){NULL, &Integer, &((typeof(var)){var}), true,  false}), 	\
+u16:   		(&(data(Integer)){NULL, &Integer, &((typeof(var)){var}), false, false}),	\
+i8:   		(&(data(Integer)){NULL, &Integer, &((typeof(var)){var}), true,  false}),	\
+u8:   		(&(data(Integer)){NULL, &Integer, &((typeof(var)){var}), false, false}),	\
+float:   	(&(data(Float))  {NULL, &Float,   &((typeof(var)){var}), false}),		\
+double:   	(&(data(Float))  {NULL, &Float,   &((typeof(var)){var}), true}),		\
+const char*: 	(&(data(CString)){NULL, &CString, &((typeof(var)){var})}),			\
+cstr:	 	(&(data(CString)){NULL, &CString, &((typeof(var)){var})}),			\
+c8:	 	(&(data(Char))   {NULL, &Char,    &((typeof(var)){var})}),			\
+char:	 	(&(data(Char))   {NULL, &Char,    &((typeof(var)){var})}),			\
+void*:	  	(&(data(Pointer)){NULL, &Pointer, &((typeof(var)){var})}),			\
+bool:		(&(data(Boolean)){NULL, &Boolean, &((typeof(var)){var})}), 			\
 default: 	var)		
 
 #define getMethods(type)  	\
 _Generic(((data(type)){0}), 	\
-i32:    	Integer		\
-u32:		Integer		\
-i64:    	Integer		\
-u64:    	Integer		\
-i16:   		Integer		\
-u16:   		Integer		\
-u8:   		Integer		\
-i8:   		Integer		\
-float:   	Float		\
-double:  	Float		\
-const char*: 	CString		\
-cstr:	  	CString		\
-pntr: 	 	Pointer		\
-bool:		Boolean		\
+i32:    	Integer,	\
+u32:		Integer,	\
+i64:    	Integer,	\
+u64:    	Integer,	\
+i16:   		Integer,	\
+u16:   		Integer,	\
+u8:   		Integer,	\
+i8:   		Integer,	\
+float:   	Float,		\
+double:  	Float,		\
+const char*: 	CString,	\
+cstr:	  	CString,	\
+pntr: 	 	Pointer,	\
+bool:		Boolean,	\
 default: 	type)		
 
