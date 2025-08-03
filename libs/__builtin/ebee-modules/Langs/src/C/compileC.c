@@ -56,14 +56,14 @@ errvt C_Source_Build(EB_Source src, void* build_args){
 	*command = StringBuilder.GetStr(compile_command);
 
 	if(EB.getFlag(EBFL_VERBOSE)){
-		println(LIGHTPURPLE "--Compiling Source :: " WHITE, $O(src.path), "\n",
+		println(LIGHTPURPLE "--Compiling Source :: " WHITE, $(src.path), "\n",
 			"Command :: {\n\t", 
 				$(command), 
-			"\n} "NC " ==> ", LIGHTGREEN , $O(output_name), WHITE " ... " NC
+			"\n} "NC " ==> ", LIGHTGREEN , $(output_name), WHITE " ... " NC
 		);
 	}else{
 		print(
-			NC "CC==> ", LIGHTGREEN , $O(output_name), WHITE " ... " NC
+			NC "CC==> ", LIGHTGREEN , $(output_name), WHITE " ... " NC
 		);
 	}
 	

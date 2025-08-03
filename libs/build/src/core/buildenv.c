@@ -51,10 +51,10 @@ errvt checkMissingBuildFiles(){
 		if(*curr_dir == NULL)
 	  	     return ERR(BUILDERR_BUILDENV, "could not get build_files directory");
 	}
-	if(getFileSystemEntry("./build_files/out_files", 0) != ERR_NONE ){
+	if(FileSys.search("./build_files/out_files", 0) != ERR_NONE ){
 		return ERR(BUILDERR_BUILDENV, "could not find out_files directory");
 	}
-	if(getFileSystemEntry("./build_files/external", 0) != ERR_NONE ){
+	if(FileSys.search("./build_files/external", 0) != ERR_NONE ){
 	       return ERR(BUILDERR_BUILDENV, "could not find externals directory");
 	}
 
@@ -66,7 +66,7 @@ errvt checkMissingBuildFiles(){
 	  	     return ERR(BUILDERR_BUILDENV, "could not get build_files directory");
 	}
 	
-	if(getFileSystemEntry("./bin/libs", 0) != ERR_NONE ){
+	if(FileSys.search("./bin/libs", 0) != ERR_NONE ){
 	       return ERR(BUILDERR_BUILDENV, "could not create binary libraries directory");
 	}
 
@@ -80,7 +80,7 @@ void fetchBuildData(){
 	if((*curr_file = new(File, "./build_files/build.dsn", sizeof(char), FFL_READ)) == NULL){
 		*curr_file = File.Create("./build_files/build.dsn", sizeof(char), FFL_WRITE);
 	}else{
-		fscan(*curr_file, $O(__eb_data->__private->caches[COMPILE_CACHE]));
+		fscan(*curr_file, $(__eb_data->__private->caches[COMPILE_CACHE]));
 
 		File.Remove(*curr_file);
 		__eb_data->__private->build_files[BUILD_DATA] = 
