@@ -33,20 +33,17 @@ NEW_TEST("String Builder Tests"){
 		StringBuilder.Max(builder, UINT64_MAX);
 		if(StringBuilder.Append(builder, s(", how are you")) != s(", how are you")->len){
 			FAIL_TEST
-			println("failed to append");
 			goto skip;
 		}
 		if(StringBuilder.Append(builder, NULL,
 			 $('?'), endstr) != 1
 		){
 			FAIL_TEST
-			println("failed to format append");
 			goto skip;
 		}
 		str_t temp = StringBuilder.GetStr(builder); 
 		if(!String.Compare(&temp, s("Hello, how are you?"))){
 			FAIL_TEST
-			println("strings not equal");
 			goto skip;
 		}
 			PASS_TEST
@@ -55,7 +52,6 @@ NEW_TEST("String Builder Tests"){
 		pop(builder);
 		if(errnm != ERR_NONE ){
 			FAIL_TEST
-			println("error occured when freeing");
 			goto skip;
 		}
 			PASS_TEST

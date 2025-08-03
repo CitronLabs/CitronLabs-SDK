@@ -69,12 +69,12 @@ NEW_TEST("String Tests"){
 		}
 		if(num_found > 1){
 			FAIL_TEST
-			println($(num_found));
+			loginfo($(num_found));
 			goto skip;
 		}
 		if(result[0].str_offset != 7 && result[0].len != s("World")->len){
 			FAIL_TEST
-			println($(result[0].str_offset), "  ", $(result[0].len), "  ", $((s("World")->len)));
+			loginfo($(result[0].str_offset), "  ", $(result[0].len), "  ", $((s("World")->len)));
 			goto skip;
 		}
 			PASS_TEST
@@ -86,7 +86,7 @@ return TEST_RESULT;
 
 bool RUN_STDEXTSTRING_TESTS(){
 
-	println("\n"BLUE"--Testing Standard Extra String--"NC);
+	loginfo("\n"BLUE"--Testing Standard Extra String--"NC);
 
 	INIT_TEST
 		

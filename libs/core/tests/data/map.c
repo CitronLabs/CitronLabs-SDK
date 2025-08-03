@@ -1,11 +1,11 @@
 #include "./data.h"
 
 #define printmap \
-loop(i, listSize(entries)) \
-	println(		\
-	"hash: ", 	$(((data_entry*)listGetPointer(entries, i))->hash), "\n", \
-	"key: ",	$(((std_str*)((data_entry*)listGetPointer(entries, i))->key)->txt), "\n", \
-	"data: ",	$(*(u32*)((data_entry*)listGetPointer(entries, i))->data), "\n" \
+loop(i, List.Size(entries)) \
+	loginfo(		\
+	"hash: ", 	$(((data_entry*)List.GetPointer(entries, i))->hash), "\n", \
+	"key: ",	$(((inst(String))((data_entry*)List.GetPointer(entries, i))->key)->txt), "\n", \
+	"data: ",	$(*(u32*)((data_entry*)List.GetPointer(entries, i))->data), "\n" \
 	);
 
 

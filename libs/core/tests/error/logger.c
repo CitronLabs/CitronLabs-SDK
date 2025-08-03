@@ -1,15 +1,22 @@
 #include "../test-utils.h"
+#include "stringutils.h"
+#include "types.h"
 
 
 
 bool RUN_LOGGER_TESTS(){
-	inst(File) errlog = new(File, "errlog.txt");
-	inst(File) infolog = new(File, "infolog.txt");
+	data(StringBuilder)
+		* errlog  = push(StringBuilder),
+	 	* infolog = push(StringBuilder);
 	
-	inst(Logger) logger = new(Logger, "Test-Log",
+	inst(Logger) logger = push(Logger, "Test-Log",
 		.infolog = push(LogBook, .interface = &StringBuilder.Loggable, .object = generic infolog),
-		.errorlog = push(LogBook, .interface = &File.Loggable, .object = generic errlog)
+		.errorlog = push(LogBook, .interface = &StringBuilder.Loggable, .object = generic errlog)
 	);
+
+	pop(logger);
+	pop(errlog);
+	pop(infolog);
 
 return TEST_RESULT;
 }

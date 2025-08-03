@@ -6,7 +6,7 @@ bool RUN_WATCH_TESTS();
 
 bool RUN_STDEXTTIME_TESTS(){
 
-	println("\n"BLUE"--Testing Standard Time--"NC);
+	loginfo("\n"BLUE"--Testing Standard Time--"NC);
 
 	INIT_TEST
 	

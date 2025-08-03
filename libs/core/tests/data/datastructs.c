@@ -24,8 +24,8 @@ NEW_TEST("Generic Data Structure"){
 	inst(StringBuilder) struct_format = NULL;
 
 	NEW_SUBTEST("Initialization"){
-		
-		test_struct = struct(push, 
+
+		test_struct = pushStruct( 
 				D("string", test_str), 
 				D("number", test_num), 
 				D("map",    test_map)

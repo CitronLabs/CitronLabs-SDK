@@ -51,14 +51,14 @@ NEW_TEST("List Data Structure"){
 		
 		TestListNotFor(test_list, "Hello, World!"){
 			FAIL_TEST
-			println("FAIL RESULT: ",$((cstr)List.GetPointer(test_list,0)));
+			loginfo("FAIL RESULT: ", $((cstr)List.GetPointer(test_list,0)));
 			goto skip;
 		}
 		
 		List.Insert(test_list , sizeof("Other ") - 1, 7, "Other ");
 		TestListNotFor(test_list, "Hello, Other World!"){
 			FAIL_TEST
-			println("FAIL RESULT: ",$((cstr)List.GetPointer(test_list,0)));
+			loginfo("FAIL RESULT: ",$((cstr)List.GetPointer(test_list,0)));
 			goto skip;
 		}else 
 			PASS_TEST
@@ -67,7 +67,7 @@ NEW_TEST("List Data Structure"){
 		sublist = List.SubList(test_list, 7, sizeof("Other ") - 1);
 		TestListNotFor(sublist, "Other "){
 			FAIL_TEST
-			println("FAIL RESULT: ",$((cstr)List.GetPointer(sublist,0)));
+			loginfo("FAIL RESULT: ",$((cstr)List.GetPointer(sublist,0)));
 			goto skip;
 		}
 		List.Flush(sublist);
@@ -77,7 +77,7 @@ NEW_TEST("List Data Structure"){
 		sublist = List.SubList(test_list, 7, UINT64_MAX);
 		TestListNotFor(sublist, "Other World!"){
 			FAIL_TEST
-			println("FAIL RESULT: ",$((cstr)List.GetPointer(sublist,0)));
+			loginfo("FAIL RESULT: ",$((cstr)List.GetPointer(sublist,0)));
 			goto skip;
 		}else 
 			PASS_TEST
@@ -86,11 +86,11 @@ NEW_TEST("List Data Structure"){
 		List.Flush(test_list);
 		List.Insert(test_list, sizeof("Goodbye,  See you tommorrow!"),
 	     		UINT64_MAX, "Goodbye,  See you tommorrow!");
-		List.Pop(sublist);// removing the null terminator
+		List.Pop(sublist, 1);// removing the null terminator
 		List.Merge(test_list, sublist, 9);
 		TestListNotFor(test_list, "Goodbye, Other World! See you tommorrow!"){
 			FAIL_TEST
-			println("FAIL RESULT: ",$((cstr)List.GetPointer(test_list,0)));
+			loginfo("FAIL RESULT: ",$((cstr)List.GetPointer(test_list,0)));
 			goto skip;
 		}else 
 			PASS_TEST
@@ -103,13 +103,13 @@ NEW_TEST("List Data Structure"){
 		
 		if(List.Merge(test_list, sublist, 9) != DATAERR_SIZETOOLARGE){
 			FAIL_TEST
-			println("FAIL RESULT: Incorrect error code returned");
+			loginfo("FAIL RESULT: Incorrect error code returned");
 			goto skip;
 		}
 		
 		TestListNotFor(test_list, "Goodbye, Other World! See you tommorrow!"){
 			FAIL_TEST
-			println("FAIL RESULT: ",$((char*)List.GetPointer(test_list,0)));
+			loginfo("FAIL RESULT: ",$((char*)List.GetPointer(test_list,0)));
 			goto skip;
 		}else 
 			PASS_TEST

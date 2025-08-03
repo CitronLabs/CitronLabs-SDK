@@ -38,7 +38,7 @@ NEW_TEST("Queue Data Structure"){
 			goto skip;
 		}
 		if(strncmp(queue_data, "Hello, World!", sizeof("Hello, World!")) != 0){
-			println(queue_data);
+			loginfo(queue_data);
 			FAIL_TEST
 			goto skip;
 		}

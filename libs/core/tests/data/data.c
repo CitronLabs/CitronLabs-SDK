@@ -5,9 +5,10 @@
 #include "./queue.c"
 #include "./map.c"
 #include "./datastructs.c"
+#include "error.h"
 
 bool RUN_STDDATA_TESTS(){
-	println("\n"BLUE"--Testing Standard Data--"NC);
+	loginfo("\n"BLUE"--Testing Standard Data--"NC);
 	
 	INIT_TEST
 

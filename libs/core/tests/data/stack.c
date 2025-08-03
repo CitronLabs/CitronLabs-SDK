@@ -34,7 +34,7 @@ NEW_TEST("Stack Data Structure"){
 		}
 		if(Stack.Count(stack) > 0){
 			FAIL_TEST
-			println("count on fail: ", $(Stack.Count(stack)));
+			loginfo("count on fail: ", $(Stack.Count(stack)));
 			goto skip;
 		}
 		if(strncmp(stack_data, "!dlroW ,olleH", sizeof("Hello, World!")) != 0){
@@ -74,7 +74,7 @@ NEW_TEST("Stack Data Structure"){
 		}
 		if(strncmp(stack_data, "!dlroW ,olleH", sizeof("Hello, World!")) != 0){
 			FAIL_TEST
-			println("stack_data:\n", stack_data, "\n!dlroW ,olleH");
+			loginfo("stack_data:\n", stack_data, "\n!dlroW ,olleH");
 			goto skip;
 		}
 		pop(stack);

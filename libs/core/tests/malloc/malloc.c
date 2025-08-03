@@ -8,7 +8,7 @@
     
 bool RUN_STDEXTMALLOC_TESTS(){
 
-	println("\n"BLUE"--Testing Standard Extra Malloc--"NC);
+	loginfo("\n"BLUE"--Testing Standard Extra Malloc--"NC"\n");
 
 	INIT_TEST
 

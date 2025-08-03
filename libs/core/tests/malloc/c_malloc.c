@@ -13,12 +13,12 @@ NEW_TEST("Allocator Tests"){
 		
 		if(ptr == NULL){
 			FAIL_TEST;
-			println("\t allocation failed");
+			loginfo("\t allocation failed");
 			goto skip_cmalloc;
 		}
 		if(bytesalloc_before == CMalloc.Allocator.getBytesAlloced(generic c_malloc)){
 			FAIL_TEST;
-			println("\t c_malloc_metadata not properly updated");
+			loginfo("\t c_malloc_metadata not properly updated");
 			goto skip_cmalloc;
 		}else
 			PASS_TEST
@@ -27,7 +27,7 @@ NEW_TEST("Allocator Tests"){
 		free(ptr);
 		if(bytesalloc_before != CMalloc.Allocator.getBytesAlloced(generic c_malloc)){
 			FAIL_TEST;
-			println("\t c_malloc_metadata not properly updated");
+			loginfo("\t c_malloc_metadata not properly updated");
 			goto skip_cmalloc;
 		}
 			PASS_TEST
@@ -37,12 +37,12 @@ NEW_TEST("Allocator Tests"){
 		
 		if(ptr == NULL){
 			FAIL_TEST;
-			println("\t allocation failed");
+			loginfo("\t allocation failed");
 			goto skip_cmalloc;
 		}else
 		if(CMalloc.Allocator.getBytesAlloced(generic c_malloc) == bytesalloc_before){
 			FAIL_TEST;
-			println("\t c_malloc_metadata not properly updated");
+			loginfo("\t c_malloc_metadata not properly updated");
 			goto skip_cmalloc;
 		}else
 			PASS_TEST;
