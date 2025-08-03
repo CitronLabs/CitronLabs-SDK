@@ -1,5 +1,4 @@
 #include "./time.h"
-#include <wchar.h>
 
 private(TimeWatch,
 	inst(Time) time_limit;
@@ -20,7 +19,7 @@ errvt methodimpl(TimeWatch, Restart){
 	nonull(self, return nullerr);
 	
 	if(TIME_UTC != timespec_get(&priv->start_time, TIME_UTC)) {
-		return ERR(ERR_INVALIDERR, "could not restart time");
+		return ERR(ERR_INVALID, "could not restart time");
 	}
 
 return OK;
@@ -30,7 +29,7 @@ errvt methodimpl(TimeWatch, Start){
 	nonull(self, return nullerr);
 
 	if(TIME_UTC != timespec_get(&priv->start_time, TIME_UTC)) 
-		return ERR(ERR_INVALIDERR, "could not get current time");	
+		return ERR(ERR_INVALID, "could not get current time");	
 	
 	priv->active = true;
 
@@ -45,7 +44,7 @@ inst(Time) methodimpl(TimeWatch, Check){
 	nonull(self, return NULL);
 
 	if(TIME_UTC != timespec_get(&priv->curr_time, TIME_UTC)){
-		ERR(ERR_INVALIDERR, "could not get current time");
+		ERR(ERR_INVALID, "could not get current time");
 		return NULL;
 	}
 

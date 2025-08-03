@@ -33,6 +33,7 @@ SOFTWARE.
 #include "../../core/include/utils.h"
 #include "../../core/include/types.h"
 #include "../../core/include/error.h"
+#include "../../core/include/mathematics.h"
 #include "../../core/include/data.h"
 #include "../../core/include/stringutils.h"
 #include "../../core/include/alloc.h"

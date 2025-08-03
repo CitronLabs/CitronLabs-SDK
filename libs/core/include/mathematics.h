@@ -1,3 +1,4 @@
+#pragma once
 #include "error.h"
 #include "types.h"
 #include "stringutils.h"
