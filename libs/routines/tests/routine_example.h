@@ -1,2 +1,2 @@
-#include "../../core/include/std-all.h"
 #include "../include/routines.h"
+#include "../../APIs/XC/build.h"
