@@ -16,19 +16,26 @@ errvt methodimpl(StringBuilder, Max,, u64 max_len){
 return OK;
 }
 
-u64 methodimpl(StringBuilder, Set,, ...){
+u64 methodimpl(StringBuilder, Set,, inst(String) string, ...){
 
 	nonull(priv, return 0;);
 	u64 len = 0;
 	
-	va_list args;
-	va_start(args, self);
-
 	List.Flush(priv->data);
 
-	len = FormatUtils.FormatVArgs(self, args);   
+	if(string != NULL){
+		List.Insert(priv->data, string->len, 0, string->txt);
+		len = string->len;
+	}else{
+		va_list args;
+		va_start(args, string);
+
+
+		len = FormatUtils.FormatVArgs(self, args);   
+		
+		va_end(args);
+	}
 	
-	va_end(args);
 
 return len;
 }
@@ -151,7 +158,7 @@ u64 imethodimpl(StringBuilder, Print,, FormatID* formats, inst(StringBuilder) ou
 	StringBuilder.Append(out, s("}"));
 	formated_len++;
 
-	List.Pop(priv->data);
+	List.Pop(priv->data, 1);
 return formated_len;
 }
 

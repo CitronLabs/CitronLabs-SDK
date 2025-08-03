@@ -9,3 +9,5 @@ private(StringBuilder,
 private(String,
 	u8 inline_alloc : 1;
 );
+
+

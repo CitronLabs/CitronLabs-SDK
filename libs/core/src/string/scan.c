@@ -39,8 +39,7 @@ u64 Scan_VArgs(inst(String) str, va_list args){
 	u64 cursor = 0;
 	
 	FormatID formats[FORMAT_DOMAIN_TOP + 1];
-	loop(i, FORMAT_DOMAIN_TOP + 1)
-		formats[i] = __default_formats[i];
+	memcpy(formats, __default_formats, FORMAT_DOMAIN_TOP + 1);
 
 	while(!quit || cursor >= str->len){
 	    cstr str_arg = va_arg(args, cstr);

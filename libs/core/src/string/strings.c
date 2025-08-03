@@ -1,4 +1,5 @@
 #include "./strings.h"
+#include "types.h"
 
 errvt methodimpl(String, ModCharLen,, chartype type){
 
@@ -76,7 +77,6 @@ return Map.Hash(self->txt, self->len);
 
 i64 methodimpl(String, Regex,, inst(String) regex, str_regex_result* result_buffer, size_t buffer_max);
 
-
 construct(String,
 	.Compare = String_Compare,
 	.Copy = String_Copy,
@@ -106,4 +106,10 @@ construct(String,
 return self;
 }
 
+u64 Print_VArgs(inst(StringBuilder) builder, va_list args);
+u64 Scan_VArgs(inst(String) str, va_list args);
 
+Impl(FormatUtils){
+	.FormatVArgs = Print_VArgs,
+	.ScanVArgs = Scan_VArgs
+};

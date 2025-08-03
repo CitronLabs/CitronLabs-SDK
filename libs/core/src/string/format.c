@@ -1,4 +1,5 @@
 #include "./strings.h"
+#include "stringutils.h"
 
 
 #define ESC_VALUE 0
@@ -11,7 +12,6 @@ u64 formatString(FormatID* formats, va_list args, inst(StringBuilder) output){
 	intf(Formatter) type_formatter = va_arg(args, intf(Formatter));
 
 	if(type_formatter == NULL){
-		ERR(STRINGERR_FORMAT, "cannot format an object without a specified formatter interface");
 		return UINT64_MAX;
 	}
 	actual_len = type_formatter->Print(va_arg(args, void*), formats, output);
@@ -26,8 +26,7 @@ u64 Print_VArgs(inst(StringBuilder) builder, va_list args){
 	u64 len = 0;
 	
 	FormatID formats[FORMAT_DOMAIN_TOP + 1];
-	loop(i, FORMAT_DOMAIN_TOP + 1)
-		formats[i] = __default_formats[i];
+	memcpy(formats, __default_formats, FORMAT_DOMAIN_TOP + 1);
 
 	while(!quit){
 	    cstr str_arg = va_arg(args, cstr);
