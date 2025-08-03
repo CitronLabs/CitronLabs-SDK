@@ -1,6 +1,7 @@
 #pragma once
 #include "../../APIs/XC/core.h"
-#include "types.h"
+
+
 /*--------------------------------------|
 	      File System		|
 --------------------------------------*/
@@ -26,6 +27,7 @@ Interface(filesys,
 	errvt  	 vmethod(close,   fsHandle handle);
 	errvt  	 vmethod(delete,  fsPath path);
 	errvt  	 vmethod(chdir,   fsPath path);
+	errvt  	 vmethod(handleEvents, fsHandle handle, Queue(OSEvent) evntQueue);
 )
 
 /*--------------------------------------|
@@ -61,28 +63,14 @@ Type(inputDevice,
      	arry(posInput) posInputs;
      	arry(keyInput) keyInputs;
 )
-Type(inputEvent,
-	bool type;
-     	union {
-	  struct{
-		float axis[3];
-	  	u16 ID;
-	  }pos;
-     	}data;
-
-)
 Interface(input,
 #define AXIS_X 0
 #define AXIS_Y 1
 #define AXIS_Z 2
-	errvt vmethod(clearEvents,      inputHandle handle);
-	errvt vmethod(popEvent,         inputHandle handle, inputEvent* evnt);
-	errvt vmethod(pushEvent,        inputHandle handle, inputEvent* evnt);
-	bool  vmethod(checkEvent,	inputHandle handle);
-	errvt vmethod(setEventCallback, inputHandle handle, void fn(evntCallback, inputEvent, inputDevice*, void*), void* userData);
-	errvt vmethod(freeDevice,       inputHandle handle);
-	inputHandle vmethod(grabDevice, inputDevice* dev);
-	arry(inputDevice) vmethod(enumDevices, u64* numDevices);
+	arry(inputDevice) vmethod(enumDevices, 	    u64* numDevices);
+	errvt 		  vmethod(freeDevice,       inputHandle handle);
+	inputHandle 	  vmethod(grabDevice, 	    inputDevice* dev);
+	errvt 		  vmethod(handleEvents,     inputHandle handle, Queue(OSEvent) evntQueue);
 )
 
 /*--------------------------------------|
@@ -98,10 +86,13 @@ Type(displayDevice,
 typedef void* displayHandle;
 
 Interface(graphics,
-	errvt vmethod(setDestructor, displayHandle handle, void fn(destructor, displayHandle, pntr), pntr userData);
-	displayHandle vmethod(initDisplay, u32 x, u32 y, u32 w, u32 h, displayHandle parent);
-	displayHandle vmethod(grabDevice, displayDevice* device);
-	arry(displayDevice) vmethod(enumDevices, u64* numDevices);
+	displayHandle 		vmethod(initDisplay, u32 x, u32 y, u32 w, u32 h, displayHandle parent);
+	displayHandle 		vmethod(grabDisplay, displayDevice* device);
+	arry(displayDevice) 	vmethod(enumDisplays, u64* numDevices);
+	errvt	 		vmethod(closeDisplay, displayHandle handle);
+	errvt	 		vmethod(updateDisplay, displayHandle handle, u32 x, u32 y, u32 w, u32 h, displayHandle parent);
+	bool	 		vmethod(isDisplayClosed, displayHandle);
+	errvt 		  	vmethod(handleEvents,    displayHandle handle, Queue(OSEvent) evntQueue);
 )
 Interface(audio,)
 
@@ -110,35 +101,121 @@ typedef void* mutexHandle;
 typedef void* semaphoreHandle;
 typedef void* processHandle;
 
+#define PROCFLAG_DEBUG 0x01
+
 Interface(scheduler,
-	threadHandle  vmethod(newThread, void fn(thread_start, void* args), void* args);
-	processHandle vmethod(newProcess, cstr exePath, cstr args);
-	errvt vmethod(killProcess, processHandle handle);
-	void vmethod(sleep, u64 millisec);
-	mutexHandle  vmethod(newMutex);
-	mutexHandle  vmethod(lockMutex);
-	mutexHandle  vmethod(unlockMutex);
-	mutexHandle  vmethod(tryLockMutex);
-	semaphoreHandle  vmethod(newSemaphore);
-	semaphoreHandle  vmethod(waitSemaphore);
-	semaphoreHandle  vmethod(postSemaphore);
-	semaphoreHandle  vmethod(tryWaitSemaphore);
+	threadHandle  	vmethod(newThread,  	  void fn(thread_start, void* args), void* args);
+	errvt 		vmethod(exitThread, 	  threadHandle handle);
+	errvt 		vmethod(waitThread, 	  threadHandle handle);
+	threadHandle 	vmethod(getCurrentThread);
+	errvt 		vmethod(handleThrdEvents, threadHandle handle, Queue(OSEvent) evntQueue);
+	processHandle 	vmethod(newProcess,  	  cstr exePath, cstr args, u32 flags);
+	errvt 		vmethod(killProcess, 	  processHandle handle);
+	bool 		vmethod(isProcessRunning, processHandle handle);
+	errvt 		vmethod(traceProcess,     processHandle handle);
+	errvt 		vmethod(handleProcEvents, processHandle handle, Queue(OSEvent) evntQueue);
+	void 		vmethod(sleep, 		  u64 millisec);
+	mutexHandle  	vmethod(newMutex);
+	mutexHandle  	vmethod(lockMutex);
+	mutexHandle  	vmethod(unlockMutex);
+	mutexHandle  	vmethod(tryLockMutex);
+	semaphoreHandle vmethod(newSemaphore);
+	semaphoreHandle vmethod(waitSemaphore);
+	semaphoreHandle vmethod(postSemaphore);
+	semaphoreHandle vmethod(tryWaitSemaphore);
 )
 
 typedef void* dynlibHandle;
 Interface(memory,
-	void* 		vmethod(newMemory, u64 numPages, u16 flags);
+	void* 		vmethod(newMemory,    u64 numPages, u16 flags);
 	errvt 		vmethod(updateMemory, void* memoryBlock, u16 flags);
-	errvt 		vmethod(freeMemory, void* memoryBlock);
+	errvt 		vmethod(freeMemory,   void* memoryBlock);
 	u32 		vmethod(getPageSize);
-	dynlibHandle 	vmethod(loadDynLib, cstr path);
-	void* 		vmethod(findSymbol, dynlibHandle handle);
+	dynlibHandle 	vmethod(loadDynLib,   cstr path);
+	void* 		vmethod(findSymbol,   dynlibHandle handle);
 	errvt 		vmethod(unloadDynLib, dynlibHandle handle);
+	errvt 		vmethod(handleEvents, dynlibHandle handle, Queue(OSEvent) evntQueue);
 )
-Interface(network,)
-Interface(terminal,)
-Interface(disk,)
 
+typedef void* socketHandle;
+typedef void* connectHandle;
+Enum(socketType,
+	SOCKET_UNIX = 1,
+	SOCKET_IPV4 = 2,
+	SOCKET_IPV6 = 3,
+	SOCKET_TCP  = 4,
+	SOCKET_UDP  = 8,
+	SOCKET_RAW  = 12,
+)
+typedef u8 ipv4_netaddress[4];
+typedef u16 ipv6_netaddress[8];
+
+Type(socketAddress,
+     	socketType type;
+	union{
+	    struct{
+		u16 port;
+		ipv4_netaddress address;
+     	    }ipv4;
+	    struct{
+		u16 port;
+		ipv6_netaddress address;
+     	    }ipv6;
+	    struct{
+		inst(String) path;
+     	    }local;
+     	}address;
+)
+Interface(network,
+	socketHandle 	vmethod(newSocket,  	socketType   type);	
+	errvt 		vmethod(bindSocket, 	socketHandle handle, socketAddress address);
+	errvt 		vmethod(listen,     	socketHandle handle, u32 num_connect);
+	connectHandle 	vmethod(connect,    	socketHandle handle);
+	connectHandle	vmethod(accept,     	socketHandle handle);
+	errvt 		vmethod(send, 	    	connectHandle handle);
+	errvt 		vmethod(recieve,    	connectHandle handle);
+	errvt 		vmethod(groupJoin,  	connectHandle handle);
+	errvt 		vmethod(groupLeave,   	connectHandle handle);
+	errvt 		vmethod(groupSend,    	connectHandle handle);
+	errvt 		vmethod(groupRecive,  	connectHandle handle);
+	errvt 		vmethod(handleEvents, 	connectHandle handle, Queue(OSEvent) evntQueue);
+)
+Interface(terminal,
+	
+
+)
+Interface(disk,)
+/*--------------------------------------|
+	         Events			|
+--------------------------------------*/
+
+Type(inputEvent,
+	inputDevice* device;
+	bool type;
+     	union {
+	  struct{
+		float axis[3];
+	  	u16 ID;
+	  }pos;
+	  struct{
+		u32 code;
+	  	u16 ID;
+	  }key;
+     	}data;
+)
+Type(socketEvent,
+	socketHandle handle;
+     	u32 type;
+)
+Type(OSEvent,
+	u8 osSystem : 3;
+     	u8 osResource : 5;
+	union{
+		inputEvent input;
+		socketEvent socket;
+
+     	}data;
+)
 
 Interface(OS,
 	interface(filesys);
@@ -151,8 +228,6 @@ Interface(OS,
 	interface(terminal);
 	interface(disk);
 );
-
-
 
 extern intf(OS) userOS;
 
