@@ -42,7 +42,7 @@ ExtraC CORE Configuration File
 /*---------------------------------------------------------------------------*/
 #include "./xc-resource.c"
 
-#define CORE_METHODS(Class)							\	
+#define CORE_METHODS(Class)							\
 	u32 imethod(__HASH);							\
 	u32 imethod(__DESTROY);							\
 	RESOURCE_METHODS(Class)							\
@@ -56,15 +56,15 @@ ExtraC CORE Configuration File
 define(XC_DataStructs){
 	value maxSize;
 }; 
-global bool(*__Init_Func)()		= NULL; 
-global setting __AutoInit 		= true;
-global setting __HeaderOnly		= false;
+#define __HeaderOnly			false
 
-global setting __Debug 			= true;
+#define __Debug 			true
 
-global setting __HijackMalloc 		= true;
+#define __HijackMalloc 			true
 
-global setting __DataAutoGrow		= true;
+#define __DataAutoGrow			true
+
+#define __stdLoggerName		 	"Log"
 
 global config(XC_DataStructs) 
 __List = { 

@@ -20,7 +20,7 @@ ExtraC RESOURCE Configuration File
 /*---------------------------------------------------------------------------*/
 typedef struct Collection_Instance Collection_Instance;
 
-#define RESOURCE_METHODS(Class)							\	
+#define RESOURCE_METHODS(Class)							\
 	inst(Class)(*__COLLECT)							\
 		(inst(Collection) collection, Class##_ConstructArgs args);	
 #else

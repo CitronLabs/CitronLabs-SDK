@@ -17,9 +17,7 @@ errvt BUILD_EBEE(inst(EB_Project) ebee){
 		)
 	);
 
-	check(
-		CBuild.compile(build, NULL, CCFL_DO_COMPILE_ONLY);
-	)
+	check(CBuild.compile(build, NULL, CCFL_DO_COMPILE_ONLY))
 	{return ERR(err->errorcode, err->message);}
 
 	INFO("Built Ebee!")
