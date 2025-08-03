@@ -73,17 +73,12 @@ Version(LibC, V_RELEASEDATE,
 	#endif
 );
 
-#if __AutoInit 
-	int extra_main(int argc, char** argv);
-	#define main extra_main
-	#define __start int extra_main(int arc, char** argv)
-#else
-	errvt init_ExtraC();
-#endif
-
 #if __HeaderOnly
 #include "../src/error/errorcodes.c"
+#include "../src/error/logger.c"
 
+#include "../src/data/base-types.c"
+#include "../src/data/DSN.c"
 #include "../src/data/datastructs.c"
 #include "../src/data/list.c"
 #include "../src/data/hashmap.c"
@@ -91,20 +86,17 @@ Version(LibC, V_RELEASEDATE,
 #include "../src/data/stack.c"
 #include "../src/data/numbers.c"
 
-#include "../src/types/types.c"
-#include "../src/types/scan.c"
-#include "../src/types/format.c"
-
-#include "../src/ext/malloc/mem.c"
+#include "../src/ext/malloc/c_malloc.c"
+#include "../src/ext/malloc/buffer.c"
+#include "../src/ext/malloc/arena.c"
+#include "../src/ext/malloc/pool.c"
 
 #include "../src/ext/time/time.c"
 #include "../src/ext/time/watch.c"
-#include "../src/ext/time/print-scan.c"
 
-#include "../src/ext/string/print-scan.c"
+#include "../src/string/scan.c"
+#include "../src/string/format.c"
 #include "../src/ext/string/regex.c"
 #include "../src/ext/string/string.c"
 #include "../src/ext/string/strbuilder.c"
-
-#include "../src/init.c"
 #endif

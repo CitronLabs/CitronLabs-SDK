@@ -22,6 +22,7 @@ BUILDERR_TARGETS
 	#define __USER_ERRORCODES__ EBEE_ERRORCODES
 #endif
 #include "../XC/core.h"
+#include "../XC/os.h"
 #include "./cli.h"
 #include "./utils.h"
 
