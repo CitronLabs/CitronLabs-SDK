@@ -159,10 +159,10 @@ typedef void* inst;
 #define new(name, ...) init(name, malloc(sizeof(name##_Instance) + sizeof_##name##_Private), __VA_ARGS__)
 #define push(name, ...) init(name, alloca(sizeof(name##_Instance) + sizeof_##name##_Private), __VA_ARGS__)
 
-#define del(object) if(object->__methods->__DESTROY == NULL) ERR(ERR_NULLPTR,"no destructor specified for this object"); \
-		    else if(object->__methods->__DESTROY(generic object) == ERR_NONE) free(object);
-#define pop(object) if((object)->__methods->__DESTROY == NULL) ERR(ERR_NULLPTR,"no destructor specified for this object"); \
-		    else (object)->__methods->__DESTROY(generic (object))
+#define del(object) if((generic object)->__methods->__DESTROY == NULL) ERR(ERR_NULLPTR,"no destructor specified for this object"); \
+		    else if((generic object)->__methods->__DESTROY(generic object) == ERR_NONE) free(object);
+#define pop(object) if((generic object)->__methods->__DESTROY == NULL) ERR(ERR_NULLPTR,"no destructor specified for this object"); \
+		    else (generic object)->__methods->__DESTROY(generic (object))
 
 /*----------------------|
        Base Types	|
@@ -226,3 +226,5 @@ asClass(pntr){ passover }
 typedef u32 errvt;
 
 Class(Object,,,);
+
+
