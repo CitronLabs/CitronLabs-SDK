@@ -1,5 +1,6 @@
 #pragma once
 #include "../../APIs/XC/core.h"
+#include "types.h"
 
 
 /*--------------------------------------|
@@ -19,7 +20,7 @@ Type(fsEntry,
 )
 
 Interface(filesys,
-	const int CREATE_FLAG, APPEND_FLAG, WRITE_FLAG, READ_FLAG, ASYNC_FLAG;
+	int CREATE_FLAG, APPEND_FLAG, WRITE_FLAG, READ_FLAG, ASYNC_FLAG;
 	fsHandle vmethod(open,    bool DIR, fsPath path, int flags);
 	i64 	 vmethod(write,   fsHandle handle, pntr data, size_t size);
 	i64 	 vmethod(read,    fsHandle handle, pntr data, size_t size);
@@ -76,16 +77,40 @@ Interface(input,
 /*--------------------------------------|
 	        Graphics		|
 --------------------------------------*/
+Type(DisplayMode,
+	u32 width;
+	u32 height;
+	u16 refreshRate;
+)
 Type(displayDevice,
 	inst(String) name;
-	inst(String) uniqueID;
-     	u32 width, height;
-     	u16 dpi;
-     	u16 refreshRate;
+	inst(String) manufacturer;
+	inst(String) model;
+	
+	inst(String) connectionType; // e.g., "HDMI-A-1", "DisplayPort-0"
+	
+	void* uniqueID;
+
+	u32 currentWidth;
+	u32 currentHeight;
+	u16 currentRefreshRate;
+	u16 dpi;
+	u16 bitDepth;
+	u16 rotation;
+	
+	u32 physicalWidth_mm;
+	u32 physicalHeight_mm;
+	
+	DisplayMode* supportedModes;
+	
+	bool primary;
+	bool HDRSupport;
 )
 typedef void* displayHandle;
 
 Interface(graphics,
+	errvt 			vmethod(initSystem);
+	errvt 			vmethod(exitSystem);
 	displayHandle 		vmethod(initDisplay, u32 x, u32 y, u32 w, u32 h, displayHandle parent);
 	displayHandle 		vmethod(grabDisplay, displayDevice* device);
 	arry(displayDevice) 	vmethod(enumDisplays, u64* numDevices);
@@ -104,6 +129,8 @@ typedef void* processHandle;
 #define PROCFLAG_DEBUG 0x01
 
 Interface(scheduler,
+	errvt 		vmethod(initSystem);
+	errvt 		vmethod(exitSystem);
 	threadHandle  	vmethod(newThread,  	  void fn(thread_start, void* args), void* args);
 	errvt 		vmethod(exitThread, 	  threadHandle handle);
 	errvt 		vmethod(waitThread, 	  threadHandle handle);
@@ -116,17 +143,19 @@ Interface(scheduler,
 	errvt 		vmethod(handleProcEvents, processHandle handle, Queue(OSEvent) evntQueue);
 	void 		vmethod(sleep, 		  u64 millisec);
 	mutexHandle  	vmethod(newMutex);
-	mutexHandle  	vmethod(lockMutex);
-	mutexHandle  	vmethod(unlockMutex);
-	mutexHandle  	vmethod(tryLockMutex);
-	semaphoreHandle vmethod(newSemaphore);
-	semaphoreHandle vmethod(waitSemaphore);
-	semaphoreHandle vmethod(postSemaphore);
-	semaphoreHandle vmethod(tryWaitSemaphore);
+	errvt 		vmethod(lockMutex,    	  mutexHandle handle);
+	errvt 		vmethod(unlockMutex,  	  mutexHandle handle);
+	errvt 		vmethod(tryLockMutex, 	  mutexHandle handle);
+	semaphoreHandle vmethod(newSemaphore, 	  size_t num);
+	errvt 		vmethod(waitSemaphore, 	  semaphoreHandle handle);
+	errvt 		vmethod(postSemaphore, 	  semaphoreHandle handle);
+	errvt 		vmethod(tryWaitSemaphore, semaphoreHandle handle);
 )
 
 typedef void* dynlibHandle;
 Interface(memory,
+	errvt 		vmethod(initSystem);
+	errvt 		vmethod(exitSystem);
 	void* 		vmethod(newMemory,    u64 numPages, u16 flags);
 	errvt 		vmethod(updateMemory, void* memoryBlock, u16 flags);
 	errvt 		vmethod(freeMemory,   void* memoryBlock);
@@ -167,6 +196,8 @@ Type(socketAddress,
      	}address;
 )
 Interface(network,
+	errvt 		vmethod(initSystem);
+	errvt 		vmethod(exitSystem);
 	socketHandle 	vmethod(newSocket,  	socketType   type);	
 	errvt 		vmethod(bindSocket, 	socketHandle handle, socketAddress address);
 	errvt 		vmethod(listen,     	socketHandle handle, u32 num_connect);
@@ -181,10 +212,11 @@ Interface(network,
 	errvt 		vmethod(handleEvents, 	connectHandle handle, Queue(OSEvent) evntQueue);
 )
 Interface(terminal,
+	errvt 		vmethod(initSystem);
+	errvt 		vmethod(exitSystem);
 	
 
 )
-Interface(disk,)
 /*--------------------------------------|
 	         Events			|
 --------------------------------------*/
@@ -218,16 +250,19 @@ Type(OSEvent,
 )
 
 Interface(OS,
-	interface(filesys);
-	interface(input);
-	interface(graphics);
-	interface(audio);
-	interface(scheduler);
-	interface(memory);
-	interface(network);
+	interface(filesys);		
+	interface(input);		
+	interface(graphics);	
+	interface(audio);		
+	interface(scheduler);	
+	interface(memory);		
+	interface(network);		
 	interface(terminal);
-	interface(disk);
+
+	cstr OSName;
+	errvt vmethod(initOSBackend);
 );
 
-extern intf(OS) userOS;
 
+#define defaultOS(interface) intf(OS) userOS = &interface;
+extern intf(OS) userOS;

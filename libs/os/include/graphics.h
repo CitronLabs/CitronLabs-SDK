@@ -1,6 +1,5 @@
 #pragma once
 #include "./extern.h"
-#include "types.h"
 
 
 typedef struct Color Color;

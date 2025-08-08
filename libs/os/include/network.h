@@ -66,11 +66,11 @@ Class(Socket,
 __INIT(socket_settings settings;),
 __FIELD(),
 
-	errvt method(Socket,Bind,, void* address);
+	errvt method(Socket,Bind,, socketAddress address);
 	errvt method(Socket,Listen,, u32 num_waiting);
 	inst(Connection) method(Socket,Accept);
 	socket_settings method(Socket,GetSettings);
-      	errvt method(Socket, GetAddress,, void* address);
+      	socketAddress method(Socket, GetAddress);
 );
 
 
@@ -80,7 +80,7 @@ Type(Packet,
 );
 
 Class(Connection,
-__INIT(socket_settings settings; void* address;), 
+__INIT(socket_settings settings; socketAddress address), 
 __FIELD(),
 
 	errvt method(Connection,Send,, Packet message);
@@ -88,12 +88,12 @@ __FIELD(),
 	errvt method(Connection,Watch);
 	errvt method(Connection,UnWatch);
 	bool method(Connection,Check);
-	errvt method(Connection,GroupJoin,, void* address, void* interface_addr);
+	errvt method(Connection,GroupJoin,, socketAddress address, void* interface_addr);
 	errvt method(Connection,GroupLeave);
 	errvt method(Connection,GroupSend,, Packet message);
 	errvt method(Connection,GroupRecive,, Packet message);
 	socket_settings method(Connection,GetSettings);
-      	errvt method(Socket, GetAddress,, void* address);
+      	socketAddress method(Socket, GetAddress,, bool groupAddress);
 );
 
 
