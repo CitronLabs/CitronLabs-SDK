@@ -4,14 +4,25 @@
 #include "network.c"
 #include "graphics.c"
 #include "scheduler.c"
-intf(OS) userOS = &LinuxEnv.OS;
 
+defaultOS(LinuxEnv.OS)
+
+errvt initOSEnv(){
+		
+
+}
 
 Impl(LinuxEnv){
     .OS = {
-	.filesys = LinuxFS,
-	.network = LinuxNetwork,
-	.scheduler = LinuxScheduler,
-	.graphics = LinuxGraphics	
+	.OSName = "Linux",
+	.initOSBackend 	= initOSEnv,
+	.filesys 	= LinuxFS,
+	.network 	= LinuxNetwork,
+	.scheduler 	= LinuxScheduler,
+	.graphics 	= LinuxGraphics,	
+	.memory 	= LinuxMemory,
+	.input 		= LinuxInput,
+	.terminal 	= LinuxTerminal,
+	.audio 		= LinuxAudio
     }
 };

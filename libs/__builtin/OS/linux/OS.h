@@ -6,12 +6,16 @@
 #include <pthread.h>
 #include <unistd.h>
 #include <bits/pthreadtypes.h>
+#include <sys/ptrace.h>
+#include <sys/wait.h>
 #include "semaphore.h"
 
 Static(LinuxEnv,
 	interface(OS);
+	
 )
 
+void populateDisplayDevInfo(inst(String) name, inst(displayDevice) devStruct);
 
 void evntHandler(Queue(OSEvent) evntQueue){
 	OSEvent evnt;

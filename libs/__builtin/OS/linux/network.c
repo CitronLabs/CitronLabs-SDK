@@ -1,5 +1,5 @@
 #include "OS.h"
 
-const ImplAs(network, LinuxNetwork){	
-	
+const ImplAs(network, LinuxNetwork){
+		
 };
