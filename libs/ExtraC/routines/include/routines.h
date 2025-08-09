@@ -1,16 +1,5 @@
 #pragma once
-
-#include "types.h"
-#define RoutineErrorCodes	\
-ROUTINEERR_RUN,			\
-ROUTINEERR_INIT,		\
-ROUTINEERR_ALRDYACTIVE		\
-
-#ifndef __USER_ERRORCODES__
-	#define __USER_ERRORCODES__ RoutineErrorCodes
-#endif
-
-#include "../../APIs/XC/core.h"
+#include "extern.h"
 
 typedef struct {u8 alloc[18];} FancyFunction_Alloc;
 
