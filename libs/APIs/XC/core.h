@@ -23,7 +23,7 @@ SOFTWARE.
 ---------------------------------------------------------------------------*/
 #pragma once
 
-#define __EXTRAC_RUNTIME__
+#define __EXTRAC_CORE__
 
 #include "../../ExtraC/core/include/libc.h"
 #if !defined (__FORMAT_CODES__) && !defined (__ERROR_CODES__) && !defined (__GLOBAL_METHODS__)

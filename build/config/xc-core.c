@@ -19,6 +19,7 @@ ExtraC CORE Configuration File
 
 	#include "./xc-os.c"
 	#include "./xc-resource.c"
+	#include "./xc-routines.c"
 
 #elif defined( 			__FORMAT_CODES__			)
 /*---------------------------------------------------------------------------*/
