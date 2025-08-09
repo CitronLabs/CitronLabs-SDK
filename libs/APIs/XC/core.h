@@ -25,19 +25,18 @@ SOFTWARE.
 
 #define __EXTRAC_RUNTIME__
 
-#include "../../core/include/libc.h"
+#include "../../ExtraC/core/include/libc.h"
 #if !defined (__FORMAT_CODES__) && !defined (__ERROR_CODES__) && !defined (__GLOBAL_METHODS__)
 	#include "config.h"
 #endif
 
-#include "../../core/include/utils.h"
-#include "../../core/include/types.h"
-#include "../../core/include/error.h"
-#include "../../core/include/mathematics.h"
-#include "../../core/include/data.h"
-#include "../../core/include/stringutils.h"
-#include "../../core/include/alloc.h"
-#include "../../core/include/timing.h"
+#include "../../ExtraC/core/include/utils.h"
+#include "../../ExtraC/core/include/types.h"
+#include "../../ExtraC/core/include/error.h"
+#include "../../ExtraC/core/include/data.h"
+#include "../../ExtraC/core/include/stringutils.h"
+#include "../../ExtraC/core/include/alloc.h"
+#include "../../ExtraC/core/include/timing.h"
 
 
 Enum(VersionSchema, V_SEMANTIC,	V_RELEASEDATE, V_ALPHABETA);
@@ -73,31 +72,3 @@ Version(LibC, V_RELEASEDATE,
 		2023
 	#endif
 );
-
-#if __HeaderOnly
-#include "../src/error/errorcodes.c"
-#include "../src/error/logger.c"
-
-#include "../src/data/base-types.c"
-#include "../src/data/DSN.c"
-#include "../src/data/datastructs.c"
-#include "../src/data/list.c"
-#include "../src/data/hashmap.c"
-#include "../src/data/queue.c"
-#include "../src/data/stack.c"
-#include "../src/data/numbers.c"
-
-#include "../src/ext/malloc/c_malloc.c"
-#include "../src/ext/malloc/buffer.c"
-#include "../src/ext/malloc/arena.c"
-#include "../src/ext/malloc/pool.c"
-
-#include "../src/ext/time/time.c"
-#include "../src/ext/time/watch.c"
-
-#include "../src/string/scan.c"
-#include "../src/string/format.c"
-#include "../src/ext/string/regex.c"
-#include "../src/ext/string/string.c"
-#include "../src/ext/string/strbuilder.c"
-#endif

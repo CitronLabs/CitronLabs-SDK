@@ -27,7 +27,7 @@ ExtraC OS Configuration File
 #ifndef XC_OS_CONFIG
 #define XC_OS_CONFIG
 #include "__config_start.h"
-	
+
 #include "__config_end.h"
 #endif
 #endif

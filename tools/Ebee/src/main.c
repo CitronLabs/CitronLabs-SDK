@@ -21,7 +21,6 @@ __INIT(inst(EbeeArgs) args),
 __FIELD(
 	inst(MemoryMap) memory;
       	inst(EbeeFlags) flags;
-      	
 ),	
       	interface(Loggable);
       	errvt method(EbeeTool, createEnv,, fsPath path);
