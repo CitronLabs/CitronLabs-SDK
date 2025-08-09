@@ -1,16 +1,16 @@
 #include "../include/routines.h"
 
-private(Fiber,
+private(Coroutine,
 	void* stack_pointer;
 	void* args;
 );
 
-Queue(inst(Fiber)) fiber_queue;
+Queue(inst(Coroutine)) fiber_queue;
 
-extern void Fiber_Yield();
-void Fiber_Exit();
-void Fiber_Join(inst(Fiber) fiber);
-inst(Fiber) Fiber_This();
+extern void Coroutine_Yield();
+void Coroutine_Exit();
+void Coroutine_Join(inst(Coroutine) fiber);
+inst(Coroutine) Coroutine_This();
 
 
 
@@ -19,11 +19,11 @@ void fiberSwitch(void* stack_pointer, std_fiber* fiber);
 
 
 
-construct(Fiber,
-	.Yield = Fiber_Yield
+construct(Coroutine,
+	.Yield = Coroutine_Yield
 ){
-	set_methods(Fiber);
-	set_priv(Fiber){0};	
+	set_methods(Coroutine);
+	set_priv(Coroutine){0};	
 	self->start_func = args.start_func;
 
 }
