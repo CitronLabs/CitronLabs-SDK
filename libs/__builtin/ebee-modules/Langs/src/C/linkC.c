@@ -1,6 +1,6 @@
 #pragma once
 #define __LANGS_SRC_DEF__
-#include "../header.h"
+#include "CBuild.h"
 
 EBEE_SOURCE C_blueprint_linkExe(
 	std_str linker,

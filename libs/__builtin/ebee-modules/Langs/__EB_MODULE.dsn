@@ -8,6 +8,6 @@ import EBModule
 			"./src/C/linkC.c",
 			"./src/C/compileC.c",
 		],
-		API = ["./langs/Lang-C.h"]
+		API = ["./include/Lang-C.h"]
 	}
 }

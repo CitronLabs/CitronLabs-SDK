@@ -1,5 +1,5 @@
 #pragma once 
-#include "../../langs/Lang-C.h"
+#include "../../include/Lang-C.h"
 
 private(CBuild,
 	List(EB_Source) srcfiles;
