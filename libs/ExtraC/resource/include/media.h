@@ -8,7 +8,8 @@ Enum(MediaType,
 	MEDIA_AUDIO,
 	MEDIA_VECTOR,
 	MEDIA_MODEL3D,
-	MEDIA_VIDEO
+	MEDIA_VIDEO,
+	MEDIA_FILE
 )
 
 Class(Media,
@@ -34,26 +35,31 @@ Interface(MediaFormat,
 
 
 
-Type(Image,
+Type(Media_Image,
 	MediaType type;
 )
 
-Type(Audio,
-	MediaType type;
-
-)
-
-Type(VectorImage,
+Type(Media_Audio,
 	MediaType type;
 
 )
 
-Type(Model3D,
+Type(Media_VectorImage,
 	MediaType type;
 
 )
 
-Type(Video,
+Type(Media_Model3D,
+	MediaType type;
+
+)
+
+Type(Media_Video,
+	MediaType type;
+
+)
+
+Type(Media_File,
 	MediaType type;
 
 )
