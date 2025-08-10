@@ -25,7 +25,7 @@ errvt imethodimpl(Struct, __DESTROY){
 
 	List(data_entry) entries = Map.GetEntries(self->fields);
 
-	ListForEach(entries, data_entry, entry){
+	foreach(entries, data_entry, entry){
 	    DSN_data* field = entry.data;
 
 	    switch (field->type) {
@@ -82,7 +82,7 @@ errvt methodimpl(Struct, Merge,, inst(Struct) merge_struct){
 
 	List(data_entry) entries = Map.GetEntries(merge_struct->fields);
 
-	ListForEach(entries, data_entry, ent){
+	foreach(entries, data_entry, ent){
 		DSN_data* res = Struct.SearchField(self, ent.key);
 		if(res == NULL){
 		    if(Struct.AddField(self, ent.key, ent.data) != ERR_NONE){

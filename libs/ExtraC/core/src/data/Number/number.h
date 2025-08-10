@@ -111,7 +111,7 @@ static errvt Number_absoluteSub(Number_Private* res, Number_Private* a, Number_P
 	    	b_size = List.Size(b->digits);
 	
 	int borrow = 0;
-	ListForEach(a->digits, u32, digit) {
+	foreach(a->digits, u32, digit) {
 	    u64 diff = digit - borrow;
 	    if (digit_iterator < b_size) {
 	        diff -= b_digits[digit_iterator];

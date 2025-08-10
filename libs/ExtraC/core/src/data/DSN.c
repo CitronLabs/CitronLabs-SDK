@@ -58,7 +58,7 @@ errvt handleMapOverride(DSN_data* reference, DSN_data* override){
 
 	List(data_entry) ref_ents = Map.GetEntries(ref);
 	
-	ListForEach(ref_ents, data_entry, ent){
+	foreach(ref_ents, data_entry, ent){
 		if(Map.SearchIndex(ovr, ent.key) == UINT32_MAX){
 			Map.Insert(ovr, ent.key, ent.data);
 		}
@@ -71,7 +71,7 @@ errvt handleStructOverride(DSN_data* reference, DSN_data* override){
 
 	List(data_entry) entries = Map.GetEntries(ref->fields);
 
-	ListForEach(entries, data_entry, ent){
+	foreach(entries, data_entry, ent){
 		DSN_data* res = Struct.SearchField(ovr, ent.key);
 		if(res == NULL){
 		    if(Struct.AddField(ovr, ent.key, ent.data) != ERR_NONE){

@@ -41,7 +41,7 @@ u64 methodimpl(Number, IntScan,, FormatID format, inst(String) in) {
         }
 
         u32 carry = digit_val;
-	ListForEach(priv->digits, u32, digit){
+	foreach(priv->digits, u32, digit){
 		u64 temp = digit * base_val + carry;
         	__digit_data[digit_iterator] = (u32)(temp % BIGINT_BASE);
         	carry = temp / BIGINT_BASE;

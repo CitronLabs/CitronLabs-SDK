@@ -29,21 +29,28 @@ typedef struct DSN_data DSN_data;
 #define RESERVE_EXACT   true
 #define RESERVE_ATLEAST false
 
+Interface(IterableList,
+	u64   imethod(Size);
+	void* imethod(Items);
+)
+
+#define foreach(iterable, type, var) 				\
+	u64 __##var##_size = iterable->__methods->		\
+		IterableList.Size(generic iterable); 		\
+	type* __##var##_data = iterable->__methods->		\
+		IterableList.Items(generic iterable);		\
+	type var = __##var##_data[0];				\
+	for(size_t var##_iterator = 0; 				\
+     	    var##_iterator < __##var##_size; 			\
+	    var = __##var##_data[++var##_iterator]		\
+	)
+
 /**
  * Extra-C List Data Structure
  *-----*/
 
 #define l(first, ...) pushList(typeof(first), first, __VA_ARGS__)
 #define L(first, ...) newList(typeof(first), first, __VA_ARGS__)
-
-#define ListForEach(list, type, var) 				\
-	u64 __##var##_size = List.Size(list); 			\
-	type* __##var##_data = List.GetPointer(list, 0);	\
-	type var = __##var##_data[0];				\
-	for(size_t var##_iterator = 0; 				\
-     	    var##_iterator < __##var##_size; 			\
-	    var = __##var##_data[++var##_iterator]		\
-	)
 
 #define LISTINDEX_WRITE true
 #define LISTINDEX_READ false
@@ -72,6 +79,7 @@ __INIT(u64 init_size; u64 type_size; DSN_fieldType dsn_type; void* literal;),
 __FIELD(),
 
 	interface(Formatter);
+	interface(IterableList);	
 
 	errvt 		method(List,Limit,, u64 limit_size);
 	errvt 		method(List,Append,, void* in, u64 len);
@@ -117,6 +125,7 @@ __INIT(u64 init_size; u64 type_size; DSN_fieldType dsn_type; void* literal;),
 __FIELD(),
 	
 	interface(Formatter);
+	interface(IterableList);	
 
 	errvt method(Stack,Index,, bool write, u64 index, void* data);
 	void* method(Stack,ToPointer);
@@ -151,6 +160,8 @@ __INIT(u64 init_size; u64 type_size; DSN_fieldType dsn_type; void* literal;),
 __FIELD(),
 
 	interface(Formatter);
+	interface(IterableList);
+
 	errvt method(Queue,Index,,   bool write, u64 index, void* data);
 	void* method(Queue,ToPointer);
 	errvt method(Queue,Limit,,   u64 limit);
@@ -314,6 +325,3 @@ __FIELD(inst(String) name; inst(Struct) body),
 	u64 	method(DSN, formatString,, inst(String) data,	inst(StringBuilder) out);
 	u64 	method(DSN, formatNumber,, inst(Number) data,	inst(StringBuilder) out);
 )
-
-
-

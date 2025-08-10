@@ -39,7 +39,7 @@ void* methodimpl(Arena, Alloc,, u64 num_bytes){
 	if(priv->current_size + num_bytes > priv->alloc_size){
 		Arena.Grow(self, num_bytes);
 	}else{
-	    ListForEach(priv->arena_buffers, inst(Buffer), buff){
+	    foreach(priv->arena_buffers, inst(Buffer), buff){
 		if(!Buffer.isMaxed(buff) && 
 		   Buffer.getTotalSize(buff) > Buffer.getItemNum(buff) + num_bytes)
 		{
@@ -84,7 +84,7 @@ return priv->isStatic;
 }
 errvt imethodimpl(Arena, Destroy){
 	self(Arena);
-	ListForEach(priv->arena_buffers, inst(Buffer), buff){
+	foreach(priv->arena_buffers, inst(Buffer), buff){
 		del(buff);
 	}
 return OK;

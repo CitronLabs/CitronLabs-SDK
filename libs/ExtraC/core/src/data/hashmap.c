@@ -218,7 +218,7 @@ errvt imethodimpl(Map,Free){
 	self(Map);
 	nonull(self, return nullerr;);
 	
-	ListForEach(priv->buckets, data_entry, entry){
+	foreach(priv->buckets, data_entry, entry){
 		if(entry.data != NULL){
 			free(entry.data);
 			free(entry.key);

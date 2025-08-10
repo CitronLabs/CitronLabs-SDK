@@ -17,7 +17,7 @@ void* methodimpl(Pool, Alloc,, u64 num){
 	if(priv->current_size + num > priv->alloc_size){
 
 	}else{
-	    ListForEach(priv->pool_buffers, inst(Buffer), buff){
+	    foreach(priv->pool_buffers, inst(Buffer), buff){
 		if(!Buffer.isMaxed(buff) && 
 		   Buffer.getTotalSize(buff) > Buffer.getItemNum(buff) + num)
 		{

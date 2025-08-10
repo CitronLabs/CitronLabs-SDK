@@ -59,7 +59,7 @@ u64 methodimpl(DSN, formatMap,, inst(Map) data, inst(StringBuilder) out){
 		
 	formated_len += StringBuilder.Append(out, s("@{ "));
 		
-	ListForEach(data->__private->buckets, data_entry, bucket){
+	foreach(data->__private->buckets, data_entry, bucket){
 		formated_len += DSN.formatField(self, &(DSN_data){data->__private->key_dsn, bucket.key}, out);
 		formated_len += StringBuilder.Append(out, s("->"));
 		formated_len += DSN.formatField(self, &(DSN_data){data->__private->data_dsn, bucket.data}, out);
@@ -77,7 +77,7 @@ u64 methodimpl(DSN, formatStruct,, inst(Struct) data, inst(StringBuilder) out){
 	
 	List(data_entry) entries = Map.GetEntries(data->fields);
 
-	ListForEach(entries, data_entry, entry){
+	foreach(entries, data_entry, entry){
 	    DSN_data* field = entry.data;
 		formated_len += DSN.formatField(self, field, out);
 		formated_len += StringBuilder.Append(out, s(", "));
