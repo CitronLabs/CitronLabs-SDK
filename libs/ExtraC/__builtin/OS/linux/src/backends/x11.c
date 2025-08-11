@@ -208,7 +208,7 @@ errvt vmethodimpl(LinuxEnv_Graphics, exitSystem){
 	if(!X11_EnvData.init) 
 		return ERR(ERR_FAIL, "display system not initialized");
 
-	ListForEach(X11_EnvData.windows, X11_Window, win){
+	foreach(X11_EnvData.windows, X11_Window, win){
 	    if(win.init)
 		XDestroyWindow(X11_EnvData.display, win.window);
 	}

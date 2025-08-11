@@ -2,6 +2,7 @@
 #define __EXT_IO_SOURCE_DEF__
 #include "./posix.h"
 
+
 errvt getFileSystemEntry(fsPath path, fsEntry* ent){
 
 	struct stat statbuf;
@@ -174,7 +175,7 @@ errvt methodimpl(Dir, Copy,, inst(Dir)* new_dir, fsPath path){
 		
 		Dir.Write(curr_new_dir, List.GetPointer(entries_list, 0), List.Size(entries_list));
 
-		ListForEach(entries_list, fsEntry, entry){
+		foreach(entries_list, fsEntry, entry){
 
 			if(entry.is_dir){
 				fsPath next, next_new; 

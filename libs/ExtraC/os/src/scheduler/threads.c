@@ -28,7 +28,7 @@ inst(Thread) Thread_GetCurrent(){
 		return init_thread;
 	};
 
-	ListForEach(active_threads, inst(Thread), curr_thread){
+	foreach(active_threads, inst(Thread), curr_thread){
 		if(pthread_equal(curr_thread->__private->thread, thread) != false)
 			return curr_thread;
 	}

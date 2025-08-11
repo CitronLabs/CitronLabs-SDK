@@ -27,6 +27,7 @@ Interface(filesys,
 	errvt  	 vmethod(delete,  fsPath path);
 	errvt  	 vmethod(chdir,   fsPath path);
 	errvt  	 vmethod(handleEvents, fsHandle handle, Queue(OSEvent) evntQueue);
+	u64  	 vmethod(pollEvents);
 )
 
 /*--------------------------------------|
@@ -70,6 +71,7 @@ Interface(input,
 	errvt 		  vmethod(freeDevice,       inputHandle handle);
 	inputHandle 	  vmethod(grabDevice, 	    inputDevice* dev);
 	errvt 		  vmethod(handleEvents,     inputHandle handle, Queue(OSEvent) evntQueue);
+	u64 		  vmethod(pollEvents);
 )
 
 /*--------------------------------------|
@@ -116,7 +118,16 @@ Interface(graphics,
 	errvt	 		vmethod(updateDisplay, displayHandle handle, u32 x, u32 y, u32 w, u32 h, displayHandle parent);
 	bool	 		vmethod(isDisplayClosed, displayHandle);
 	errvt 		  	vmethod(handleEvents,    displayHandle handle, Queue(OSEvent) evntQueue);
+	u64 		  	vmethod(pollEvents);
 )
+#define AUDIO_IN   1
+#define AUDIO_OUT  0
+
+Type(AudioSpec,
+    u32 sample_rate;    // e.g., 44100, 48000 Hz
+    u16 channels;       // e.g., 1 (mono), 2 (stereo)
+    u16 bits_per_sample; // e.g., 16, 24, 32 bits
+);
 
 Type(audioDevice,
 	inst(String) name;
@@ -124,17 +135,40 @@ Type(audioDevice,
 	inst(String) model;
 	
 	void* uniqueID;
+    
+	enum audioDeviceCatagory{
+		AUDIO_DEVICE_UNKNOWN,
+    		AUDIO_DEVICE_SPEAKERS,
+   		AUDIO_DEVICE_HEADSET,
+   		AUDIO_DEVICE_MICROPHONE,
+   		AUDIO_DEVICE_WEBCAM,
+   		AUDIO_DEVICE_LINE_IN,
+   		AUDIO_DEVICE_HDMI
+	}catagory;
+
+	u32 maxChannels;              	// Maximum number of channels supported.
+    	u32 supportedSampleRates[16]; 	// A list of supported sample rates (terminated by 0).
+    	u32 supportedBitsPerSample[8];  // A list of supported bits per sample (terminated by 0).
+    	u32 minLatencyFrames;         	// Minimum latency in frames.
+    	u32 maxLatencyFrames;         	// Maximum latency in frames.
+    	u32 defaultLatencyFrames;     	// Default latency in frames.
 
 )
-typedef void* audioHandle;
 
+typedef void* audioHandle; // aka an audio stream
 Interface(audio,
-	errvt 	vmethod(initSystem);
-	errvt 	vmethod(exitSystem);
-	displayHandle 		vmethod(grabDisplay, displayDevice* device);
-	arry(displayDevice) 	vmethod(enumDisplays, u64* numDevices);
-	
+	errvt 			vmethod(initSystem);
+	errvt 			vmethod(exitSystem);
+	audioHandle 		vmethod(grabAudioStream,  bool direction, audioDevice* device, size_t framesize, AudioSpec spec);
+	arry(audioDevice) 	vmethod(enumAudioDevices, u64* numDevices);
+	errvt			vmethod(startAudioStream, audioHandle handle);
+	errvt			vmethod(stopAudioStream,  audioHandle handle);
+	errvt			vmethod(closeAudioStream, audioHandle handle);
+	errvt			vmethod(writeAudioStream, audioHandle handle, void* buffer, size_t frames);
+	errvt			vmethod(readAudioStream,  audioHandle handle);
 
+	errvt 		  	vmethod(handleEvents,     audioHandle handle, Queue(OSEvent) evntQueue);
+	u64 		  	vmethod(pollEvents);
 
 )
 
@@ -167,6 +201,7 @@ Interface(scheduler,
 	errvt 		vmethod(waitSemaphore, 	  semaphoreHandle handle);
 	errvt 		vmethod(postSemaphore, 	  semaphoreHandle handle);
 	errvt 		vmethod(tryWaitSemaphore, semaphoreHandle handle);
+	u64  	 	vmethod(pollEvents);
 )
 
 
@@ -187,6 +222,7 @@ Interface(memory,
 	void* 		vmethod(findSymbol,   dynlibHandle handle, cstr symbol);
 	errvt 		vmethod(unloadDynLib, dynlibHandle handle);
 	errvt 		vmethod(handleEvents, dynlibHandle handle, Queue(OSEvent) evntQueue);
+	u64  	 	vmethod(pollEvents);
 )
 
 typedef void* socketHandle;
@@ -233,12 +269,7 @@ Interface(network,
 	errvt 		vmethod(groupSend,    	connectHandle handle);
 	errvt 		vmethod(groupRecive,  	connectHandle handle);
 	errvt 		vmethod(handleEvents, 	connectHandle handle, Queue(OSEvent) evntQueue);
-)
-Interface(terminal,
-	errvt 		vmethod(initSystem);
-	errvt 		vmethod(exitSystem);
-	
-
+	u64  	 	vmethod(pollEvents);
 )
 /*--------------------------------------|
 	         Events			|
@@ -284,12 +315,14 @@ Interface(OS,
 	interface(scheduler);	
 	interface(memory);		
 	interface(network);		
-	interface(terminal);
 
 	cstr OSName;
-	errvt vmethod(initOSBackend);
+	errvt vmethod(initOS);
+	errvt vmethod(exitOS);
+	u64   vmethod(pollEvents);
 );
 
 
 #define defaultOS(interface) intf(OS) userOS = &interface;
 extern intf(OS) userOS;
+

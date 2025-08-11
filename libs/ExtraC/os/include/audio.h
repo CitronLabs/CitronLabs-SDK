@@ -3,20 +3,11 @@
 
 Decl(AudioDevice);
 
-
-Type(AudioSpec,
-
-
-)
-
 Data(Audio,
 __INIT(arry(float) samples; size_t len),
 	inhert(Buffer);
 	AudioSpec spec;
 );
-
-#define AUDIO_IN   1
-#define AUDIO_OUT  0
 
 Class(Jack,
 __INIT(inst(AudioDevice) device; bool direction),

@@ -1,5 +1,5 @@
-#include "OS.h"
+#include "__systems.h"
 
-const ImplAs(memory, LinuxMemory){
-	.
-}	
+const ImplAs(input, LinuxInput){
+		
+};

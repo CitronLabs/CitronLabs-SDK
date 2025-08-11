@@ -104,16 +104,16 @@ return OK;
 }
 
 const ImplAs(filesys, LinuxFS){
-	.WRITE_FLAG = O_WRONLY,
-	.ASYNC_FLAG = O_NONBLOCK,
-	.READ_FLAG = O_RDONLY,
-	.CREATE_FLAG = O_CREAT,
-	.APPEND_FLAG = O_APPEND,
-	.open = LinuxEnv_FileSys_open,
-	.close = LinuxEnv_FileSys_close,
+	.WRITE_FLAG 	= O_WRONLY,
+	.ASYNC_FLAG 	= O_NONBLOCK,
+	.READ_FLAG 	= O_RDONLY,
+	.CREATE_FLAG 	= O_CREAT,
+	.APPEND_FLAG 	= O_APPEND,
+	.open 	= LinuxEnv_FileSys_open,
+	.close 	= LinuxEnv_FileSys_close,
 	.search = LinuxEnv_FileSys_search,
 	.delete = LinuxEnv_FileSys_delete,
-	.read = LinuxEnv_FileSys_read,
-	.write = LinuxEnv_FileSys_write,
-	.chdir = LinuxEnv_FileSys_chdir
+	.read 	= LinuxEnv_FileSys_read,
+	.write 	= LinuxEnv_FileSys_write,
+	.chdir 	= LinuxEnv_FileSys_chdir
 };

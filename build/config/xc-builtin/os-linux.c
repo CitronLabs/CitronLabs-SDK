@@ -14,9 +14,15 @@ ExtraC OS Linux Configuration File
 #define XC_OSLINUX_CONFIG
 #include "../__config_start.h"
 
-enum LinuxWindowENV{ WINENV_X11, WINENV_WAYLAND};
 
-global value WindowAPI = WINENV_X11; 
+#define LinuxEnv_Display_X11 0x11
+#define LinuxEnv_Display_WayLand 0x3A7
+
+#define	__LinuxEnv_DisplayBackend LinuxEnv_Display_X11
+
+#define LinuxEnv_Audio_PipeWire 9193
+
+#define	__LinuxEnv_AudioBackend LinuxEnv_Audio_PipeWire
 
 #include "../__config_end.h"
 #endif

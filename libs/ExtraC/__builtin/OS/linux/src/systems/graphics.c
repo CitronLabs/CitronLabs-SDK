@@ -7,11 +7,11 @@
 
 
 const ImplAs(graphics, LinuxGraphics){	
-	.initSystem = LinuxEnv_Graphics_initSystem,
-	.exitSystem = LinuxEnv_Graphics_exitSystem,
-	.initDisplay = LinuxEnv_Graphics_initDisplay,
-	.enumDisplays = LinuxEnv_Graphics_enumDisplayDevices,
-	.grabDisplay = LinuxEnv_Graphics_grabDisplayDevice,
-	.closeDisplay = LinuxEnv_Graphics_closeDisplay,
+	.initSystem 	 = LinuxEnv_Graphics_initSystem,
+	.exitSystem 	 = LinuxEnv_Graphics_exitSystem,
+	.initDisplay 	 = LinuxEnv_Graphics_initDisplay,
+	.enumDisplays 	 = LinuxEnv_Graphics_enumDisplayDevices,
+	.grabDisplay 	 = LinuxEnv_Graphics_grabDisplayDevice,
+	.closeDisplay 	 = LinuxEnv_Graphics_closeDisplay,
 	.isDisplayClosed = LinuxEnv_Graphics_isDisplayClosed
 };
