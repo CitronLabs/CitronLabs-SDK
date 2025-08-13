@@ -1,5 +1,5 @@
 #pragma once
-#include "./extern.h"
+#include "./interface.h"
 
 Class(Memory, 
 __INIT(u32 num_of_pages; u8 protections), 

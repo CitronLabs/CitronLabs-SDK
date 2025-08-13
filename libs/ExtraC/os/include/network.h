@@ -1,6 +1,5 @@
 #pragma once
-#include "./extern.h"
-#include "./scheduler.h"
+#include "./interface.h"
 
 #define SOCKET_PROTOCAL_NULL 0x00
 #define SOCKET_PROTOCAL_UDP 0x01

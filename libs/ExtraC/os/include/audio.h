@@ -1,5 +1,5 @@
 #pragma once
-#include "extern.h"
+#include "./interface.h"
 
 Decl(AudioDevice);
 

@@ -1,5 +1,5 @@
 #pragma once
-#include "./extern.h"
+#include "./interface.h"
 
 
 typedef struct Color Color;
@@ -34,6 +34,6 @@ __FIELD(inst(Display) parent; char* name; u64 w,h,x,y),
       	errvt 		method(Display, stop);
       	errvt 		method(Display, lock,,  u8 attrb_to_lock);
 	bool 		method(Display, isRunning);
-	displayHandle   method(Display, getHandle);
+	graphicsHandle  method(Display, getHandle);
 	
 )
