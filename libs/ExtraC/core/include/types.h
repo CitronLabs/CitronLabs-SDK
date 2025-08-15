@@ -228,6 +228,6 @@ typedef void* pntr;
 asClass(pntr){ passover }
 
 typedef u32 errvt;
-
-Class(Object,,,);
+Decl(Object);
+Class(Object,__INIT(void* private; Object_Interface* methods),,);
 
