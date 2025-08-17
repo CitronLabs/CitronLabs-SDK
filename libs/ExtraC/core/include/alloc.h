@@ -19,7 +19,7 @@ Interface(Allocator,
 );
 
 Class(Buffer,
-__INIT(u64 size; u16 type_size; bool isStatic),
+__INIT(u64 size; u16 type_size; bool isStatic; void* initData),
 __FIELD(),
 	#define Buffer(type) inst(Buffer)
 	
@@ -33,6 +33,23 @@ __FIELD(),
       		init(Buffer, alloca(							\
 			sizeof(Buffer) + sizeof_Buffer_Private + (sizeof(type) * size)),\
 	     		size, sizeof(type), true					\
+	     	)
+
+	#define b(first, ...) 									\
+      		init(Buffer, alloca(								\
+			sizeof(Buffer) + sizeof_Buffer_Private + 				\
+			sizeof((typeof(first)[]){first, __VA_ARGS__})), 			\
+	     		sizeof((typeof(first)[]){first, __VA_ARGS__}) / sizeof(typeof(first)), 	\
+			sizeof(typeof(first)),							\
+			true, &(typeof(first)[]){first, __VA_ARGS__} 				\
+	     	)
+	#define B(first, ...) 									\
+      		init(Buffer, malloc(								\
+			sizeof(Buffer) + sizeof_Buffer_Private + 				\
+			sizeof((typeof(first)[]){first, __VA_ARGS__})), 			\
+	     		sizeof((typeof(first)[]){first, __VA_ARGS__}) / sizeof(typeof(first)), 	\
+			sizeof(typeof(first)),							\
+			true, &(typeof(first)[]){first, __VA_ARGS__} 				\
 	     	)
 
 	interface(Allocator);
@@ -60,6 +77,7 @@ __FIELD(),
 	#define Pool(type) inst(Pool)
 
 	interface(Allocator);
+      	u64 method(Pool, Size);
       	void* method(Pool, Alloc,, u64 num);
       	errvt method(Pool, Return,, void* instance);
       	errvt method(Pool, Reserve,, u64 num_members);
@@ -70,6 +88,7 @@ Class(Arena,
 __INIT(u64 init_size; bool isStatic),
 __FIELD(),
 	interface(Allocator);
+      	u64 method(Arena, Size);
       	void* method(Arena, Alloc,, u64 num_bytes);
       	errvt method(Arena, Reserve,, u64 num_bytes);
       	errvt method(Arena, Grow,, u64 add_num_bytes);
