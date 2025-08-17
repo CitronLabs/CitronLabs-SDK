@@ -1,7 +1,48 @@
 #pragma once
 #include "./libc.h"
 #include "./utils.h"
-#include <uchar.h>
+#include <string.h>
+
+/*------------------------------|
+       Modules Preprocessors	|
+-------------------------------*/
+#define InType(name, type)  typedef const struct {const _Atomic(bool)* isReady; type* data;}in_##name;
+#define OutType(name, type) typedef type out_##name;
+
+#define __IO(...) __VA_ARGS__;
+#define __PARAM(...) __VA_ARGS__;
+
+#define Blueprint(name, __IO, __PARAM, ...) 		 			\
+	typedef struct {_Atomic(bool) ready; __IO} name##_Ports;		\
+	typedef struct {__PARAM} name##_Params;					\
+	typedef struct {name##_Ports ports; __VA_ARGS__;} name##_Module; 	\
+
+#define ModDecl(blueprint, name); typedef blueprint##_Params name##_Args; extern blueprint##_Module name;
+
+#define Logic(blueprint, name) void name##_Logic(blueprint##_Module* self, blueprint##_Params p)
+
+#define Module(blueprint, name, ...) 			\
+	blueprint##_Module name = {__VA_ARGS__};	\
+	typedef blueprint##_Params name##_Args; 	\
+	Logic(blueprint, name)
+
+#define register(...) static struct {__VA_ARGS__;}
+
+#define run(module, ...) 					\
+	void name##_Logic(typeof(module)*, module##_Args); 	\
+	if(module.ports.ready){ 				\
+	  module.ports.ready = false;				\
+	  name##_Logic(&module, (module##_Args){__VA_ARGS__});	\
+	  module.ports.ready = true;				\
+	}
+
+#define out(outName) self->ports.outName 
+#define in(inName)  (*self->ports.inName.isReady) ? *self->ports.inName.data  
+#define ready(inName) (*self->ports.inName.isReady) 
+#define set(var, inName) if(ready(inName)){var = *self->ports.inName.data;} 
+#define setwhile(var, inName) while (true) if(ready(inName)){var = *self->ports.inName.data; break;}
+
+#define else else
 
 /*------------------------------|
        Class Preprocessors	|
@@ -88,30 +129,13 @@ typedef struct name##_Private{__VA_ARGS__}name##_Private; \
 #define Interface(name, ...) 						\
 	typedef struct name##_Interface					\
 	{__VA_ARGS__} name##_Interface; 				\
-
-#define Type(name, ...) 						\
-	typedef struct name name; 					\
-	typedef struct name{__VA_ARGS__}name; 				\
-	asClass(name){ passover }
-
-
-#define Data(name, __INIT,...) 						\
-	typedef struct name name; 					\
-	typedef struct name{__VA_ARGS__}name;				\
-	asClassExt(name, __INIT)
+	InType(name##_Interface, intf(name)); 				\
+	OutType(name##_Interface, intf(name))
 
 
 #define Static(name, ...)						\
 	Interface(name, __VA_ARGS__)					\
 	extern name##_Interface name;					\
-
-#define Enum(name, ...) 						\
-	typedef enum {__VA_ARGS__} name; 				\
-	asClass(name){ passover }
-
-#define State(name, __INIT, ...) 					\
-	typedef enum {__VA_ARGS__} 					\
-	name; asClassExt(name, __INIT)
 
 #define Impl(name) 	    name##_Interface name = 				
 #define ImplAs(Class, name) Class##_Interface name = 				
@@ -145,6 +169,7 @@ typedef struct name##_Private{__VA_ARGS__}name##_Private; \
 	name##_Instance* name##_Construct(				\
 		name##_ConstructArgs args,				\
 		name##_Instance* self);					\
+	InType(name, inst(name)); OutType(name, inst(name))
 
 #define isinit(object) (object->__init)
 
@@ -172,46 +197,101 @@ typedef void* inst;
        Base Types	|
 ----------------------*/
 
+#define Type(name, ...) 						\
+	typedef struct name name; 					\
+	typedef struct name{__VA_ARGS__}name; 				\
+	asClass(name){ passover }					\
+	InType(name, name);						\
+	OutType(name, name);
+
+
+#define Data(name, __INIT,...) 						\
+	typedef struct name name; 					\
+	typedef struct name{__VA_ARGS__}name;				\
+	InType(name, name);						\
+	OutType(name, name);						\
+	asClassExt(name, __INIT)					
+
+#define Enum(name, ...) 						\
+	typedef enum {__VA_ARGS__} name; 				\
+	asClass(name){ passover }
+
+#define State(name, __INIT, ...) 					\
+	typedef enum {__VA_ARGS__} 					\
+	name; asClassExt(name, __INIT)
+
+
 typedef uint64_t u64;
 asClass(u64){ passover }
+InType(u64, u64);
+OutType(u64, u64);
 
 typedef uint32_t u32;
 asClass(u32){ passover }
+InType(u32, u32);
+OutType(u32, u32);
 
 typedef uint16_t u16;
 asClass(u16){ passover }
+InType(u16, u16);
+OutType(u16, u16);
 
 typedef uint8_t u8;
 asClass(u8){ passover }
+InType(u8, u8);
+OutType(u8, u8);
 
 typedef int64_t i64;
 asClass(i64){ passover }
+InType(i64, i64);
+OutType(i64, i64);
 
 typedef int32_t i32;
 asClass(i32){ passover }
+InType(i32, i32);
+OutType(i32, i32);
 
 typedef int16_t i16;
 asClass(i16){ passover }
+InType(i16, i16);
+OutType(i16, i16);
 
 typedef int8_t i8;
 asClass(i8){ passover }
+InType(i8, i8);
+OutType(i8, i8);
 
 asClass(float){ passover }
+InType(float, float);
+OutType(float, float);
+
 asClass(double){ passover }
+InType(double, double);
+OutType(double, double);
 
 asClass(bool){ passover }
+InType(bool, bool);
+OutType(bool, bool);
 
 typedef struct{ char as_cchar; } c8;
 asClassExt(c8, char cchar){ self->as_cchar = args.cchar; return self; };
+InType(c8, c8);
+OutType(c8, c8);
 
 typedef char16_t c16;
 asClass(c16){ passover }
+InType(c16, c16);
+OutType(c16, c16);
 
 typedef char32_t c32;
 asClass(c32){ passover }
+InType(c32, c32);
+OutType(c32, c32);
 
 typedef wchar_t  rune;
 asClass(rune){ passover }
+InType(rune, rune);
+OutType(rune, rune);
 
 typedef char* cstr;
 asClassExt(cstr, __INIT(cstr txt; u64 len))

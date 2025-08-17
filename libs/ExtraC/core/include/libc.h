@@ -15,5 +15,6 @@
 #include <ctype.h>
 #include <setjmp.h>
 #include <signal.h>
+#include <uchar.h>
 
 
