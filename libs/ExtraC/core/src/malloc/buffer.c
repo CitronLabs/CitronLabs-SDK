@@ -79,6 +79,7 @@ errvt methodimpl(Buffer, Resize,, u64 new_size){
 
 return OK;
 }
+
 #undef cast
 construct(Buffer,
 	.getItemNum = Buffer_getItemNum,

@@ -1,17 +1,5 @@
 #include "../number.h"
-#include "error.h"
-#include "stringutils.h"
-#include "types.h"
 
-/**
- * @brief Converts a null-terminated string representation of a number into the Number instance.
- * Supports positive/negative numbers, decimal points, and scientific notation (e.g., "123.45", "-0.001e+5").
- * Modifies the 'self' instance.
- * @param self A generic pointer to the Number_Instance to populate.
- * @param formats A pointer to an array of FormatID (ignored for now, assumes decimal).
- * @param in The input string.
- * @return The number of characters scanned, or 0 on error.
- */
 u64 methodimpl(Number, IntScan,, FormatID format, inst(String) in);
 u64 methodimpl(Number, FloatScan,, FormatID format, inst(String) in) {
 	

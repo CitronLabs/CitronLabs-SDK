@@ -1,7 +1,3 @@
-#include "data.h"
-#include "error.h"
-#include "stringutils.h"
-#include "types.h"
 #include "../number.h"
 
 u64 methodimpl(Number, IntScan,, FormatID format, inst(String) in) {

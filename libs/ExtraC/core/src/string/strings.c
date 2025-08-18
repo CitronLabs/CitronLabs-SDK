@@ -1,5 +1,4 @@
 #include "./strings.h"
-#include "types.h"
 
 errvt methodimpl(String, ModCharLen,, chartype type){
 

@@ -1,7 +1,4 @@
 #include "../number.h"
-#include "data.h"
-#include "error.h"
-#include "types.h"
 
 errvt methodimpl(Number, SetPrecision,, u64 new_precision) {
 	nonull(self, return nullerr)
@@ -104,15 +101,6 @@ errvt methodimpl(Number, FloatMultiply,, inst(Number) other, inst(Number) result
 
 }
 
-/**
- * @brief Performs floating-point division on two Number instances.
- * This is an internal helper method for the main Number_Divide function.
- * @param dividend The Number being divided.
- * @param divisor The Number to divide by.
- * @param result The Number to store the result in.
- * @param precision The desired number of fractional digits.
- * @return ERR_NONE on success, or an error code.
- */
 errvt methodimpl(Number, FloatDivide,, inst(Number) other, inst(Number) remainder, inst(Number) result){
 
 	if (isZero(other)) {

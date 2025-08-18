@@ -1,6 +1,5 @@
 #include "../../include/alloc.h"
 #include "../../include/data.h"
-#include "types.h"
 
 private(Pool,
 	size_t max_size, alloc_size, current_size;

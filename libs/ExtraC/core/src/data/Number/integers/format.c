@@ -1,7 +1,3 @@
-#include "data.h"
-#include "error.h"
-#include "stringutils.h"
-#include "types.h"
 #include "../number.h"
 
 static u32 Number_divide_smallInt(Number_Private* num, u32 divisor) {

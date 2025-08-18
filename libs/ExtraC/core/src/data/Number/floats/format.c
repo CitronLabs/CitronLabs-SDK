@@ -1,16 +1,5 @@
 #include "../number.h"
-#include "error.h"
-#include "stringutils.h"
-#include "types.h"
 
-/**
- * @brief Converts the Number instance to a decimal string, appending it to a StringBuilder.
- * This is the implementation for the Formatter.Print method.
- * @param self A generic pointer to the Number_Instance to convert.
- * @param formats A pointer to an array of FormatID (ignored for now, always decimal).
- * @param out A pointer to the StringBuilder_Instance to append the formatted string to.
- * @return The number of characters appended to the StringBuilder, or 0 on error.
- */
 u64 methodimpl(Number, IntPrintDeci,, inst(StringBuilder) out);
 u64 methodimpl(Number, FloatPrint,, inst(StringBuilder) out) {
 

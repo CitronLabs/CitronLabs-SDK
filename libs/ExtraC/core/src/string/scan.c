@@ -1,6 +1,4 @@
 #include "./strings.h"
-#include "string.h"
-#include "stringutils.h"
 
 #define ESC_VALUE 0
 #define FMT_VALUE 1

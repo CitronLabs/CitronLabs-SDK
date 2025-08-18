@@ -1,10 +1,4 @@
 #include "../number.h"
-#include "alloc.h"
-#include "data.h"
-#include "error.h"
-#include "types.h"
-#include <stdbool.h>
-#include <string.h>
 
 
 errvt methodimpl(Number, IntAdd,, inst(Number) other, inst(Number) result) {

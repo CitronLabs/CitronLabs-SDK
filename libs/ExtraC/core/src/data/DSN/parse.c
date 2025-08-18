@@ -1,5 +1,4 @@
 #include "../datastructs.h"
-#include "stringutils.h"
 
 u64 parseListLikeDataStruct(inst(DSN) self, void* data, inst(String) in, DSN_fieldType type, errvt(*append_func)(void*,void*,u64)){
 	
