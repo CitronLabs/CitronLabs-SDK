@@ -1,9 +1,24 @@
-# Extra-C: Modernizing C Development
+<img src="./__media/ExtraC-Logo.png">
+<h1> Extra-C: Modernizing C Development </h1>
 
-## Project Overview
 
 **Extra-C** is a project dedicated to **modernizing C development**. Its objective is to provide a comprehensive set of C libraries and developer tools, simplifying the creation of complex applications in C.
 
+Extra-C includes a series of libraries that each comes with its own set of features.
+
+### ***Libraries include:***
+<ul><b>
+    <li> <a href="./libs/ExtraC/core/README.md">Core</a> : The core utilities that every other Extra-C library depends on</li>
+    <li> <a href="./libs/ExtraC/os/README.md">OS</a> : operating system utilities and compatibility interface </li>
+    <li> <a href="./libs/ExtraC/resource/README.md">Resource</a> : utilities for managing internal and external resources </li>
+    <li> <a href="./libs/ExtraC/routines/README.md">Routines</a> : control flow utilities </li>
+</b></ul>
+
+### ***Tools include:***
+
+<ul><b>
+    <li> <a href="./libs/Ebee/README.md">Ebee</a> : simple, yet powerful modular build system </li>
+</b></ul>
 
 ## Current Status: Work in Progress
 
@@ -25,3 +40,4 @@ Your interest in Extra-C is appreciated. If you've found this repository, please
 ## Contact
 
 For any inquiries or to follow the project's journey, please feel free to **watch this repository**.
+
