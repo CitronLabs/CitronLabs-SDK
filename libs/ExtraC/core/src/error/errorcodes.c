@@ -17,30 +17,31 @@ errvt methodimpl(Error, Set,, const cstr errmsg, const char funcname[]){
 return self->errorcode;
 }
 
-void methodimpl(Error, Print){
+noFail methodimpl(Error, Print){
 
 	fprintf(stderr,
 	 RED"[ERROR] %s\n",self->message);
 
 return;
 }
-void Error_Hide(){
+noFail Error_Hide(){
 	showErrors = false;
 }
 
 
 extern inst(Logger) error_logger;
 
-void Error_SetLogger(inst(Logger) logger){
-	nonull(logger, return);
+errvt Error_SetLogger(inst(Logger) logger){
+	nonull(logger, return nullerr);
 	error_logger = logger;
+return OK;
 }
 
-void Error_Show(){
+noFail Error_Show(){
 	showErrors = true;
 }
 
-void Error_Clear(){
+noFail Error_Clear(){
 	inst(Error) curr_err = geterr();
 	curr_err->errorcode = 0;
 	curr_err->message = "No Error";

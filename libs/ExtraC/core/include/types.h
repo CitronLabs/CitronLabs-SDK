@@ -27,6 +27,7 @@
 	Logic(blueprint, name)
 
 #define register(...) static struct {__VA_ARGS__;}
+#define setports(module) module.ports = (typeof(module.ports))
 
 #define run(module, ...) 					\
 	void name##_Logic(typeof(module)*, module##_Args); 	\
@@ -308,6 +309,8 @@ typedef void* pntr;
 asClass(pntr){ passover }
 
 typedef u32 errvt;
+typedef void noFail;
+
 Decl(Object);
 Class(Object,__INIT(void* private; Object_Interface* methods),,);
 

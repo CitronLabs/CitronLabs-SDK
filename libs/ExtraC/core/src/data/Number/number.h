@@ -20,7 +20,7 @@ private(Number,
 #define opriv (other->__private)
 #define rpriv (result->__private)
 
-static void Number_setZero(Number_Private* num) {
+static noFail Number_setZero(Number_Private* num) {
 
 	List.Flush(num->digits);
 	List.Append(num->digits, &(u64){0}, 1);
@@ -28,7 +28,7 @@ static void Number_setZero(Number_Private* num) {
 	if(num->floating) num->exponent = 0;
 }
 
-static void Number_clearLeadingZeros(Number_Private* num) {
+static noFail Number_clearLeadingZeros(Number_Private* num) {
 	
 	arry(u64) digits = List.GetPointer(num->digits, 0);
 	u64 size = List.Size(num->digits);
@@ -194,7 +194,7 @@ static errvt Number_absoluteMultiply(Number_Private* res, Number_Private* a, Num
 	        }
 	    }
 	}
-
+return OK;
 }
 
 static errvt Number_shiftDigitsRight(Number_Private* res, Number_Private* num, int shift_blocks) {

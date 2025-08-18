@@ -84,8 +84,8 @@ __FIELD(),
 	errvt 		method(List,Limit,, u64 limit_size);
 	errvt 		method(List,Append,, void* in, u64 len);
 	errvt 		method(List,Insert,, u64 len, u64 index, void* in);
-	void 		method(List,Pop,, u32 num);
-	void 		method(List,Flush);
+	u32 		method(List,Pop,, u32 num);
+	noFail 		method(List,Flush);
 	errvt 		method(List,Index,, bool write, u64 index, u64 len, void* data);
 	errvt		method(List,SetFree,, u64 index);
 	u64		method(List,FillSlot,, void* in);

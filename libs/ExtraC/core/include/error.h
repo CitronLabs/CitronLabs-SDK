@@ -93,13 +93,13 @@ __FIELD(errvt errorcode; cstr message;),
 
 	void method(Error, Print);
 	errvt method(Error, Set,, const cstr errname, const char funcname[]);
-      	void vmethod(Show);
-      	void vmethod(Clear);
-      	void vmethod(Hide);
+      	noFail vmethod(Show);
+      	noFail vmethod(Clear);
+      	noFail vmethod(Hide);
       	errvt vmethod(Try);
-      	void vmethod(Throw);
-	void vmethod(setLogger, inst(Logger) logger);
-	void vmethod(setSignalHandler, u8 signals_to_handle, void fn(sighandler, ErrorSignal signal))
+      	noFail vmethod(Throw);
+	errvt vmethod(setLogger, inst(Logger) logger);
+	errvt vmethod(setSignalHandler, u8 signals_to_handle, void fn(sighandler, ErrorSignal signal))
 )
 
 static inst(Error) core_geterr(){
