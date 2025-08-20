@@ -42,6 +42,8 @@ for(int __##item##_iterator = 0; 	\
 
 #define addrasval(addr) (*(uint64_t*)&addr)
 
+#define shortName(dotPath, name) typeof(dotPath)* name = &dotPath;
+
  #define BLACK "\033[0;30m"
  #define RED "\033[0;31m"
  #define GREEN "\033[0;32m"
