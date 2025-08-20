@@ -4,18 +4,16 @@
 	#include "../backends/pipewire.c"
 #endif
 
-
-
 const ImplAs(audio, LinuxAudio){	
 	.initSystem 	  = LinuxAudio_initSystem,
 	.exitSystem 	  = LinuxAudio_exitSystem,
-	.enumAudioDevices = LinuxAudio_enumAudioDevices,
-	.grabAudioStream  = LinuxAudio_grabAudioStream,
-	.closeAudioStream = LinuxAudio_closeAudioStream,
-	.startAudioStream = LinuxAudio_startAudioStream,
-	.stopAudioStream  = LinuxAudio_stopAudioStream,
-	.readAudioStream  = LinuxAudio_readAudioStream,
-	.writeAudioStream = LinuxAudio_writeAudioStream,
+	.enumDevices 	  = LinuxAudio_enumDevices,
+	.grabStream  	  = LinuxAudio_grabStream,
+	.closeStream 	  = LinuxAudio_closeStream,
+	.startStream 	  = LinuxAudio_startStream,
+	.stopStream  	  = LinuxAudio_stopStream,
+	.readStream  	  = LinuxAudio_readStream,
+	.writeStream 	  = LinuxAudio_writeStream,
 	.handleEvents 	  = LinuxAudio_handleEvents,
 	.pollEvents 	  = LinuxAudio_pollEvents
-}
+};
