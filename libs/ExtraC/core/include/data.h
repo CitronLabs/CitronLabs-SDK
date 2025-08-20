@@ -178,23 +178,23 @@ __FIELD(),
  *-----*/
 
 #define Map(key,value) inst(Map)
-#define newMap(keytype, datatype, ...) new(Map,	 	\
+#define newMap(keyclass, datatype, ...) new(Map,	\
 		sizeof((data_entry[]){__VA_ARGS__}) 	\
 			/ sizeof(data_entry),		\
-		sizeof(data(keytype)),	 		\
-		getDSN_Type((inst(keytype)){0}),	\
-		sizeof(data(datatype)),			\
-		getDSN_Type((inst(datatype)){0}),	\
-		(getMethods(keytype)).__HASH,		\
+		sizeof(data(keyclass)),	 		\
+		getDSN_Type((inst(keyclass)){0}),	\
+		sizeof(datatype),			\
+		getDSN_Type((datatype){0}),		\
+		keyclass.__HASH,			\
 		(data_entry[]){__VA_ARGS__})
-#define pushMap(keytype, datatype, ...) push(Map,	\
+#define pushMap(keyclass, datatype, ...) push(Map,	\
 		sizeof((data_entry[]){__VA_ARGS__}) 	\
 			/ sizeof(data_entry),		\
-		sizeof(data(keytype)),	 		\
-		getDSN_Type((inst(keytype)){0}),	\
-		sizeof(data(datatype)),			\
-		getDSN_Type((inst(datatype)){0}),	\
-		(getMethods(keytype)).__HASH,		\
+		sizeof(data(keyclass)),	 		\
+		getDSN_Type((inst(keyclass)){0}),	\
+		sizeof(datatype),			\
+		getDSN_Type((datatype){0}),		\
+		keyclass.__HASH,			\
 		(data_entry[]){__VA_ARGS__})
 
 #define entry(key, data) data_entry

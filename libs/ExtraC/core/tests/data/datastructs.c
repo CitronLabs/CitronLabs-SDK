@@ -16,7 +16,7 @@ NEW_TEST("Generic Data Structure"){
 	inst(String) test_str = s("Hello, World!");
 	inst(Number) test_num = n(123.321);
 	
-	Map(String, Number) test_map = pushMap(String, Number,
+	Map(String, Number) test_map = pushMap(String, data(Number),
 		{test_str, test_num}
 	);
 	

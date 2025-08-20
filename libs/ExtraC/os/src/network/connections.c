@@ -58,7 +58,7 @@ errvt methodimpl(Connection, UnWatch){
 		assert((epoll_fd = epoll_create1(0)) == -1);
 	}
 	if(connections == NULL){
-		connections = newMap(Number, Connection);
+		connections = newMap(Number, data(Connection));
 		assert(connections != NULL);
 	}
 
@@ -78,7 +78,7 @@ errvt methodimpl(Connection, Watch){
 		assert((epoll_fd = epoll_create1(0)) == -1);
 	}
 	if(connections == NULL){
-		connections = newMap(Number, Connection);
+		connections = newMap(Number, data(Connection));
 		assert(connections != NULL);
 	}
 
@@ -100,7 +100,7 @@ bool methodimpl(Connection, Check){
 		return false;
 	}
 	if(connections == NULL){
-		connections = newMap(Number, Connection);
+		connections = newMap(Number, data(Connection));
 		assert(connections != NULL);
 		return false;
 	}
@@ -301,7 +301,7 @@ construct(Connection,
 		assert((epoll_fd = epoll_create1(0)) == -1);
 	}
 	if(connections == NULL){
-		connections = newMap(Number, Connection);
+		connections = newMap(Number, data(Connection));
 		assert(connections != NULL);
 	}
 
