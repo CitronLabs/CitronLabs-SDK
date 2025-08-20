@@ -7,8 +7,24 @@ Type(VideoMode,
 	u16 refreshRate;
 )
 
-#define VIDEO_IN
-#define VIDEO_OUT
+#define FOURCC_CODE(code) ((u32)(code[0]) | ((u32)(code[1]) << 8) | ((u32)(code[2]) << 16) | ((u32)(code[3]) << 24))
+
+Enum(VideoPixelFormat_Type,
+	VideoPixelFormat_MPEG = FOURCC_CODE("MPEG")
+)
+Type(VideoPixelFormat,
+	VideoPixelFormat_Type type;
+     	u32 
+     	    bottomMostModeIndex,
+     	    topMostModeIndex;
+)
+
+Type(VideoFrame,
+	void* buffer;
+     	u32 frameIndex;
+)
+#define VIDEO_IN true
+#define VIDEO_OUT false
 
 typedef bool videoDirection;
 
@@ -33,9 +49,8 @@ Type(graphicsDevice,
 		bool primary;
 	  } display;
 	  struct{
-		
-
-
+		u32 currentPixFmt;
+		VideoPixelFormat* supportedPixFmts;
 	  } video;
 	} info;
 
@@ -55,7 +70,8 @@ Interface(graphics,
 	errvt			vmethod(startVideo, 	 graphicsHandle handle);
 	errvt			vmethod(stopVideo,  	 graphicsHandle handle);
 	errvt			vmethod(closeVideo, 	 graphicsHandle handle);
-	errvt			vmethod(pullVideoFrame,	 graphicsHandle handle);
+	errvt			vmethod(pullVideoFrame,	 graphicsHandle handle, VideoFrame* frame);
+	errvt			vmethod(pushVideoFrame,	 graphicsHandle handle, VideoFrame* frame);
 	errvt 		  	vmethod(handleEvents,    graphicsHandle handle, Queue(OSEvent) evntQueue);
 	u64 		  	vmethod(pollEvents);
 )
