@@ -1,6 +1,6 @@
 #pragma once
 #include "../extern.h"
-
+#include "./user.h"
 
 #define FS_DIR true
 #define FS_FILE false
@@ -26,4 +26,9 @@ Interface(filesys,
 	errvt  	 vmethod(chdir,   fsPath path);
 	errvt  	 vmethod(handleEvents, fsHandle handle, Queue(OSEvent) evntQueue);
 	u64  	 vmethod(pollEvents);
+	struct {
+		errvt vmethod(readLink,     fsPath path, fsPath result)
+		errvt vmethod(makeLink,     fsPath path, fsPath result)
+		errvt vmethod(changePerms,  fsPath path, userPermissions perms);
+	} ext;	
 )
