@@ -6,35 +6,39 @@
 /*------------------------------|
        Modules Preprocessors	|
 -------------------------------*/
-#define InType(name, type)  typedef const struct {const _Atomic(bool)* isReady; type* data;}in_##name;
+#define InType(name, type)  typedef struct {const _Atomic(bool)* isReady; type* data;}in_##name;
 #define OutType(name, type) typedef type out_##name;
 
+#define __SETUP(...) __VA_ARGS__;
 #define __IO(...) __VA_ARGS__;
 #define __PARAM(...) __VA_ARGS__;
+#define __DATA(...) __VA_ARGS__;
 
-#define Blueprint(name, __IO, __PARAM, ...) 		 			\
+
+
+#define Blueprint(name, __IO, __DATA)						\
 	typedef struct {_Atomic(bool) ready; __IO} name##_Ports;		\
-	typedef struct {__PARAM} name##_Params;					\
-	typedef struct {name##_Ports ports; __VA_ARGS__;} name##_Module; 	\
+	typedef struct {name##_Ports ports; __DATA} name##_Module; 		\
 
-#define ModDecl(blueprint, name); typedef blueprint##_Params name##_Args; extern blueprint##_Module name;
+#define Logic(name) void name##_Logic(typeof(name)* self, name##_Params p)
+#define Setup(name) errvt name##_Setup(typeof(name)* self, name##_SetUpArgs args)
 
-#define Logic(blueprint, name) void name##_Logic(blueprint##_Module* self, blueprint##_Params p)
-
-#define Module(blueprint, name, ...) 			\
+#define Module(name, blueprint, __SETUP, __PARAM, ...) 	\
 	blueprint##_Module name = {__VA_ARGS__};	\
-	typedef blueprint##_Params name##_Args; 	\
-	Logic(blueprint, name)
+	typedef struct {__PARAM} name##_Params;		\
+	typedef struct {__SETUP} name##_SetUpArgs; 	\
+	Setup(name); Logic(name);
+
 
 #define register(...) static struct {__VA_ARGS__;}
 #define setports(module) module.ports = (typeof(module.ports))
-
-#define run(module, ...) 					\
-	void name##_Logic(typeof(module)*, module##_Args); 	\
-	if(module.ports.ready){ 				\
-	  module.ports.ready = false;				\
-	  name##_Logic(&module, (module##_Args){__VA_ARGS__});	\
-	  module.ports.ready = true;				\
+#define setup(module, ...) module##_Setup(&module, (module##_SetUpArgs){__VA_ARGS__})
+#define run(module, ...) 						\
+	void module##_Logic(typeof(module)*, module##_Params); 		\
+	if(module.ports.ready){ 					\
+	  module.ports.ready = false;					\
+	  module##_Logic(&module, (module##_Params){__VA_ARGS__});	\
+	  module.ports.ready = true;					\
 	}
 
 #define out(outName) self->ports.outName 
@@ -44,6 +48,9 @@
 #define setwhile(var, inName) while (true) if(ready(inName)){var = *self->ports.inName.data; break;}
 
 #define else else
+
+InType(any, void);
+OutType(any, void);
 
 /*------------------------------|
        Class Preprocessors	|
@@ -67,10 +74,10 @@
 #define __FIELD(...) __VA_ARGS__;
 #define __METHODS(...) __VA_ARGS__
 
-#define interface(Class) const Class##_Interface Class
+#define interface(Class) Class##_Interface Class
 #define inhert(Class) Class##_Instance Class
 
-#define interfaceAs(Class) const Class##_Interface 
+#define interfaceAs(Class) Class##_Interface 
 #define inhertAs(Class) Class##_Instance 
 
 #define construct(name, ...)						\
@@ -297,9 +304,13 @@ OutType(rune, rune);
 typedef char* cstr;
 asClassExt(cstr, __INIT(cstr txt; u64 len))
 { *self = calloc(args.len, sizeof(char)); strncpy(*self, args.txt, args.len); return self;}
+InType(cstr, cstr);
+OutType(cstr, cstr);
 
 typedef wchar_t* wstr;
 asClass(wstr){ passover }
+InType(wstr, wstr);
+OutType(wstr, wstr);
 
 typedef void* pntr;
 #define arry(type) type*
@@ -307,10 +318,15 @@ typedef void* pntr;
 #define pntr_shiftcpy(ptr, shift_amt) ((void*)(&(((uint8_t*)ptr)[shift_amt])))
 #define pntr_asVal(addr) (*(uint64_t*)&addr)
 asClass(pntr){ passover }
+InType(pntr, pntr);
+OutType(pntr, pntr);
 
 typedef u32 errvt;
+asClass(errvt){ passover }
+InType(errvt, errvt);
+OutType(errvt, errvt);
+
 typedef void noFail;
 
 Decl(Object);
 Class(Object,__INIT(void* private; Object_Interface* methods),,);
-
