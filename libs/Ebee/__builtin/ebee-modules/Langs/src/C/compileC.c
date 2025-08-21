@@ -83,7 +83,7 @@ errvt methodimpl(CBuild, Compile,, inst(String) name, u16 flags){
 
 	if(self->includes != NULL){
 		
-		ListForEach(self->includes, inst(String), include){
+		foreach(self->includes, inst(String), include){
 
 			StringBuilder.Append(compile_args, NULL, 
 		       		"-I ",$(include)," ", endstr
@@ -114,19 +114,19 @@ construct(CBuild,
 	};
 
 	if(args.libs != NULL){
-	    ListForEach(args.libs, cstr, lib){
+	    foreach(args.libs, cstr, lib){
 		inst(String) lib_str = new(String, lib, 255);
 		List.Append(self->srcfiles, &lib_str, 1);
 	    }
 	}
 	if(args.includes != NULL){
-	    ListForEach(args.includes, cstr, include){
+	    foreach(args.includes, cstr, include){
 		inst(String) include_str = new(String, include, 255);
 		List.Append(self->srcfiles, &include_str, 1);
 	    }
 	}
 	if(args.srcfiles != NULL){
-	    ListForEach(args.srcfiles, cstr, srcfile){
+	    foreach(args.srcfiles, cstr, srcfile){
 		inst(String) srcfile_str = new(String, srcfile, 255);
 		List.Append(self->srcfiles, &srcfile_str, 1);
 	    }
