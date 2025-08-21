@@ -56,6 +56,9 @@ OutType(any, void);
        Class Preprocessors	|
 -------------------------------*/
 #define fn(name, ...) (*name)(__VA_ARGS__)
+#define namespace(name, ...) struct {__VA_ARGS__} name;
+#define shortName(dotPath, name) typeof(dotPath)* name = &dotPath;
+#define using_namespace(name, localName) typeof(name)* localName = &name;
 
 #define method(Class,name, ...) (*name)(Class##_Instance* self __VA_ARGS__)
 #define imethod(name, ...) (*name)(inst(Object) object __VA_ARGS__)
@@ -191,16 +194,15 @@ typedef void* inst;
 #define class(type) (inst(type))
 #define cast(type) (type)
 
-#define init(name, ptr, ...) name##_Construct((name##_ConstructArgs){__VA_ARGS__}, ptr)
+#define initialize(name, ptr, ...) name##_Construct((name##_ConstructArgs){__VA_ARGS__}, ptr)
 
-#define new(name, ...) init(name, malloc(sizeof(name##_Instance) + sizeof_##name##_Private), __VA_ARGS__)
-#define push(name, ...) init(name, alloca(sizeof(name##_Instance) + sizeof_##name##_Private), __VA_ARGS__)
+#define new(name, ...) initialize(name, malloc(sizeof(name##_Instance) + sizeof_##name##_Private), __VA_ARGS__)
+#define push(name, ...) initialize(name, alloca(sizeof(name##_Instance) + sizeof_##name##_Private), __VA_ARGS__)
 
 #define del(object) if((generic object)->__methods->__DESTROY == NULL) ERR(ERR_NULLPTR,"no destructor specified for this object"); \
 		    else if((generic object)->__methods->__DESTROY(generic object) == ERR_NONE) free(object);
 #define pop(object) if((generic object)->__methods->__DESTROY == NULL) ERR(ERR_NULLPTR,"no destructor specified for this object"); \
 		    else (generic object)->__methods->__DESTROY(generic (object))
-
 /*----------------------|
        Base Types	|
 ----------------------*/
