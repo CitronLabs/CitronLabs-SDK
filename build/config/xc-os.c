@@ -11,7 +11,9 @@ ExtraC OS Configuration File
 	NETERR_SOCKLISTEN, NETERR_SOCKINVAL, NETERR_HOSTRESOLVE, NETERR_WATCH,	
 
 	IOERR_PERMS, IOERR_ALRDYEXST, IOERR_NOTFOUND, IOERR_ASYNC,		
-	IOERR_READ,IOERR_WRITE, IOERR_FAIL,
+	IOERR_READ, IOERR_WRITE, IOERR_FAIL,
+
+	GXERR_VIDEO_NONE, GXERR_VIDEO_INUSE,
 #elif defined( 			__FORMAT_CODES__			)
 /*---------------------------------------------------------------------------*/
 #ifndef FORMAT
