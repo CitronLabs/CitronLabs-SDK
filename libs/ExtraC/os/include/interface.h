@@ -40,7 +40,7 @@ Type(OSEvent,
 
 typedef void* osHandle;
 
-Interface(OS,
+Static(OS,
 	interface(filesys);		
 	interface(input);		
 	interface(graphics);	
@@ -55,6 +55,9 @@ Interface(OS,
 	u64   vmethod(pollEvents);
 );
 
-#define defaultOS(interface) intf(OS) userOS = &interface;
-extern intf(OS) userOS;
+using_namespace(OS.network.socket, socket); 
 
+void test(){
+
+	
+}

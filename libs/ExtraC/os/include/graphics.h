@@ -1,5 +1,6 @@
 #pragma once
 #include "./interface.h"
+#include "input.h"
 
 
 typedef struct Color Color;
@@ -13,18 +14,26 @@ Type(Color,
  	float r,g,b,a;
 );
 
-Decl(Display);
-extern inst(Display) defaultDisplay;
+Class(Canvas,
+__INIT(),
+__FIELD(),
+	
+
+)
+Interface(RenderPrimitives,
+      	errvt imethod(drawRectangle,, float x, float y, float w, float h, u16 z, Color Color);
+      	errvt imethod(drawLine,,      float x, float y, float x2, float y2, u16 z, Color Color);
+      	errvt imethod(drawPixel,,     float x, float y, u16 z, Color Color);
+)
 
 Interface(Render,
-	errvt imethod(setDisplay,, inst(Display) display);
+	errvt imethod(setCanvas,, inst(Canvas) display);
 	errvt imethod(renderFrame);
       	errvt imethod(swapBuffers);
+      	errvt imethod(clearCanvas,,   Color clearColor);
 )
 
 
-#define DISPLAY_SIZE 0x01
-#define DISPLAY_POS  0x02
 Class(Display, 
 __INIT(inst(Display) parent; char* name; u64 w,h,x,y;),
 __FIELD(inst(Display) parent; char* name; u64 w,h,x,y),
@@ -35,5 +44,10 @@ __FIELD(inst(Display) parent; char* name; u64 w,h,x,y),
       	errvt 		method(Display, lock,,  u8 attrb_to_lock);
 	bool 		method(Display, isRunning);
 	graphicsHandle  method(Display, getHandle);
+	inst(Canvas)    method(Display, getCanvas);
 	
 )
+
+extern inst(Display) defaultDisplay;
+
+
