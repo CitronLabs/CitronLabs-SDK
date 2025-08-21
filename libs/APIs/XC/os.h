@@ -22,7 +22,15 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ---------------------------------------------------------------------------*/
 #pragma once
-#include "../../ExtraC/os/include/extern.h"
+#include "../../ExtraC/os/include/os-interface/audio.h"
+#include "../../ExtraC/os/include/os-interface/graphics.h"
+#include "../../ExtraC/os/include/os-interface/filesys.h"
+#include "../../ExtraC/os/include/os-interface/scheduler.h"
+#include "../../ExtraC/os/include/os-interface/network.h"
+#include "../../ExtraC/os/include/os-interface/input.h"
+#include "../../ExtraC/os/include/os-interface/memory.h"
+#include "../../ExtraC/os/include/os-interface/user.h"
+
 #include "../../ExtraC/os/include/audio.h"
 #include "../../ExtraC/os/include/graphics.h"
 #include "../../ExtraC/os/include/filesys.h"
@@ -30,6 +38,5 @@ SOFTWARE.
 #include "../../ExtraC/os/include/network.h"
 #include "../../ExtraC/os/include/input.h"
 #include "../../ExtraC/os/include/memory.h"
-#include "../../ExtraC/os/include/terminal.h"
 
 #define __EXTRAC_OS__

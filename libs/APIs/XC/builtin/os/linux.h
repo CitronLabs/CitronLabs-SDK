@@ -8,7 +8,7 @@
 #include <bits/pthreadtypes.h>
 #include <sys/ptrace.h>
 #include <sys/wait.h>
-#include "semaphore.h"
+#include <semaphore.h>
 
 Static(LinuxEnv,
 	interface(OS);

@@ -1,6 +1,7 @@
 #pragma once
 #include "./types.h"
 #include "./error.h"
+#include "./data.h"
 
 #if __HijackMalloc
 #define malloc(size) CMalloc.Allocator.New(generic c_malloc, size, NULL)
@@ -53,6 +54,7 @@ __FIELD(),
 	     	)
 
 	interface(Allocator);
+	interface(IterableList);
 
 	bool method(Buffer, isMaxed);
 	pntr  method(Buffer, getPointer);
