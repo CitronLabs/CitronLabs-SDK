@@ -8,7 +8,13 @@
 typedef void* fsHandle;
 typedef char fsPath[256];
 Type(fsEntry,
-	bool is_dir;
+	union {
+     	    struct {
+     	    	bool dir:  1;
+     	    	bool link: 1;
+     	    }is;
+     	    u64 typeFlags;
+     	}type;
 	char name[256];
 	size_t size;
 	inst(Time) time_created;
@@ -16,7 +22,19 @@ Type(fsEntry,
 )
 
 Interface(filesys,
-	int CREATE_FLAG, APPEND_FLAG, WRITE_FLAG, READ_FLAG, ASYNC_FLAG;
+	namespace(flags,
+		int 
+	   	CREATE, 
+	   	APPEND, 
+	   	WRITE, 
+	   	READ, 
+	   	ASYNC;
+	)
+	namespace(paths,
+		cstr 
+	  	APPDATA,
+	  	ROOT;
+	)
 	fsHandle vmethod(open,    bool DIR, fsPath path, int flags);
 	i64 	 vmethod(write,   fsHandle handle, pntr data, size_t size);
 	i64 	 vmethod(read,    fsHandle handle, pntr data, size_t size);
@@ -30,5 +48,6 @@ Interface(filesys,
 		errvt vmethod(readLink,     fsPath path, fsPath result)
 		errvt vmethod(makeLink,     fsPath path, fsPath result)
 		errvt vmethod(changePerms,  fsPath path, userPermissions perms);
+		errvt vmethod(changeOwner,  fsPath path, userHandle user);
 	} ext;	
 )

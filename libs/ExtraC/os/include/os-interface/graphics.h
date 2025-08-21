@@ -59,37 +59,44 @@ Type(graphicsDevice,
 typedef void* graphicsHandle;
 
 Interface(graphics,
+	const cstr stdVersion;
 	errvt 			vmethod(initSystem);
 	errvt 			vmethod(exitSystem);
-	graphicsHandle 		vmethod(initDisplay, 	 u32 x, u32 y, u32 w, u32 h, graphicsHandle parent);
 	graphicsHandle 		vmethod(grabDevice, 	 graphicsDevice* device);
 	arry(graphicsDevice) 	vmethod(enumDevices, 	 u64* numDevices);
-	errvt	 		vmethod(closeDisplay,    graphicsHandle handle);
-	errvt	 		vmethod(updateDisplay,   graphicsHandle handle, u32 x, u32 y, u32 w, u32 h, graphicsHandle parent);
-	bool	 		vmethod(isDisplayClosed, graphicsHandle);
-	errvt			vmethod(startVideo, 	 graphicsHandle handle);
-	errvt			vmethod(stopVideo,  	 graphicsHandle handle);
-	errvt			vmethod(closeVideo, 	 graphicsHandle handle);
-	errvt			vmethod(pullVideoFrame,	 graphicsHandle handle, VideoFrame* frame);
-	errvt			vmethod(pushVideoFrame,	 graphicsHandle handle, VideoFrame* frame);
-	errvt 		  	vmethod(handleEvents,    graphicsHandle handle, Queue(OSEvent) evntQueue);
+	namespace(display,
+	graphicsHandle 		vmethod(init, 	  	 u32 x, u32 y, u32 w, u32 h, graphicsHandle parent);
+	errvt	 		vmethod(close,    	 graphicsHandle handle);
+	errvt	 		vmethod(update,   	 graphicsHandle handle, u32 x, u32 y, u32 w, u32 h, graphicsHandle parent);
+	bool	 		vmethod(isClosed, 	 graphicsHandle);
+	u64   			vmethod(pollEvents);
+	)
+	namespace(video,
+	errvt			vmethod(start, 	 	 graphicsHandle handle);
+	errvt			vmethod(stop,  	 	 graphicsHandle handle);
+	errvt			vmethod(close, 	 	 graphicsHandle handle);
+	errvt			vmethod(pullFrame,	 graphicsHandle handle, VideoFrame* frame);
+	errvt			vmethod(pushFrame,	 graphicsHandle handle, VideoFrame* frame);
+	u64   			vmethod(pollEvents);
+	)
+	errvt 		  	vmethod(handleEvents,  	 graphicsHandle handle, Queue(OSEvent) evntQueue);
 	u64 		  	vmethod(pollEvents);
 )
 
-Enum(displayEventType,
-    DISPLAY_EVENT_RESIZE,	
-    DISPLAY_EVENT_CLOSE,	
-    DISPLAY_EVENT_VISIBILITY,	
+Enum(displayEvent_Type,
+    displayEvent_Resize,	
+    displayEvent_Close,	
+    displayEvent_Visibility,	
 )
 Type(displayEvent,
-    graphicsHandle handle;
- 	displayEventType type;
+    	graphicsHandle handle;
+ 	displayEvent_Type type;
 )
 
-Enum(videoEventType,
-    VIDEO_EVENT_NEWFRAME,
+Enum(videoEvent_Type,
+    videoEvent_NewFrame,
 )
 Type(videoEvent,
-    graphicsHandle handle;
- 	videoEventType type;
+    	graphicsHandle handle;
+ 	videoEvent_Type type;
 )

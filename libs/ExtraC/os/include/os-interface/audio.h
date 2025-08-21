@@ -32,26 +32,28 @@ Type(audioDevice,
 
 typedef void* audioHandle; // aka an audio stream
 Interface(audio,
+	const cstr stdVersion;
 	errvt 			vmethod(initSystem);
 	errvt 			vmethod(exitSystem);
-	audioHandle 		vmethod(grabStream,  bool direction, audioDevice* device, size_t framesize, AudioSpec spec);
 	arry(audioDevice) 	vmethod(enumDevices, u64* numDevices);
-	errvt			vmethod(startStream, audioHandle handle);
-	errvt			vmethod(stopStream,  audioHandle handle);
-	errvt			vmethod(closeStream, audioHandle handle);
-	errvt			vmethod(writeStream, audioHandle handle, void* buffer, size_t frames);
-	errvt			vmethod(readStream,  audioHandle handle);
-
+	namespace(stream,
+	audioHandle 		vmethod(grab,  bool direction, audioDevice* device, size_t framesize, AudioSpec spec);
+	errvt			vmethod(start, audioHandle handle);
+	errvt			vmethod(stop,  audioHandle handle);
+	errvt			vmethod(close, audioHandle handle);
+	errvt			vmethod(write, audioHandle handle, void* buffer, size_t frames);
+	errvt			vmethod(read,  audioHandle handle);
 	errvt 		  	vmethod(handleEvents,     audioHandle handle, Queue(OSEvent) evntQueue);
 	u64 		  	vmethod(pollEvents);
-
+	)
+	u64 		  	vmethod(pollEvents);
 )
 
-Enum(audioEventType,
-	AUDIO_EVENT_NEWFRAME,
+Enum(audioEvent_Type,
+	audioEvent_NewFrame,
 )
 
 Type(audioEvent,
 	audioHandle handle;
-	audioEventType type;
+	audioEvent_Type type;
 )

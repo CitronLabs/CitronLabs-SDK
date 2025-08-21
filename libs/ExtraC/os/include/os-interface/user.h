@@ -1,19 +1,10 @@
+#pragma once
 #include "../extern.h"
 
 // encompasses both groups and individual users
 typedef void* userHandle;
 
-Enum(userPermissions,
-    PERMISSION_READ 		= 1,
-    PERMISSION_WRITE 		= 2,
-    PERMISSION_EXECUTE 		= 4,
-    PERMISSION_DELETE 		= 8,
-    PERMISSION_LIST_CONTENTS 	= 16,
-    PERMISSION_OWNERSHIP 	= 32,
-    PERMISSION_CREATE_CHILD 	= 64,
-    PERMISSION_DELETE_CHILD 	= 128
-);
-
+typedef int userPermissions;
 
 Type(userInfo,
 	inst(String) userName;
@@ -25,8 +16,21 @@ Type(userInfo,
 
 
 Interface(user, 
+	const cstr stdVersion;
+	namespace(perms,
+		userPermissions
+		READ, 	    
+		WRITE, 	    
+		EXECUTE, 	    
+		DELETE, 	    
+		LIST_CONTENTS,
+		OWNERSHIP,    
+		CREATE_CHILD, 
+		DELETE_CHILD;
+	)
 	userInfo* 	vmethod(enumUsers,   	u32* count);
 	userHandle 	vmethod(fetchUser,   	userInfo* info);
+	userHandle 	vmethod(fetchFromName, 	cstr name);
 	errvt 		vmethod(closeUser,	userHandle handle);
 	errvt 		vmethod(removeUser,	userHandle handle);
 	errvt 		vmethod(setPermssions,	userHandle handle, userPermissions perms);
@@ -37,4 +41,5 @@ Interface(user,
 	bool 		vmethod(isAdmin,     	userHandle user);
 	errvt 		vmethod(getInfo,     	userHandle user, userInfo* info);
 	errvt 		vmethod(getCurrent,    	userInfo* info);
+	errvt 		vmethod(getUserPath,    userHandle user, cstr path)
 )

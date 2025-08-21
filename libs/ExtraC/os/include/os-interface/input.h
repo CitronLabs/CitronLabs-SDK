@@ -7,16 +7,16 @@ Type(keyInput,
      	inst(String) locale;	
 	chartype encoding;
 )
-Enum(posRangeType,
-     	POS_NULL,
-	POS_VECTOR,
-     	POS_EXACT,
-     	POS_STATEFUL
+Enum(posRange_Type,
+     	posRange_Null,
+	posRange_Vector,
+     	posRange_Exact,
+     	posRange_Stateful
 )
 
 Type(posInput,
 	u8 dimension  : 2;
-     	posRangeType type : 2;
+     	posRange_Type type : 2;
 	float low;
 	float high;
 )
@@ -31,9 +31,7 @@ Type(inputDevice,
      	arry(keyInput) keyInputs;
 )
 Interface(input,
-#define AXIS_X 0
-#define AXIS_Y 1
-#define AXIS_Z 2
+	const cstr stdVersion;
 	arry(inputDevice) vmethod(enumDevices, 	    u64* numDevices);
 	errvt 		  vmethod(freeDevice,       inputHandle handle);
 	inputHandle 	  vmethod(grabDevice, 	    inputDevice* dev);
@@ -41,14 +39,19 @@ Interface(input,
 	u64 		  vmethod(pollEvents);
 )
 
-Enum(inputEventType,
-	INPUT_EVENT_UPDATE,
-	INPUT_EVENT_CLOSE
+Enum(inputEvent_Type,
+	inputEvent_Update,
+	inputEvent_Close
 )
+
+
+#define AXIS_X 0
+#define AXIS_Y 1
+#define AXIS_Z 2
 
 Type(inputEvent,
 	inputDevice* device;
-	inputEventType type;
+	inputEvent_Type type;
      	union {
 	  struct{
 		float axis[3];
