@@ -108,9 +108,9 @@ construct(CBuild,
 ){
 	*self = (CBuild_Instance){
 		.cc = args.cc ? args.cc : NULL,
-		.srcfiles = newList(inst(String)),
-		.includes = newList(inst(String)),
-		.libs = newList(inst(String))
+		.srcfiles = newList(inst(String), 10),
+		.includes = newList(inst(String), 10),
+		.libs = newList(inst(String), 10)
 	};
 
 	if(args.libs != NULL){

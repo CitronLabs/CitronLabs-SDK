@@ -22,12 +22,12 @@ errvt netDomainResolve(nethost_resolve* resolve, inst(String) host_name, u8 doma
 	List(ipv4_netaddress) i4_addrs =
 		(domain_type == D_IPV4 || 
 	         domain_type == (D_IPV4 | D_IPV6)) ?
-		pushList(ipv4_netaddress) : NULL;
+		pushList(ipv4_netaddress, 10) : NULL;
 
 	List(ipv6_netaddress) i6_addrs = 
 		(domain_type == D_IPV6 || 
 	         domain_type == (D_IPV4 | D_IPV6)) ?
-		pushList(ipv6_netaddress) : NULL;
+		pushList(ipv6_netaddress, 10) : NULL;
 
 	in_addr_t addr4 = {0};
 	struct in6_addr addr6 = {0};

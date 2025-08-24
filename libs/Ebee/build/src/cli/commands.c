@@ -35,7 +35,7 @@ return OK;
 cmd_func(__BUILD_COMMAND){
 
 	List(inst(String)) targets = ((DSN_data*)List.GetPointer(args, 0))->data;
-	List(intf(Project)) projects = pushList(intf(Project));
+	List(intf(Project)) projects = pushList(intf(Project), 10);
 	
 	errvt status = ERR_NONE;
 
