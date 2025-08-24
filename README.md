@@ -1,4 +1,4 @@
-<img src="./__media/ExtraC-Logo.png">
+<img src="./__media/ExtraC-Logo.svg">
 <h1> Extra-C: Modernizing C Development </h1>
 
 
