@@ -14,14 +14,12 @@
 #define __PARAM(...) __VA_ARGS__;
 #define __DATA(...) __VA_ARGS__;
 
-
-
 #define Blueprint(name, __IO, __DATA)						\
 	typedef struct {_Atomic(bool) ready; __IO} name##_Ports;		\
 	typedef struct {name##_Ports ports; __DATA} name##_Module; 		\
 
-#define Logic(name) void name##_Logic(typeof(name)* self, name##_Params p)
-#define Setup(name) errvt name##_Setup(typeof(name)* self, name##_SetUpArgs args)
+#define Logic(name) void name##_Logic(typeof(name)* self, name##_Params* p)
+#define Setup(name) errvt name##_Setup(typeof(name)* self, name##_SetUpArgs* args)
 
 #define Module(name, blueprint, __SETUP, __PARAM, ...) 	\
 	blueprint##_Module name = {__VA_ARGS__};	\
@@ -40,17 +38,18 @@
 	  module##_Logic(&module, (module##_Params){__VA_ARGS__});	\
 	  module.ports.ready = true;					\
 	}
-
+#define inAny(inName)(*self->ports.inName.isReady) ? self->ports.inName.data
 #define out(outName) self->ports.outName 
 #define in(inName)  (*self->ports.inName.isReady) ? *self->ports.inName.data  
 #define ready(inName) (*self->ports.inName.isReady) 
 #define set(var, inName) if(ready(inName)){var = *self->ports.inName.data;} 
 #define setwhile(var, inName) while (true) if(ready(inName)){var = *self->ports.inName.data; break;}
+#define anyLogic (moduleLogic)
+#define anySetup (moduleSetup)
 
-#define else else
+#define modl(module) module##_Module*
 
 InType(any, void);
-OutType(any, void);
 
 /*------------------------------|
        Class Preprocessors	|
@@ -332,3 +331,7 @@ typedef void noFail;
 
 Decl(Object);
 Class(Object,__INIT(void* private; Object_Interface* methods),,);
+
+Blueprint(Module,,);
+typedef void(*moduleLogic)(Module_Module*, void*);
+typedef errvt(*moduleSetup)(Module_Module*, void*);

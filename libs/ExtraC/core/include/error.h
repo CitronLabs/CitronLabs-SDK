@@ -12,8 +12,6 @@ typedef enum{
 	#include "config.h"
 	#undef __ERROR_CODES__
 }XC_ERROR_CODES;
-typedef struct{	errvt val; const cstr msg; }std_err;
-#define errorstuff __func__
 
 /*----------------------\
        ERROR FUNCS	|

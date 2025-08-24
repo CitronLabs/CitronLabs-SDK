@@ -96,8 +96,8 @@ __INIT(VecData initData),
 __FIELD(),
 	interface(Formatter);
 
-	bool 		method(Vector,   isFloat);
-	u64 		method(Vector,   DataSize);
+	bool 		method(Vector, isFloat);
+	u64 		method(Vector, DataSize);
 	inst(Vector) 	method(Vector, DotProduct,, 	 inst(Vector) other);
 	errvt 		method(Vector, DotProductInto,,  inst(Vector) a, inst(Vector) b);
 )
