@@ -2,15 +2,15 @@
 #include "../../include/data.h"
 
 private(Buffer,
-	u64 type_size, size, alloced_size;
+	u64 typeSize, size, alloced_size;
 	pntr data; bool isStatic;
 );
 
 u64  methodimpl(Buffer, getItemNum){ return priv->size; }
-u64  methodimpl(Buffer, getTypeSize){ return priv->type_size; }
-u64  methodimpl(Buffer, getTotalSize){ return priv->type_size * priv->size; }
+u64  methodimpl(Buffer, getTypeSize){ return priv->typeSize; }
+u64  methodimpl(Buffer, getTotalSize){ return priv->typeSize * priv->size; }
 pntr methodimpl(Buffer, getPointer){ return priv->data; }
-u64 imethodimpl(Buffer, getBytesAlloced){ self(Buffer); return priv->type_size * priv->size; }
+u64 imethodimpl(Buffer, getBytesAlloced){ self(Buffer); return priv->typeSize * priv->size; }
 bool imethodimpl(Buffer, isStatic){ self(Buffer); return priv->isStatic; }
 bool methodimpl(Buffer, isMaxed){ return priv->alloced_size == priv->alloced_size; }
 
@@ -64,9 +64,9 @@ errvt imethodimpl(Buffer, Hash){
 errvt methodimpl(Buffer, Cast,, u64 type_size){
 	if(type_size == 0) return ERR(MEMERR_INVALIDSIZE, "cannot cast buffer to type size 0");
 	
-	priv->size = (priv->size * priv->type_size) / type_size;
-	priv->alloced_size = (priv->alloced_size * priv->type_size) / type_size;
-	priv->type_size = type_size;
+	priv->size = (priv->size * priv->typeSize) / type_size;
+	priv->alloced_size = (priv->alloced_size * priv->typeSize) / type_size;
+	priv->typeSize = type_size;
 
 return OK;
 }
@@ -102,19 +102,19 @@ construct(Buffer,
 	  	ERR(MEMERR_INVALIDSIZE, "buffer size cannot be 0"); 
 	  	return NULL;
 	}
-	args.type_size = args.type_size == 0 ? 1 : args.type_size;
+	args.typeSize = args.typeSize == 0 ? 1 : args.typeSize;
 
 	if(args.isStatic){
 		priv->data = pntr_shiftcpy(self, sizeof(Buffer_Instance) + sizeof(Buffer_Private));
 	}else{
-	  check(priv->data = calloc(args.size, args.type_size)){
+	  check(priv->data = calloc(args.size, args.typeSize)){
 		ERR(err->errorcode, err->message); return NULL;
 	  }
 	}
 	
 	setpriv(Buffer){
 		.size = args.size,
-	  	.type_size = args.size,
+	  	.typeSize = args.size,
 		.isStatic = args.isStatic,
 		.alloced_size = 0
 	};
