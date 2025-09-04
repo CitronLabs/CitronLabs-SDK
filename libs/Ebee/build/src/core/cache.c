@@ -20,7 +20,7 @@ return result;
 }
 errvt EB_cacheRemove(EBEE_CACHEID cache_type, inst(String) key){
 	
-	nonull(key, return nullerr);
+	nonull(key, return err);
 	
 	if(key->type != CT_ASCI)
 		return ERR(BUILDERR_CACHE, "key string can only be in ascii");

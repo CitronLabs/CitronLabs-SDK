@@ -76,7 +76,7 @@ return OK;
 
 errvt methodimpl(CBuild, Compile,, inst(String) name, u16 flags){
 	
-	nonull(self, return nullerr;);
+	nonull(self, return err;);
 
 	compileC_FLAGS struct_flags = {.flags = flags};
 	inst(StringBuilder) compile_args = push(StringBuilder, NULL, UINT64_MAX);

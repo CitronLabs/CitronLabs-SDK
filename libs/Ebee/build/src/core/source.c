@@ -40,8 +40,8 @@ return OK;
 }
 
 errvt eb_source_addDir(List(EBEE_SOURCE) result, inst(String) path, inst(String) file_extention, bool recursive){
-	nonull(result,    return nullerr);
-	nonull(path->txt, return nullerr);
+	nonull(result,    return err);
+	nonull(path->txt, return err);
 
 	Stack(fsPath) nested_dirs = pushStack(dirpath);
 	
@@ -61,7 +61,7 @@ return OK;
 
 errvt eb_source_add(inst(EB_Source) src){
 
-	nonull(src, return nullerr);
+	nonull(src, return err);
 
 	fsEntry ent = {0};
 

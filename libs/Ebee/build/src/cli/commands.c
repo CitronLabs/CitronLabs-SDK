@@ -4,7 +4,7 @@
 
 errvt EB_addProject(intf(Project) project){
 	
-	nonull(project, return nullerr);
+	nonull(project, return err);
 	
 	inst(String) name = new(String, (char*)project->name, 255);
 
@@ -16,8 +16,8 @@ return OK;
 }
 errvt EB_addCommand(const char* name, void(*command)){
 
-	nonull(command, return nullerr);
-	nonull(name, return nullerr);
+	nonull(command, return err);
+	nonull(name, return err);
 
 	inst(Command) new_command = new(Command, 
       	

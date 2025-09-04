@@ -18,7 +18,7 @@ void default_title_screen(){
 
 
 errvt EB_setTitleScreen(void(*title_screen_func)()){
-	nonull(title_screen_func, return nullerr);
+	nonull(title_screen_func, return err);
 
 	__eb_data->__private->title_screen = title_screen_func;
 
