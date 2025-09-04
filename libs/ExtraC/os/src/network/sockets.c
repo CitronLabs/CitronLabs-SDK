@@ -7,21 +7,7 @@ socket_settings methodimpl(Socket, GetSettings){
 
 errvt methodimpl(Socket, Bind,, void* address){
 
-	priv->sizeofaddr = XCAddrToUnix(
-			priv->settings.domain,
-			address,
-			&priv->address
-	);
 
-	if(0 != priv->sizeofaddr ) return ERR( 
-	      NETERR_SOCKBIND, "invalid socket configuration");
-	
-	if(bind(priv->fd, &priv->address, priv->sizeofaddr) < 0){ 
-	  	priv->address = (struct sockaddr){0}; priv->sizeofaddr = 0;
-       		return ERR(NETERR_SOCKBIND, "failed to bind to address");
-	}
-
-return OK;
 }
 
 errvt methodimpl(Socket, Listen,, u32 num_connects){
