@@ -58,12 +58,12 @@ static inline noFail dbusPathToObjectName(inst(StringBuilder)  nameBuilder, cons
 			objectNameEnd++;
 	}
 
-	inst(String) interfaceString = str_cast((char*)interface_path, UINT64_MAX);
+	inst(String) interfaceString = String_From((char*)interface_path, UINT64_MAX);
 
 	StringBuilder.Set(nameBuilder, NULL, 
-	    	$(str_view(interfaceString, interfaceNameStart, interfaceNameEnd)),
+	    	$(String_View(interfaceString, interfaceNameStart, interfaceNameEnd)),
 	    	objectNameStart != 1 && objectNameStart != objectNameEnd ? "." : endstr,
-	    	$(str_view(interfaceString, interfaceNameStart, interfaceNameEnd)),
+	    	$(String_View(interfaceString, interfaceNameStart, interfaceNameEnd)),
 	endstr);
 }
 
@@ -84,13 +84,13 @@ static inline noFail objectNameToDbusPath(inst(StringBuilder)  nameBuilder, cons
 		while(object_name[interfaceNameEnd] != '\0')
 			objectNameEnd++;
 	}
-	inst(String) interfaceString = str_cast((char*)object_name, UINT64_MAX);
+	inst(String) interfaceString = String_From((char*)object_name, UINT64_MAX);
 
 	StringBuilder.Set(nameBuilder, NULL, "/",
 		OS.getAppData().domainName,  "/",
-	    	$(str_view(interfaceString, 0, interfaceNameEnd - 1)),
+	    	$(String_View(interfaceString, 0, interfaceNameEnd - 1)),
 	    	objectNameEnd != 1 ? "/" : endstr,
-	    	$(str_view(interfaceString, interfaceNameEnd + 1, objectNameEnd)),
+	    	$(String_View(interfaceString, interfaceNameEnd + 1, objectNameEnd)),
 	endstr);
 }
 
@@ -109,8 +109,28 @@ static inline void* serializeNetObjData(netObjectData* object, u64* len){
 		List.Append(methodsList, pushStruct(
 			D("name", method.name),
 			(data_entry){
-			    s("parameters"),
+			    String_FromLiteral
+				("parameters"),
 			    &method.parameters
+			}
+		), 1);
+	}
+
+	foreach(object->info.field, netobjFieldInfo, field){
+	
+		List.Append(fieldsList, pushStruct(
+			D("name", field.name),
+			D("access", 
+     				field.access == NETFIELD_GET_SET) ? 
+					String_FromLiteral("Get_Set") :
+				field.access == NETFIELD_GET ?
+					String_FromLiteral("Get") :
+				field.access == NETFIELD_SET ?
+					String_FromLiteral("Set")
+			),
+			(data_entry){
+			s("data"),
+			    &field.data
 			}
 		), 1);
 	}
