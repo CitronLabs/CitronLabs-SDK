@@ -1,6 +1,7 @@
 #pragma once
 #include "./libc.h"
 #include "./utils.h"
+#include <stdint.h>
 #include <string.h>
 
 /*------------------------------|
@@ -229,7 +230,6 @@ typedef void* inst;
 	typedef enum {__VA_ARGS__} 					\
 	name; asClassExt(name, __INIT)
 
-
 typedef uint64_t u64;
 asClass(u64){ passover }
 InType(u64, u64);
@@ -328,6 +328,39 @@ InType(errvt, errvt);
 OutType(errvt, errvt);
 
 typedef void noFail;
+
+
+
+#define maxof(type) 	\
+_Generic(((type){0}), 	\
+i32:    INT32_MAX,  	\
+u32:    INT32_MAX,  	\
+i64:    INT64_MAX,  	\
+u64:    INT64_MAX,  	\
+i16:    INT16_MAX, 	\
+u16:    INT16_MAX, 	\
+i8:     INT8_MAX,	\
+u8:     INT8_MAX,	\
+float:  FLT_MAX, 	\
+double: DBL_MAX,	\
+void*:  UINTPTR_MAX  	\
+)
+
+
+#define minof(type) 	\
+_Generic(((type){0}),  	\
+i32:    INT32_MIN,  	\
+u32:    (0),  		\
+i64:    INT64_MIN,  	\
+u64:    (0),  		\
+i16:    INT16_MIN, 	\
+u16:    (0),	 	\
+i8:     INT8_MIN,	\
+u8:     (0),		\
+float:  FLT_MIN, 	\
+double: DBL_MIN,	\
+void*:  (0)  		\
+)
 
 Decl(Object);
 Class(Object,__INIT(void* private; Object_Interface* methods),,);
