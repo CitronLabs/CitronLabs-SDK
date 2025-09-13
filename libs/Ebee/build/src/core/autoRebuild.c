@@ -18,7 +18,7 @@ void checkautoRebuild(const char* file_path){
 	fsEntry file_entry;
 
 	std_str 
-	file_path_str = str_cast((char*)file_path, sizeof(fsPath)),
+	file_path_str = String_From((char*)file_path, sizeof(fsPath)),
 	time_lastmodified_str = eb_cache_search(COMPILE_CACHE, file_path_str);
 
 	if(time_lastmodified_str.txt == NULL){
@@ -52,7 +52,7 @@ void checkautoRebuild(const char* file_path){
 	));
 	
 	if(getFileSystemEntry((char*)file_path, &file_entry) != ERR_NONE)
-		eb_cache_remove(COMPILE_CACHE, str_cast((char*)file_path, sizeof(fsPath)));
+		eb_cache_remove(COMPILE_CACHE, String_From((char*)file_path, sizeof(fsPath)));
 
 
 	else{
@@ -66,7 +66,7 @@ void checkautoRebuild(const char* file_path){
 		println(YELLOW"autoRebuild: Modification Detected in file -> "GREEN, $(file_path),
 	  		YELLOW"\n[Rebuild Flag Set!]"NC);
 		
-		eb_cache_remove(COMPILE_CACHE, str_cast((char*)file_path, sizeof(fsPath)));
+		eb_cache_remove(COMPILE_CACHE, String_From((char*)file_path, sizeof(fsPath)));
 		
 		std_strbuilder* data = stringBuilderInit(NULL, UINT64_MAX);
 

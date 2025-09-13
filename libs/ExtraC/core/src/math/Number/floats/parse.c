@@ -33,7 +33,7 @@ u64 methodimpl(Number, FloatScan,, FormatID format, inst(String) in) {
 	
 	// 2. Parse integer part
 	while (cursor < len && isdigit(str[cursor])) {
-		StringBuilder.Append(mantissa_sb, str_cast(&str[cursor], 1));
+		StringBuilder.Append(mantissa_sb, String_From(&str[cursor], 1));
 		cursor++;
 		initial_mantissa_len++;
 	}
@@ -43,7 +43,7 @@ u64 methodimpl(Number, FloatScan,, FormatID format, inst(String) in) {
 		decimal_point_pos = initial_mantissa_len; // Record decimal point position
 		cursor++;
 		while (cursor < len && isdigit(str[cursor])) {
-			StringBuilder.Append(mantissa_sb, str_cast(&str[cursor], 1));
+			StringBuilder.Append(mantissa_sb, String_From(&str[cursor], 1));
 			cursor++;
 		}
 	}

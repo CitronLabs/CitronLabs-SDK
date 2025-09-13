@@ -206,7 +206,7 @@ u64 imethodimpl(TimeShort, Scan,, FormatID* formats, inst(String) in){
 	}
 
 	i += 4;
-	i += String.Scan(str_cutfcpy(in, i), $(result.day), endstr) + 1;
+	i += String.Scan(String_CutFrntCpy(in, i), $(result.day), endstr) + 1;
 
 	if(' ' != in->txt[i]){
 		ERR(ERR_INVALID, "invalid time string format");
@@ -214,9 +214,9 @@ u64 imethodimpl(TimeShort, Scan,, FormatID* formats, inst(String) in){
 	}
 
 	i += 1;
-	i += String.Scan(str_cutfcpy(in, i), $(result.hour), endstr) + 1;
-	i += String.Scan(str_cutfcpy(in, i), $(result.minute), endstr) + 1;
-	i += String.Scan(str_cutfcpy(in, i), $(result.second), endstr) + 1;
+	i += String.Scan(String_CutFrntCpy(in, i), $(result.hour), endstr) + 1;
+	i += String.Scan(String_CutFrntCpy(in, i), $(result.minute), endstr) + 1;
+	i += String.Scan(String_CutFrntCpy(in, i), $(result.second), endstr) + 1;
 	*self = result;
 return i;
 }

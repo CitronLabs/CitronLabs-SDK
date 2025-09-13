@@ -148,7 +148,8 @@ u64 imethodimpl(Pointer, Print,, FormatID* formats, inst(StringBuilder) out){
 	char buff[20] = {0};
 
 	u64 print_len = snprintf(buff, 20, "%p", *(void**)object);
-	StringBuilder.Append(out, str_cast(buff, print_len));
+
+	StringBuilder.Append(out, String_From(buff, print_len));
 
 return print_len;	
 }
@@ -179,7 +180,7 @@ Impl(Pointer){
 */
 u64 imethodimpl(CString, Print,, FormatID* formats, inst(StringBuilder) out){
 	char* string_ptr = *(char**)object;
-	inst(String) string = str_cast(string_ptr, UINT64_MAX);
+	inst(String) string = String_From(string_ptr, UINT64_MAX);
 	u64 actual_len = 0;
 	if(formats[FORMAT_DATA] == DATA_DSN){
 		actual_len += StringBuilder.Append(out, s("\""));

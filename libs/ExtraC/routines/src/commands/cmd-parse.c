@@ -36,7 +36,7 @@ errvt parseArgAndData(std_cmd *command, std_str arg, std_str data){
 	checkposterr((mindex = 
 	    mapSearch(
 	 	command->args, 
-	 	(str_cutfcpy(arg, 1)))	
+	 	(String_CutFrntCpy(arg, 1)))	
 	   ) == UINT32_MAX,
 	
 		CMDERR_PARSE, "unknown arguement",

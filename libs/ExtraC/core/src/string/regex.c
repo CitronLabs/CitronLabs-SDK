@@ -61,7 +61,7 @@ List(regex_instruc) parseRegex(inst(String) regex){
 		break;}
 		default:{
 			curr_instruc.type = EXACT;
-			curr_instruc.arg = str_cast(&regex->txt[regex_cusor],1);
+			curr_instruc.arg = String_From(&regex->txt[regex_cusor],1);
 			regex_cusor++;
 		break;}
 		}

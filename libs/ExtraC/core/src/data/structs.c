@@ -100,7 +100,7 @@ errvt methodimpl(Struct, AddField,, cstr name, DSN_data* field){
 	nonull(self, return err;);
 	nonull(field->data, return err;);
 
-	if(ERR_NONE != Map.Insert(self->fields, str_cast(name, 1024), field)){
+	if(ERR_NONE != Map.Insert(self->fields, String_From(name, 1024), field)){
 		return ERR(DATAERR_MEMALLOC, "could not add field to datastructs");
 	}
 

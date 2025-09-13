@@ -51,9 +51,9 @@ u64 methodimpl(Number, FloatPrint,, inst(StringBuilder) out) {
 		
 	// Case: integer.decimal (e.g., 123.45)
 	} else {
-		formatted_len += StringBuilder.Append(out, str_view((&mantissa), 0, integer_part_len));
+		formatted_len += StringBuilder.Append(out, String_View((&mantissa), 0, integer_part_len));
 		formatted_len += StringBuilder.Append(out, s("."));
-		formatted_len += StringBuilder.Append(out, str_view((&mantissa), integer_part_len, mantissa_len));
+		formatted_len += StringBuilder.Append(out, String_View((&mantissa), integer_part_len, mantissa_len));
 	}
 	
 	pop(mantissa_str);

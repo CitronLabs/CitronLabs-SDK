@@ -19,7 +19,7 @@ DBusHandlerResult objectHandler(struct DBusConnection* connection, struct DBusMe
 	if (dbus_message_get_type(msg) != DBUS_MESSAGE_TYPE_METHOD_CALL) 
 		return sendDBusError(msg, DBUSERR_INVALIDMSG, "objects can only respond to method calls");
 
-	if(String.Compare(str_cast((char*)method_name, __LinuxEnv_NetObj_DBus_NameMaxLen), s("__INTROSPECT"))){
+	if(String.Compare(String_From((char*)method_name, __LinuxEnv_NetObj_DBus_NameMaxLen), s("__INTROSPECT"))){
 		
 		DBusMessage* message = dbus_message_new_method_return(msg);
 		DBusMessageIter returnData = {0}, returnBytes = {0};
@@ -271,7 +271,7 @@ errvt vmethodimpl(LinuxNetwork, NetObjectGetInfo, cstr path, netobjInfo* info){
 	nonull(path, return NULL);
 	nonull(info, return NULL);
 
-	netObjectData* object = Map.Search(Dbus_EnvData.objLookup, str_cast(path, __LinuxEnv_NetObj_DBus_NameMaxLen));
+	netObjectData* object = Map.Search(Dbus_EnvData.objLookup, String_From(path, __LinuxEnv_NetObj_DBus_NameMaxLen));
 	
 	if(object)
 		*info = object->info;
@@ -289,7 +289,7 @@ errvt vmethodimpl(LinuxNetwork, NetObjectGetInfo, cstr path, netobjInfo* info){
 		);
 
 		pop(pathBuilder);
-
+			
 		// Send the message and get a reply
 		DBusMessage* reply = dbus_connection_send_with_reply_and_block(
 			Dbus_EnvData.connection,

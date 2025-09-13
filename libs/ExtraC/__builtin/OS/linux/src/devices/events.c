@@ -87,7 +87,7 @@ Logic(DevEvents){
 		    !(system = Udev.device.getSubsystem(dev)))
 		{continue;}
 
-		switchs(str_cast((char*)system, 255)){
+		switchs(String_From((char*)system, 255)){
 		cases("video4linux"){ run(GRAPHICS, VIDEO_IN,  dev); break;}
 		cases("drm")	    { run(GRAPHICS, VIDEO_OUT, dev); break;}
 		cases("sound")	    { run(SOUND, dev); break;}
@@ -108,7 +108,7 @@ Logic(DevEvents){
 		    !(system = Udev.device.getSubsystem(dev)))
 		{continue;}
 
-		switchs(str_cast((char*)system, 255)){
+		switchs(String_From((char*)system, 255)){
 		cases("video4linux"){ run(GRAPHICS, dev); break;}
 		cases("drm")	    { run(GRAPHICS, dev); break;}
 		cases("sound")	    { run(SOUND, dev); break;}

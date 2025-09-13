@@ -50,13 +50,13 @@ u64 methodimpl(Number, IntPrintDeci,, inst(StringBuilder) out) {
 	List.Index(digit_chunks, LISTINDEX_READ,  List.Size(digit_chunks) - 1, 1, &chunk_val);
 	
 	snprintf(buffer, sizeof(buffer), "%d", chunk_val);
-	formatted_len += StringBuilder.Append(out, str_cast(buffer, CHUNK_SIZE));
+	formatted_len += StringBuilder.Append(out, String_From(buffer, CHUNK_SIZE));
 	
 	// Append remaining chunks with padding
 	for (int i = List.Size(digit_chunks) - 2; i >= 0; i--) {
 		List.Index(digit_chunks, LISTINDEX_READ,  i, 1, &chunk_val);
 		snprintf(buffer, sizeof(buffer), "%0*d", CHUNK_SIZE, chunk_val);
-		formatted_len += StringBuilder.Append(out, str_cast(buffer, CHUNK_SIZE));
+		formatted_len += StringBuilder.Append(out, String_From(buffer, CHUNK_SIZE));
 	}
 	pop(digit_chunks);
 	pop(temp_list);
@@ -77,7 +77,7 @@ u64 methodimpl(Number, IntPrintHex,, inst(StringBuilder) out) {
 	
 	snprintf(buffer, sizeof(buffer), "%x", digit);
 	
-	formatted_len += StringBuilder.Append(out, str_cast(buffer, sizeof(u32) * 2));
+	formatted_len += StringBuilder.Append(out, String_From(buffer, sizeof(u32) * 2));
 	
 	for (int i = num_digits - 2; i >= 0; i--) {
 		List.Index(priv->digits, LISTINDEX_READ, i, 1, &digit);
@@ -110,7 +110,7 @@ u64 methodimpl(Number, IntPrintBin,, inst(StringBuilder) out) {
 	if (idx == 0) buffer[idx++] = '0'; // Handle the case of the number 0
 		buffer[idx] = '\0';
 	
-	formatted_len += StringBuilder.Append(out, str_cast(buffer, sizeof(u32) * 8));
+	formatted_len += StringBuilder.Append(out, String_From(buffer, sizeof(u32) * 8));
 		
 	for (int i = num_digits - 2; i >= 0; i--) {
 		List.Index(priv->digits, LISTINDEX_READ, i, 1, &digit);

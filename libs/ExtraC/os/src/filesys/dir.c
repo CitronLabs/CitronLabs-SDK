@@ -130,8 +130,8 @@ i64 methodimpl(Dir, Write,, fsEntry* entries, u64 num_entries){
 	nonull(entries, return -1)
 
 	loop(i, num_entries){
-		StringBuilder.Append(path, str_cast(priv->path, 256));
-		StringBuilder.Append(path, str_cast(entries[i].name, 256));
+		StringBuilder.Append(path, String_From(priv->path, 256));
+		StringBuilder.Append(path, String_From(entries[i].name, 256));
 		
 		if(entries[i].is_dir)
 			mkdir(StringBuilder.GetStr(path).txt, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);

@@ -73,7 +73,7 @@ static inline noFail GRAPHICS_ADD(UDDevice* device, videoDirection direction, in
 		inst(StringBuilder) keyBuilder = push(StringBuilder);
 
 		iferr(parseEDIDForMonitorKey(
-			str_cast((char*)Udev.device.getSyspath(device), sizeof(fsPath)),
+			String_From((char*)Udev.device.getSyspath(device), sizeof(fsPath)),
 			keyBuilder
 		     )
 		){return;}
@@ -125,7 +125,7 @@ static inline noFail GRAPHICS_ADD(UDDevice* device, videoDirection direction, in
 static inline noFail GRAPHICS_REMOVE(UDDevice* device, inst(Map) devLookup, inst(List) regDevs){
 
 	const char* path = Udev.device.getDevpath(device);
-	Device_ID* foundDev = Map.Search(devLookup, str_cast((char*)path, 255));
+	Device_ID* foundDev = Map.Search(devLookup, String_From((char*)path, 255));
 	
 	if(!foundDev) return;
 
@@ -155,7 +155,7 @@ Logic(GRAPHICS){
 	if(!action){ 		
 		GRAPHICS_ADD(p->dev, p->direction, lookup, devList);
 	}else{ 			
-		switchs(str_cast((char*)action, 20)){
+		switchs(String_From((char*)action, 20)){
 		cases("add")   { GRAPHICS_ADD(p->dev, p->direction, lookup, devList); break;}
 		cases("remove"){ GRAPHICS_REMOVE(p->dev, lookup, devList); break;}
 		}

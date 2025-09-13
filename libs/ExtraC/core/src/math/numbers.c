@@ -405,7 +405,7 @@ construct(Number,
 	List.Append(priv->digits, &(u64){0}, 1);
 
 	if (args.initVal != NULL) {
-	    Number.Formatter.Scan(generic self, (FormatID*)__default_formats, str_cast(args.initVal, 10280));
+	    Number.Formatter.Scan(generic self, (FormatID*)__default_formats, String_From(args.initVal, 10280));
 	}
 
 return self; 

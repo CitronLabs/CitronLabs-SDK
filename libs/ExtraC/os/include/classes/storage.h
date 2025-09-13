@@ -1,7 +1,7 @@
 #pragma once
 #include "../OS.h"
 
-#define pathtostr(path) str_cast(path, sizeof(fsPath))
+#define pathtostr(path) String_From(path, sizeof(fsPath))
 
 #define FFL_ASYNC 	0x01
 #define FFL_READ 	0x02

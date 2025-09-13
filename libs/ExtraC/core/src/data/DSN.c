@@ -97,7 +97,7 @@ u64 resolveReference(inst(DSN) self, DSN_data* ds, inst(String) in){
 		if(in->txt[reference_len] != '.') break;
 	}
 
-	DSN_data* reference = DSN.searchField(self, str_cutbcpy(in, in->len - reference_len));
+	DSN_data* reference = DSN.searchField(self, String_CutBackCpy(in, in->len - reference_len));
 
 	if(reference == NULL){
 		ERR(DATAERR_DSN, "reference not found");
@@ -162,7 +162,7 @@ return reference_len;
 
 u64 methodimpl(DSN, parseField,, DSN_data* ds, inst(String) in){
 
-	while(isblank(in->txt[0])){ str_cutf(in, 1); }
+	while(isblank(in->txt[0])){ String_CutFrnt(in, 1); }
 	
 	switch (in->txt[0]) {
 	case '>':{
@@ -240,7 +240,7 @@ return 0;
 
 errvt methodimpl(DSN, addImport,, cstr name, inst(DSN) import_data){
 	
-	if(Map.SearchIndex(priv->import_resolve, str_cast(name, 255)) != UINT32_MAX){
+	if(Map.SearchIndex(priv->import_resolve, String_From(name, 255)) != UINT32_MAX){
 		return ERR(DATAERR_DSN, "name already in use by another import");
 	}
 
@@ -258,13 +258,13 @@ DSN_data* methodimpl(DSN, searchField,, inst(String) name){
 	
 	u64 cursor = 0;
 
-	inst(String) view = str_view(name, 0, name->len);
+	inst(String) view = String_View(name, 0, name->len);
 	inst(Struct) curr_struct = NULL;
 	DSN_data* result = NULL;
 
 	loopat(i, cursor, name->len){
 	    if(name->txt[i] == '.' || i + 1 == name->len){
-		str_cutf(view, i); 
+		String_CutFrnt(view, i); 
 
 		if(curr_struct == NULL){
 

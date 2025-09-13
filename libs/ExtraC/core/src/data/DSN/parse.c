@@ -15,7 +15,7 @@ u64 parseListLikeDataStruct(inst(DSN) self, void* data, inst(String) in, DSN_fie
 			return scanned_len;
 		}
 
-		scanned_len += DSN.parseField(self, &sub_field, str_cutfcpy(in, scanned_len));
+		scanned_len += DSN.parseField(self, &sub_field, String_CutFrntCpy(in, scanned_len));
 		
 		if(sub_field.type == DSN_NULL){
 			ERR(DATAERR_DSN, "invalid entry");
@@ -154,7 +154,7 @@ u64 methodimpl(DSN, parseMap,, inst(Map)* data, inst(String) in){
 
 	//SCANNING FOR KEY	
 		prev_pos = i;
-		i += DSN.parseField(self, &key, str_cutfcpy(in, i));
+		i += DSN.parseField(self, &key, String_CutFrntCpy(in, i));
 	
 		if(i == prev_pos){
 	       		ERR(DATAERR_DSN, "invalid DSN format");
@@ -180,7 +180,7 @@ u64 methodimpl(DSN, parseMap,, inst(Map)* data, inst(String) in){
 		
 	//SCANNING FOR DATA	
 		prev_pos = i;
-		i += DSN.parseField(self, &value, str_cutfcpy(in, i));
+		i += DSN.parseField(self, &value, String_CutFrntCpy(in, i));
 		
 		if(prev_pos == i ){ 
 	       		ERR(DATAERR_DSN, "invalid DSN format");
@@ -267,7 +267,7 @@ u64 methodimpl(DSN, parseStruct,, inst(Struct)* data, inst(String) in){
 		
 	}
 
-	if(0 ==	(scanned_len = DSN.parseField(NULL, &field, str_cutfcpy(in, 2))) ){
+	if(0 ==	(scanned_len = DSN.parseField(NULL, &field, String_CutFrntCpy(in, 2))) ){
 		ERR(DATAERR_DSN, "failed to parse DSN structure");
 		return 0;
 	}

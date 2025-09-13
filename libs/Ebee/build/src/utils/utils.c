@@ -47,7 +47,7 @@ inst(String) makeUniqueName(inst(String) path){
 		{cut_front = path->len - i - 1; break;}
 		
 
-	inst(String) file_name = str_cutfcpy(str_cutbcpy(path, cut_back), cut_front);
+	inst(String) file_name = String_CutFrntCpy(String_CutBackCpy(path, cut_back), cut_front);
 
 	inst(StringBuilder) output_name = push(StringBuilder, NULL, 100);
 

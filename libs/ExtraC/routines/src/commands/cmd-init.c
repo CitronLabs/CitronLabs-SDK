@@ -36,7 +36,7 @@ std_data parseComandArgData(std_typeid type, std_str* string){
 				typeGetSize(type)
 		);
 	    }
-	    str_cutf((*string), 2);
+	    String_CutFrnt((*string), 2);
 	}else if(isalpha(string->txt[0])){
 		arg_data.type = type;
 		arg_data.type_size = typeGetSize(type);
@@ -91,17 +91,17 @@ std_map(std_str->std_data) parseUsageString(std_queue(std_str)* var_args, std_st
 	    case '$':{
 		  index += parseComandArg(args, 
 			TYPEID_XC_STRING, 
-			str_cutfcpy(usage_str, index));
+			String_CutFrntCpy(usage_str, index));
 	    break;}	
 	    case '!':{
 		  index += parseComandArg(args, 
 			TYPEID_BOOL, 
-			str_cutfcpy(usage_str, index));
+			String_CutFrntCpy(usage_str, index));
 	    break;}	
 	    case '#':{	
 		  index += parseComandArg(args, 
 			TYPEID_XC_NUMBER, 
-			str_cutfcpy(usage_str, index));
+			String_CutFrntCpy(usage_str, index));
 	    break;}	
 	    case '.':{
 		    if(usage_str.txt[index + 1] == '.' && 

@@ -13,7 +13,7 @@ return OK;
 static inline noFail INPUT_ADD(UDDevice* device, inst(Map) devLookup, inst(List) regDevs){
 
 	const char* path = Udev.device.getDevpath(device);
-	Device_ID* foundDev = Map.Search(devLookup, str_cast((char*)path, 255));
+	Device_ID* foundDev = Map.Search(devLookup, String_From((char*)path, 255));
 	
 	if(!foundDev){
 		EnvDevice_Input_Data data = {0};
@@ -52,7 +52,7 @@ static inline noFail INPUT_ADD(UDDevice* device, inst(Map) devLookup, inst(List)
 static inline noFail INPUT_REMOVE(UDDevice* device, inst(Map) devLookup, inst(List) regDevs){
 
 	const char* path = Udev.device.getDevpath(device);
-	Device_ID* foundDev = Map.Search(devLookup, str_cast((char*)path, 255));
+	Device_ID* foundDev = Map.Search(devLookup, String_From((char*)path, 255));
 	
 	if(!foundDev) return;
 
@@ -85,7 +85,7 @@ Logic(INPUT){
 	if(!action){ 		
 		INPUT_ADD(p->dev, lookup, devList);
 	}else{ 			
-		switchs(str_cast((char*)action, 20)){
+		switchs(String_From((char*)action, 20)){
 		cases("add")   { INPUT_ADD(p->dev, lookup, devList); break;}
 		cases("remove"){ INPUT_REMOVE(p->dev, lookup, devList); break;}
 		}

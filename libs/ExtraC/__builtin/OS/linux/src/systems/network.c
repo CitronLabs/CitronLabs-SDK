@@ -82,7 +82,7 @@ static errvt unixAddrToXCAddr(u8 type, struct sockaddr* unix_addr, socketAddress
 	}
 	case D_LOCAL:{
 		xc_addr->data.local = (localAddress){
-			.path = str_cast(as_unaddr(un, unix_addr).sun_path, 100)
+			.path = String_From(as_unaddr(un, unix_addr).sun_path, 100)
 		};
 	}
 	default:{
