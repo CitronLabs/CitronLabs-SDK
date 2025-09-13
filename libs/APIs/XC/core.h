@@ -132,6 +132,7 @@ Version(LibC, V_RELEASEDATE,
  *   - Arbitrary Length integer/ floating-point numbers via. Number class
  *   - Arbitrary Length Numbers Operations
  *   - Vectors and Matrixes
+ *   - SIMD Operations
  *
  * - **String Features:**
  *   - UTF8 - 32 Handling, Storage, and Conversion

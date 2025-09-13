@@ -67,7 +67,7 @@ ExtraC CORE Configuration File
 #ifndef XC_CORE_CONFIG
 #define XC_CORE_CONFIG
 #include "__config_start.h"
-
+#include "xc-build.h"
 /** 
  *  \ingroup ExtraC 
  *  \defgroup xc-core-config Core
@@ -80,6 +80,9 @@ ExtraC CORE Configuration File
 #define __HijackMalloc 			true
 
 #define __stdLoggerName			"Log"
+
+#define __Simd_Use			true
+
 
 define(XC_DataStructs){
 	value maxSize; setting autoGrow;

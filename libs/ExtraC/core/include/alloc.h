@@ -184,8 +184,11 @@ __FIELD(
 	bool(*overflow_handler)(inst(CMalloc), u64 overflowed_datasize);
 ),
 	interface(Allocator);
+	void* method(CMalloc, AlignNew,, size_t alignment, size_t size);
 )
+
 #if __HijackMalloc
+#define memalign(align, size) 	CMalloc.AlignNew(generic c_malloc, align, size)
 #define malloc(size) 		CMalloc.Allocator.New(generic c_malloc, size, NULL)
 #define calloc(nmemb, size) 	CMalloc.Allocator.New(generic c_malloc, nmemb, &(u64){size}) 
 #define realloc(data, size) 	CMalloc.Allocator.Resize(generic c_malloc, data, size, NULL) 

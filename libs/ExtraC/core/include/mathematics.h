@@ -8,10 +8,11 @@
 
 
 Enum(numEquality,
-     	NUM_NULL,
-	NUM_EQUALS,
-	NUM_GREATER,
-	NUM_LESSER
+     	NUM_NULL    = 0,
+	NUM_EQUALS  = 1,
+	NUM_GREATER = 2,
+	NUM_LESSER  = 4,
+	NUM_NOT     = 8
 )
 
 Class(Number,
@@ -89,7 +90,7 @@ Type(VecData,
 		/sizeof(typeof(first)),				\
 	(typeof(first)[]){first, __VA_ARGS__}			\
 })
-#define Vector(type, dim) data(Vector)
+#define Vector(type, dim) inst(Vector)
 
 Class(Vector,
 __INIT(VecData initData),
@@ -101,3 +102,92 @@ __FIELD(),
 	inst(Vector) 	method(Vector, DotProduct,, 	 inst(Vector) other);
 	errvt 		method(Vector, DotProductInto,,  inst(Vector) a, inst(Vector) b);
 )
+
+/*----------------------|
+ * 	  SIMD		|
+----------------------*/
+
+#if __Simd_Use
+
+    #define usingSIMD (true)
+    
+    	#if isSet(__Simd_DefFunctions, SIMD_MATH)
+    		#include "SIMD/SIMD_Arithmetic.h"
+    	#endif
+    	#if isSet(__Simd_DefFunctions, SIMD_MATH)
+    		#include "SIMD/SIMD_Bitwise.h"
+    	#endif
+    	#if isSet(__Simd_DefFunctions, SIMD_MATH)
+    		#include "SIMD/SIMD_Comparision.h"
+    	#endif
+    	#if isSet(__Simd_DefFunctions, SIMD_MATH)
+    		#include "SIMD/SIMD_Move.h"
+    	#endif
+
+
+Data(SIMDVec,
+__INIT(u16 bitwidth; u16 typesize; void* data),
+	u16 bitwidth, typesize; void* data;
+);
+
+#define pushSIMD(type, len)  				\
+	initialize(SIMDVec,				\
+		alloca(sizeof(SIMDVec) +		\
+	 		(sizeof(type) * len)),		\
+		(sizeof(type) * len), sizeof(type)	\
+	)
+
+
+#define newSIMD(type, len)  				\
+	initialize(SIMDVec,				\
+		malloc(sizeof(SIMDVec) + 		\
+	 		(sizeof(type) * len)),		\
+		(sizeof(type) * len), sizeof(type)	\
+	)
+
+#define MD(first, ...)  					\
+	initialize(SIMDVec,					\
+		malloc(sizeof(SIMDVec) + 			\
+	 	  (sizeof(typeof(first)) 			\
+	 	  * (sizeof((typeof(first)[])			\
+		{first, __VA_ARGS__})/sizeof(typeof(first))))),	\
+		(sizeof(typeof(first)) 				\
+	 	  * (sizeof((typeof(first)[])			\
+		{first, __VA_ARGS__})/sizeof(typeof(first)))),	\
+	     		sizeof(typeof(first)), 			\
+		(typeof(first)[]){first, __VA_ARGS__}		\
+	)
+
+#define md(first, ...)  					\
+	initialize(SIMDVec,					\
+		alloca(sizeof(SIMDVec) + 			\
+	 	  (sizeof(typeof(first)) 			\
+	 	  * (sizeof((typeof(first)[])			\
+		{first, __VA_ARGS__})/sizeof(typeof(first))))),	\
+		(sizeof(typeof(first)) 				\
+	 	  * (sizeof((typeof(first)[])			\
+		{first, __VA_ARGS__})/sizeof(typeof(first)))),	\
+	     		sizeof(typeof(first)), 			\
+		(typeof(first)[]){first, __VA_ARGS__}		\
+	)
+
+Interface(SIMD,
+	u32 maxBitWidth;
+       	void vmethod(Add,   SIMDVec* a, SIMDVec* b, SIMDVec* result);	
+       	void vmethod(Sub,   SIMDVec* a, SIMDVec* b, SIMDVec* result);	
+       	void vmethod(Mul,   SIMDVec* a, SIMDVec* b, SIMDVec* result);	
+       	void vmethod(Div,   SIMDVec* a, SIMDVec* b, SIMDVec* result);	
+       	void vmethod(And,   SIMDVec* a, SIMDVec* b, SIMDVec* result);	
+       	void vmethod(Or,    SIMDVec* a, SIMDVec* b, SIMDVec* result);	
+       	void vmethod(Xor,   SIMDVec* a, SIMDVec* b, SIMDVec* result);	
+       	void vmethod(Cmp,   numEquality cmpFlags, SIMDVec* a, SIMDVec* b, SIMDVec* result);	
+       	void vmethod(Move,  SIMDVec* vec, SIMDVec* output);	
+       	void vmethod(Store, SIMDVec* vec, void* output);	
+       	void vmethod(Set,   SIMDVec* vec, void* output);
+)
+
+struct SIMD_Interface;
+extern const SIMD_Interface SIMD;
+#else
+	#define usingSIMD (false)
+#endif
