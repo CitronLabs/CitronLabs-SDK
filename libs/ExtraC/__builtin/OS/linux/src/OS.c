@@ -1,27 +1,39 @@
 #include "../include/extern.h"
-#include "systems/filesys.c"
 #include "systems/network.c"
-#include "systems/graphics.c"
+#include "systems/filesys.c"
 #include "systems/scheduler.c"
+#include "systems/graphics.c"
+#include "systems/memory.c"
 
-defaultOS(LinuxEnv.OS)
+errvt initLinuxEnv(){
+	
+	OSDevices = new(OSDeviceManager,
+		// OS Device Manager Config Settings Here	
+	);
 
-errvt initOSEnv(){
+	iferr(initVideoInputSystem()){
+		return err;
+	}
+
+return OK;
+}
+
+errvt exitLinuxEnv(){
 		
 
 }
 
-Impl(LinuxEnv){
-    .OS = {
+Impl(OS){
 	.OSName = "Linux",
-	.initOSBackend 	= initOSEnv,
-	.filesys 	= LinuxFS,
+	.initOS 	= initLinuxEnv,
+	.exitOS 	= exitLinuxEnv,
+	.storage 	= LinuxFS,
 	.network 	= LinuxNetwork,
 	.scheduler 	= LinuxScheduler,
 	.graphics 	= LinuxGraphics,	
 	.memory 	= LinuxMemory,
 	.input 		= LinuxInput,
-	.terminal 	= LinuxTerminal,
+	.user 		= LinuxUser,
 	.audio 		= LinuxAudio
-    }
+   
 };
