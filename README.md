@@ -1,14 +1,14 @@
 <img src="./__media/ExtraC-Logo.svg">
-<h1> Extra-C: Modernizing C Development </h1>
+<h1> ExtraC: Modernizing C Development </h1>
 
 
-**Extra-C** is a project dedicated to **modernizing C development**. Its objective is to provide a comprehensive set of C libraries and developer tools, simplifying the creation of complex applications in C.
+**ExtraC** is a project dedicated to **modernizing C development**. Its objective is to provide a comprehensive set of C libraries and developer tools, simplifying the creation of complex applications in C.
 
-Extra-C includes a series of libraries that each comes with its own set of features.
+ExtraC includes a series of libraries that each comes with its own set of features.
 
 ### ***Libraries include:***
 <ul><b>
-    <li> <a href="./libs/ExtraC/core/README.md">Core</a> : The core utilities that every other Extra-C library depends on</li>
+    <li> <a href="./libs/ExtraC/core/README.md">Core</a> : The core utilities that every other ExtraC library depends on</li>
     <li> <a href="./libs/ExtraC/os/README.md">OS</a> : operating system utilities and compatibility interface </li>
     <li> <a href="./libs/ExtraC/resource/README.md">Resource</a> : utilities for managing internal and external resources </li>
     <li> <a href="./libs/ExtraC/routines/README.md">Routines</a> : control flow utilities </li>
@@ -24,12 +24,12 @@ Extra-C includes a series of libraries that each comes with its own set of featu
 
 [![Project Status: WIP](https://img.shields.io/badge/Project%20Status-WIP-red)](https://img.shields.io/badge/Project%20Status-WIP-red)
 
-Please note that **Extra-C is currently under active development and is not yet functional.** Work is diligently progressing on core components; however, at this time:
+Please note that **ExtraC is currently under active development and is not yet functional.** Work is diligently progressing on core components; however, at this time:
 
 * There is **no official build system** in place.
 * There is **no defined contribution process**.
 
-Your interest in Extra-C is appreciated. If you've found this repository, please check back periodically for updates on its progress.
+Your interest in ExtraC is appreciated. If you've found this repository, please check back periodically for updates on its progress.
 
 ## Currently Working On
 
