@@ -1,3 +1,4 @@
+#pragma once
 #include "extern.h"
 
 Enum(Events_Type,
@@ -10,12 +11,17 @@ Enum(Events_Type,
 )
 
 Blueprint(Events, 
-__IO(in_any handle),
+__IO(in_any handle; out_u64 numEvents),
 	  List(Queue(OSEvent)) eventQueues;
 )
 
 Module(DevEvents, 	Events,,,)
 Module(VideoEvents, 	Events,,,)
+Module(DisplayEvents, 	Events,,,)
+Module(SoundEvents, 	Events,,,)
 Module(InputEvents, 	Events,,,)
 Module(FilesysEvents, 	Events,,,)
 Module(NetworkEvents, 	Events,,,)
+Module(SchedulerEvents, Events,,,)
+Module(MemoryEvents, 	Events,,,)
+Module(UserEvents, 	Events,,,)

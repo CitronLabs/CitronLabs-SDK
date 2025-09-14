@@ -18,10 +18,10 @@ static inline noFail SOUND_ADD(UDDevice* device, inst(Map) devLookup, inst(List)
 		EnvDevice_Sound_Data data = {0};
 
 		EnvDeviceGetIDS(device, 
-		  	&data.name, 
-		  	&data.vendorName, 
-		  	&data.productName, 
-		  	&data.serialCode
+		  	&data.info.name, 
+		  	&data.info.vendorName, 
+		  	&data.info.productName, 
+		  	&data.info.serialCode
 		);
 
 		Device_ID id = List.FillSlot(regDevs, &(RegisteredDevice){
@@ -55,10 +55,10 @@ static inline noFail SOUND_REMOVE(UDDevice* device, inst(Map) devLookup, inst(Li
 		osDev->isAlive = false;
 	}
 	
-	if(envDev->data.sound.name) 	   { del(envDev->data.sound.name); }
-	if(envDev->data.sound.productName) { del(envDev->data.sound.productName); }
-	if(envDev->data.sound.vendorName)  { del(envDev->data.sound.vendorName); }
-	if(envDev->data.sound.serialCode)  { del(envDev->data.sound.serialCode); }
+	if(envDev->data.sound.info.name) 	{ del(envDev->data.sound.info.name); }
+	if(envDev->data.sound.info.productName) { del(envDev->data.sound.info.productName); }
+	if(envDev->data.sound.info.vendorName)  { del(envDev->data.sound.info.vendorName); }
+	if(envDev->data.sound.info.serialCode)  { del(envDev->data.sound.info.serialCode); }
 }
 Logic(SOUND){ 
 

@@ -12,36 +12,31 @@ static inline void* makeUniqueID(EnvDevice_Type Envtype, void* envDeviceData, OS
 	
 	inst uniqueIDBuilder = push(StringBuilder);
 
-	switch(Envtype){
-	case EnvDevice_Video:{
-		StringBuilder.Append(uniqueIDBuilder, NULL, 
-		      "Video-", $(((EnvDevice_Video_Data*)envDeviceData)->name), endstr);
-	break;}
-	case EnvDevice_Sound:{
-		StringBuilder.Append(uniqueIDBuilder, NULL, 
-		      "Sound-", $(((EnvDevice_Sound_Data*)envDeviceData)->name), endstr);
-	break;}
-	case EnvDevice_Input:{
-		StringBuilder.Append(uniqueIDBuilder, NULL, 
-		      "Input-", $(((EnvDevice_Input_Data*)envDeviceData)->name), endstr);
-	break;}
-	}
+	StringBuilder.Set(uniqueIDBuilder, NULL, 
+	Envtype == EnvDevice_Video   ?
+		      "Video-"      : 
+	Envtype == EnvDevice_Sound   ?
+		      "Sound-"      :
+	Envtype == EnvDevice_Input   ?
+		      "Input-"      :
+	Envtype == EnvDevice_Network ?
+		      "Network-"    :
+	Envtype == EnvDevice_Storage ?
+		      "Storage-"    : endstr,
+	$(((EnvDevice_ID*)envDeviceData)->name), 
+	OStype == OSDevice_Graphics  ?
+		      "-graphics-"  : 
+	OStype == OSDevice_Audio     ?
+		      "-audio-"     :
+	OStype == OSDevice_Input     ?
+		      "-input-"     :
+	OStype == OSDevice_Network   ?
+		      "-network-"   :
+	OStype == OSDevice_Storage   ?
+		      "-storage-"   : endstr,
+	$(((inputDevice*)OSDeviceData)->name), 
+	endstr);
 
-	switch(OStype){
-	case OSDevice_Graphics:{
-		StringBuilder.Append(uniqueIDBuilder, NULL, 
-		      "-graphics-", $(((graphicsDevice*)OSDeviceData)->name), endstr);
-	break;}
-	case OSDevice_Audio:{
-		StringBuilder.Append(uniqueIDBuilder, NULL, 
-		      "-audio-", $(((audioDevice*)OSDeviceData)->name), endstr);
-	break;}
-	case OSDevice_Input:{
-		StringBuilder.Append(uniqueIDBuilder, NULL, 
-		      "-input-", $(((inputDevice*)OSDeviceData)->name), endstr);
-	break;}
-
-	}
 
 	inst result = StringBuilder.CreateStr(uniqueIDBuilder);
 	pop(uniqueIDBuilder);
@@ -87,6 +82,22 @@ errvt methodimpl(OSDeviceManager, registerOSDevice,,
 	case OSDevice_Input:{
 		os->data.input = *((inputDevice*)deviceData);
 		os->data.input.uniqueID = 
+			makeUniqueID(
+				envDevType, &regDev.data.env.data,
+				osDevType, deviceData
+			); 
+	break;}
+	case OSDevice_Network:{
+		os->data.network = *((networkDevice*)deviceData);
+		os->data.network.uniqueID = 
+			makeUniqueID(
+				envDevType, &regDev.data.env.data,
+				osDevType, deviceData
+			); 
+	break;}
+	case OSDevice_Storage:{
+		os->data.storage = *((storageDevice*)deviceData);
+		os->data.storage.uniqueID = 
 			makeUniqueID(
 				envDevType, &regDev.data.env.data,
 				osDevType, deviceData
@@ -268,23 +279,23 @@ errvt imethodimpl(OSDeviceManager, Destroy){
 	    }else{
 		switch(env->type){
 		case EnvDevice_Video:{ 
-			if(data->video.name) 	    { del(data->video.name); }
-			if(data->video.productName) { del(data->video.productName); }
-			if(data->video.vendorName)  { del(data->video.vendorName); }
-			if(data->video.serialCode)  { del(data->video.serialCode); }
-			del(data->video.devPath);
+			if(data->video.info.name) 	 { del(data->video.info.name); }
+			if(data->video.info.productName) { del(data->video.info.productName); }
+			if(data->video.info.vendorName)  { del(data->video.info.vendorName); }
+			if(data->video.info.serialCode)  { del(data->video.info.serialCode); }
+			del(data->video.info.devPath);
 		break;}
 		case EnvDevice_Sound:{
-			if(data->sound.name) 	    { del(data->sound.name); }
-			if(data->sound.productName) { del(data->sound.productName); }
-			if(data->sound.vendorName)  { del(data->sound.vendorName); }
-			if(data->sound.serialCode)  { del(data->sound.serialCode); }
+			if(data->sound.info.name) 	 { del(data->sound.info.name); }
+			if(data->sound.info.productName) { del(data->sound.info.productName); }
+			if(data->sound.info.vendorName)  { del(data->sound.info.vendorName); }
+			if(data->sound.info.serialCode)  { del(data->sound.info.serialCode); }
 		break;}
 		case EnvDevice_Input:{
-			if(data->input.name) 	    { del(data->input.name); }
-			if(data->input.productName) { del(data->input.productName); }
-			if(data->input.vendorName)  { del(data->input.vendorName); }
-			if(data->input.serialCode)  { del(data->input.serialCode); }
+			if(data->input.info.name) 	 { del(data->input.info.name); }
+			if(data->input.info.productName) { del(data->input.info.productName); }
+			if(data->input.info.vendorName)  { del(data->input.info.vendorName); }
+			if(data->input.info.serialCode)  { del(data->input.info.serialCode); }
 			foreach(data->input.inputs, inst(String), input) { del(input); }
 		break;}
 		default:{
@@ -333,6 +344,14 @@ construct(OSDeviceManager,
 		.registeredDevices = &priv->registeredDevices
 	);
 	setup(GRAPHICS, 
+		.deviceLookupTable = &priv->deviceLookupTable,
+		.registeredDevices = &priv->registeredDevices
+	);
+	setup(NETWORK, 
+		.deviceLookupTable = &priv->deviceLookupTable,
+		.registeredDevices = &priv->registeredDevices
+	);
+	setup(STORAGE, 
 		.deviceLookupTable = &priv->deviceLookupTable,
 		.registeredDevices = &priv->registeredDevices
 	);

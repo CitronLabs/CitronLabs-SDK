@@ -18,6 +18,8 @@ Type(RegisteredDevice,
 			EnvDevice_Video_Data video;
 			EnvDevice_Sound_Data sound;
 			EnvDevice_Input_Data input;
+			EnvDevice_Network_Data network;
+			EnvDevice_Storage_Data storage;
      		} data;
 		List(Device_ID) OSDevices;
      	    } env;
@@ -27,6 +29,8 @@ Type(RegisteredDevice,
 			graphicsDevice graphics;
 			audioDevice audio;
      			inputDevice input;
+     			networkDevice network;
+     			storageDevice storage;
      		} data;
      		inst(String) uniqueID;
      		List(OSDeviceResouce) resources;
@@ -70,6 +74,14 @@ __SETUP(inst(Map)* deviceLookupTable; inst(List)* registeredDevices),
 __PARAM(videoDirection direction; struct udev_device* dev), 
 )
 static Module(SOUND, DevParser, 
+__SETUP(inst(Map)* deviceLookupTable; inst(List)* registeredDevices), 
+__PARAM(struct udev_device* dev), 
+);
+static Module(NETWORK, DevParser, 
+__SETUP(inst(Map)* deviceLookupTable; inst(List)* registeredDevices), 
+__PARAM(struct udev_device* dev), 
+);
+static Module(STORAGE, DevParser, 
 __SETUP(inst(Map)* deviceLookupTable; inst(List)* registeredDevices), 
 __PARAM(struct udev_device* dev), 
 );

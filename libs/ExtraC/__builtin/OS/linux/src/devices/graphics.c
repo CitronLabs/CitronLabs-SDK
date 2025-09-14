@@ -99,10 +99,10 @@ static inline noFail GRAPHICS_ADD(UDDevice* device, videoDirection direction, in
 		if(!devPath) data.devPath = newString((char*)devPath, sizeof(fsPath));
 		
 		EnvDeviceGetIDS(device, 
-		  	&data.name, 
-		  	&data.vendorName, 
-		  	&data.productName, 
-		  	&data.serialCode
+		  	&data.info.name, 
+		  	&data.info.vendorName, 
+		  	&data.info.productName, 
+		  	&data.info.serialCode
 		);
 
 		data.direction = direction;
@@ -137,10 +137,10 @@ static inline noFail GRAPHICS_REMOVE(UDDevice* device, inst(Map) devLookup, inst
 		osDev->isAlive = false;
 	}
 	
-	if(envDev->data.video.name) 	   { del(envDev->data.video.name); }
-	if(envDev->data.video.productName) { del(envDev->data.video.productName); }
-	if(envDev->data.video.vendorName)  { del(envDev->data.video.vendorName); }
-	if(envDev->data.video.serialCode)  { del(envDev->data.video.serialCode); }
+	if(envDev->data.video.info.name) 	{ del(envDev->data.video.info.name); }
+	if(envDev->data.video.info.productName) { del(envDev->data.video.info.productName); }
+	if(envDev->data.video.info.vendorName)  { del(envDev->data.video.info.vendorName); }
+	if(envDev->data.video.info.serialCode)  { del(envDev->data.video.info.serialCode); }
 }
 Logic(GRAPHICS){
 

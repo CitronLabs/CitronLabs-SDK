@@ -1,6 +1,6 @@
 #include "__systems.h"
 
-fsHandle vmethodimpl(LinuxFS, open, bool DIR, fsPath path, int flags){
+storageHandle vmethodimpl(LinuxStorage, fs_open, bool DIR, fsPath path, int flags){
 	
 	int fd = -1;
 
@@ -15,21 +15,10 @@ fsHandle vmethodimpl(LinuxFS, open, bool DIR, fsPath path, int flags){
 		
 		}
 	}
-return (fsHandle)(u64)fd;
+return (storageHandle)(u64)fd;
 }
 
-errvt vmethodimpl(LinuxFS, close, fsHandle handle){
-	if(handle == (fsHandle)0 || handle == (fsHandle)1 || handle == (fsHandle)2) 
-		return ERR(ERR_INVALID, "cannot close the stdout, stdin, or stderr");
-	if((close(addrasval(handle))) == -1){
-		switch (errno) {
-		
-		}
-	}
-return OK;
-}
-
-errvt vmethodimpl(LinuxFS, search, fsPath path, fsEntry* entry){
+errvt vmethodimpl(LinuxStorage, fs_search, fsPath path, fsEntry* entry){
 	nonull(path, return err);
 
 	struct stat statbuf;
@@ -64,7 +53,7 @@ errvt vmethodimpl(LinuxFS, search, fsPath path, fsEntry* entry){
 return OK;
 }
 
-errvt vmethodimpl(LinuxFS, delete, fsPath path){
+errvt vmethodimpl(LinuxStorage, fs_delete, fsPath path){
 	nonull(path, return err)	
 	if(-1 == remove(path)){
 		switch (errno) {
@@ -73,7 +62,7 @@ errvt vmethodimpl(LinuxFS, delete, fsPath path){
 	}
 return OK;
 }
-i64 vmethodimpl(LinuxFS, read, fsHandle handle, void* buff, u64 size){
+i64 vmethodimpl(LinuxStorage, read, storageHandle handle, void* buff, u64 size){
 	nonull(buff, return err)
 	u64 bytesread = 0;
 	if(-1 == (bytesread = read(addrasval(handle), buff, size))){
@@ -83,7 +72,12 @@ i64 vmethodimpl(LinuxFS, read, fsHandle handle, void* buff, u64 size){
 	}
 return bytesread;
 }
-i64 vmethodimpl(LinuxFS, write, fsHandle handle, void* buff, u64 size){
+
+
+
+
+
+i64 vmethodimpl(LinuxStorage, write, storageHandle handle, void* buff, u64 size){
 	nonull(buff, return err)
 	u64 byteswritten = 0;
 	if(-1 == (byteswritten = write(addrasval(handle), buff, size))){
@@ -93,7 +87,7 @@ i64 vmethodimpl(LinuxFS, write, fsHandle handle, void* buff, u64 size){
 	}
 return byteswritten;
 }
-errvt vmethodimpl(LinuxFS, chdir, fsPath path){
+errvt vmethodimpl(LinuxStorage, fs_chdir, fsPath path){
 	nonull(path, return err)
 	if(-1 == chdir(path)){
 		switch (errno) {
@@ -103,7 +97,20 @@ errvt vmethodimpl(LinuxFS, chdir, fsPath path){
 return OK;
 }
 
-const ImplAs(filesys, LinuxFS){
+errvt vmethodimpl(LinuxStorage, close, storageHandle handle){
+	if(handle == (storageHandle)0 || handle == (storageHandle)1 || handle == (storageHandle)2) 
+		return ERR(ERR_INVALID, "cannot close the stdout, stdin, or stderr");
+	if((close(addrasval(handle))) == -1){
+		switch (errno) {
+		
+		}
+	}
+return OK;
+}
+
+
+const ImplAs(storage, LinuxStorage){
+    .fs = {
 	.flags = {
 	  .WRITE 	= O_WRONLY,
 	  .ASYNC 	= O_NONBLOCK,
@@ -111,11 +118,12 @@ const ImplAs(filesys, LinuxFS){
 	  .CREATE 	= O_CREAT,
 	  .APPEND 	= O_APPEND,
 	},
-	.open 	= LinuxFS_open,
-	.close 	= LinuxFS_close,
-	.search = LinuxFS_search,
-	.delete = LinuxFS_delete,
-	.read 	= LinuxFS_read,
-	.write 	= LinuxFS_write,
-	.chdir 	= LinuxFS_chdir
+	.open 	= LinuxStorage_fs_open,
+	.search = LinuxStorage_fs_search,
+	.delete = LinuxStorage_fs_delete,
+	.chdir 	= LinuxStorage_fs_chdir
+    },
+	.close 	= LinuxStorage_close,
+	.read 	= LinuxStorage_read,
+	.write 	= LinuxStorage_write,
 };

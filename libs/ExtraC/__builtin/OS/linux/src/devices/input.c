@@ -19,10 +19,10 @@ static inline noFail INPUT_ADD(UDDevice* device, inst(Map) devLookup, inst(List)
 		EnvDevice_Input_Data data = {0};
 		
 		EnvDeviceGetIDS(device, 
-		  	&data.name, 
-		  	&data.vendorName, 
-		  	&data.productName, 
-		  	&data.serialCode
+		  	&data.info.name, 
+		  	&data.info.vendorName, 
+		  	&data.info.productName, 
+		  	&data.info.serialCode
 		);
 
 		data.inputs = newList(data(String), 5);
@@ -64,10 +64,10 @@ static inline noFail INPUT_REMOVE(UDDevice* device, inst(Map) devLookup, inst(Li
 		osDev->isAlive = false;
 	}
 	
-	if(envDev->data.input.name) 	   { del(envDev->data.input.name); }
-	if(envDev->data.input.productName) { del(envDev->data.input.productName); }
-	if(envDev->data.input.vendorName)  { del(envDev->data.input.vendorName); }
-	if(envDev->data.input.serialCode)  { del(envDev->data.input.serialCode); }
+	if(envDev->data.input.info.name) 	   { del(envDev->data.input.info.name); }
+	if(envDev->data.input.info.productName) { del(envDev->data.input.info.productName); }
+	if(envDev->data.input.info.vendorName)  { del(envDev->data.input.info.vendorName); }
+	if(envDev->data.input.info.serialCode)  { del(envDev->data.input.info.serialCode); }
 	foreach(envDev->data.input.inputs, inst(String), input) { del(input); }
 	
 	del(envDev->data.input.inputs)
