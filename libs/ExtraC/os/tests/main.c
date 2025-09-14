@@ -1,27 +1,23 @@
+#include "../../../APIs/XC/os.h"
 
-void evntHandler(Queue(OSEvent) evntQueue){
-	OSEvent evnt;
+int main(int argc, char** argv){
 
-    go(HandleEvents){
-	   while(Queue.Check(evntQueue)){ Queue.Dequeue(evntQueue, &evnt, 1);
-		switch (evnt.osSystem) {
-			
-		}
-	   }
+	iferr(
+	    OS.initOS((AppData){
+		.domainName = "thecitronlabs.com", .appName = "ExtraC-OS-TestSuite", 
+		.argv = argv
 
-	yield();
-    }
-}
-
-void testo(){
-	Queue(OSEvent) evntQueue = pushQueue(OSEvent);
-	LinuxEnv.OS.filesys.handleEvents(NULL, evntQueue);
-
-	evntHandler(evntQueue);
-	
-	for(;;){
-
+	    })
+	){
+		ERR(ERR_INITFAIL, "failed to initialize OS");
+		return EXIT_FAILURE;
 	}
+
 	
-	
+	iferr(OS.exitOS()){
+		ERR(ERR_FAIL, "failed to exit OS");
+		return EXIT_FAILURE;
+	}
+
+return EXIT_SUCCESS;
 }
