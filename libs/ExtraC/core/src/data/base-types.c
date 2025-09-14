@@ -1,4 +1,8 @@
 #include "./datastructs.h"
+#include <alloca.h>
+#include <float.h>
+#include <stdint.h>
+#include <stdio.h>
 
 #define skipWS(in, num) while(isblank(in->txt[num])) num++;
 
@@ -49,25 +53,32 @@ u32 imethodimpl(Boolean, __HASH){
 
 Impl(Boolean){
 	.Formatter = {
-		.Scan = Boolean_Scan,
-		.Print = Boolean_Print
+		.Scan 	= Boolean_Scan,
+		.Print 	= Boolean_Print
 	},
 	.__HASH = Boolean___HASH 
 };
 
-/*----------------------------------------------------
-	INT METHODS
------*/
+/*------------------------------|
+  	   INT METHODS		|
+------------------------------*/
 
 u64 imethodimpl(Integer, Print,, FormatID* formats, inst(StringBuilder) out){
 	self(Integer);
 	char buff[22] = {0};
-	u64 formatted_len = snprintf(buff, 22, 
-		self->longint ?
-			self->sign ? "%li" : "%lu" :
-    			self->sign ? "%i"  : "%u",
-	*(u64*)self->data
-	);
+	u64 formatted_len = 0;
+
+	if(self->longint){
+		if(self->sign)
+			formatted_len = snprintf(buff, 22, "%li", self->asType.i64);
+		else
+			formatted_len = snprintf(buff, 22, "%lu", self->asType.u64);
+	}else{
+		if(self->sign)
+			formatted_len = snprintf(buff, 22, "%i", self->asType.i32);
+		else
+			formatted_len = snprintf(buff, 22, "%u", self->asType.u32);
+	}
 
 	if(formatted_len != 0)
 		StringBuilder.Append(out, &(data(String)){
@@ -80,69 +91,100 @@ return formatted_len;
 
 u64 imethodimpl(Integer, Scan,, FormatID* formats, inst(String) in){
 	self(Integer);
+	
 	if(in->txt[in->len + 1] != '\0') {
 		ERR(ERR_INVALID, "in order to properly scan a string for an integer the string must be null terminated");
 		return 0;
 	}
-	u64 numBuff = 0, scannedLen = 0, 
+	u64 numBuff = 0, scannedLen = 0, scanned = 0; 
 
-	scanned = sscanf(in->txt,    
-	    self->longint ?
-	  	self->sign ? "%li%n" : "%lu%n" :
-    		self->sign ? "%i%n"  : "%u%n",
-	&numBuff,
-	(int*)&scannedLen);
+	if(self->longint){
+		if(self->sign)
+			scanned = sscanf(in->txt, "%li%n", &numBuff, (int*)&scannedLen);
+		else
+			scanned = sscanf(in->txt, "%lu%n", &numBuff, (int*)&scannedLen);
+	}else{
+		if(self->sign)
+			scanned = sscanf(in->txt, "%i%n", (u32*)&numBuff, (int*)&scannedLen);
+		else
+			scanned = sscanf(in->txt, "%u%n", (u32*)&numBuff, (int*)&scannedLen);
+	}
 
 	if(scanned)
-		*(u64*)self->data = numBuff;	
+		self->asType.u64 = numBuff;	
 	
 return scannedLen;
 }
 
 Impl(Integer){
 	.Formatter = {
-		.Scan = Integer_Scan,
-		.Print = Integer_Print
+		.Scan  	= Integer_Scan,
+		.Print 	= Integer_Print
 	},
 };
 
-/*----------------------------------------------------
-	FLOAT METHODS
------*/
+/*------------------------------|
+  	 FLOAT METHODS		|
+------------------------------*/
 
 u64 imethodimpl(Float, Print,, FormatID* formats, inst(StringBuilder) out){
-self(Float);
+	self(Float);
 	
-return Number.Formatter.Print(
-	generic &(Number_Instance){
-		.len = self->dbl ? sizeof(double) : sizeof(float),
-		.as_u64 = *(u64*)object,
-	},
-	formats, out 
-);
+	u64 formatted_len = 0;
+	char* buff = alloca(snprintf(NULL, DBL_MAX_10_EXP + DBL_DECIMAL_DIG, "%f", self->asType.f64));
+	
+	if(buff != NULL)
+		formatted_len = snprintf(buff, DBL_MAX_10_EXP + DBL_DECIMAL_DIG, "%f", self->asType.f64);
+
+	if(formatted_len != 0)
+		StringBuilder.Append(out, &(data(String)){
+			.txt = buff,
+			.len = formatted_len
+		});
+
+return formatted_len;
 }
 
 u64 imethodimpl(Float, Scan,, FormatID* formats, inst(String) in){
-	Number_Instance res = {0};			
-	u64 actual_len = Number.Formatter.Scan 	
-		(generic &res, formats, in);			
-	*(double*)object = res.as_double;		
-return actual_len;
+	self(Float);
+
+	if(in->txt[in->len + 1] != '\0') {
+		ERR(ERR_INVALID, "in order to properly scan a string for an integer the string must be null terminated");
+		return 0;
+	}
+	double numBuffDouble = 0;
+	float  numBuffFloat  = 0;
+
+	u64 scannedLen = 0, scanned = 0; 
+
+	if(self->dbl)
+		scanned = sscanf(in->txt, "%lf%n", &numBuffDouble, (int*)&scannedLen);
+	else
+		scanned = sscanf(in->txt, "%f%n",  &numBuffFloat,  (int*)&scannedLen);
+
+	if(scanned){
+		if(self->dbl)
+			self->asType.f64 = numBuffDouble;	
+		else
+			self->asType.f32 = numBuffFloat;	
+	}
+
+
+return scannedLen;
+
 }
 
 Impl(Float){
 	.Formatter = {
-		.Scan = Float_Scan,
-		.Print = Float_Print
+		.Scan  	= Float_Scan,
+		.Print 	= Float_Print
 	},
 };
 
 
-/*----------------------------------------------------*/
-/**
- * 	POINTER METHODS
------
-*/
+/*------------------------------|
+  	 POINTER METHODS	|
+------------------------------*/
 
 u64 imethodimpl(Pointer, Print,, FormatID* formats, inst(StringBuilder) out){
 	char buff[20] = {0};
@@ -155,29 +197,27 @@ return print_len;
 }
 
 u64 imethodimpl(Pointer, Scan,, FormatID* formats, inst(String) in){
+	self(Pointer)
 
-	void* result = NULL;
+	u64 scannedLen = 0;
 
-	u64 scannedLen = 0, scanned = sscanf(in->txt, "%p%n", &result, (int*)&scannedLen);
-
+	sscanf(in->txt, "%p%n", &self->data, (int*)&scannedLen);
 
 return scannedLen;
 }
 
 Impl(Pointer){
 	.Formatter = {
-		.Scan = Pointer_Scan,
-		.Print = Pointer_Print
+		.Scan  	= Pointer_Scan,
+		.Print 	= Pointer_Print
 	},
 };
 
 
+/*------------------------------|
+  	 CSTRING METHODS	|
+------------------------------*/
 
-/*----------------------------------------------------*/
-/**
- * 	CSTRING METHODS
------
-*/
 u64 imethodimpl(CString, Print,, FormatID* formats, inst(StringBuilder) out){
 	char* string_ptr = *(char**)object;
 	inst(String) string = String_From(string_ptr, UINT64_MAX);
@@ -207,15 +247,16 @@ return cursor;
 }
 Impl(CString){
 	.Formatter = {
-		.Scan = CString_Scan,
-		.Print = CString_Print
+		.Scan  	= CString_Scan,
+		.Print 	= CString_Print
 	},
 };
-/*----------------------------------------------------*/
-/**
- * 	CHAR METHODS
------
-*/
+
+
+/*------------------------------|
+  	  CHAR METHODS		|
+------------------------------*/
+
 u64 imethodimpl(Char, Print,, FormatID* formats, inst(StringBuilder) out){
 	u64 actual_len = 1;
 	char buff[4] = {0};
@@ -245,7 +286,7 @@ u64 imethodimpl(Char, Scan,, FormatID* formats, inst(String) in){
 
 Impl(Char){
 	.Formatter = {
-		.Scan = Char_Scan,
-		.Print = Char_Print
+		.Scan  	= Char_Scan,
+		.Print 	= Char_Print
 	},
 };
