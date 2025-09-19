@@ -125,69 +125,52 @@ __FIELD(),
     	#endif
 
 
-Data(SIMDVec,
-__INIT(u16 bitwidth; u16 typesize; void* data),
-	u16 bitwidth, typesize; void* data;
-);
-
 #define pushSIMD(type, len)  				\
-	initialize(SIMDVec,				\
-		alloca(sizeof(SIMDVec) +		\
-	 		(sizeof(type) * len)),		\
+	initialize(SIMD,				\
+		alloca(sizeof(SIMD_Instance)),		\
 		(sizeof(type) * len), sizeof(type)	\
 	)
 
 
 #define newSIMD(type, len)  				\
-	initialize(SIMDVec,				\
-		malloc(sizeof(SIMDVec) + 		\
-	 		(sizeof(type) * len)),		\
+	initialize(SIMD,				\
+		malloc(sizeof(SIMD_Instance)),		\
 		(sizeof(type) * len), sizeof(type)	\
 	)
 
 #define MD(first, ...)  					\
-	initialize(SIMDVec,					\
-		malloc(sizeof(SIMDVec) + 			\
-	 	  (sizeof(typeof(first)) 			\
-	 	  * (sizeof((typeof(first)[])			\
-		{first, __VA_ARGS__})/sizeof(typeof(first))))),	\
-		(sizeof(typeof(first)) 				\
-	 	  * (sizeof((typeof(first)[])			\
-		{first, __VA_ARGS__})/sizeof(typeof(first)))),	\
+	initialize(SIMD,					\
+		malloc(sizeof(SIMD_Instance)),			\
+		(sizeof((typeof(first)[]){__VA_ARGS__})),	\
 	     		sizeof(typeof(first)), 			\
 		(typeof(first)[]){first, __VA_ARGS__}		\
 	)
 
 #define md(first, ...)  					\
-	initialize(SIMDVec,					\
-		alloca(sizeof(SIMDVec) + 			\
-	 	  (sizeof(typeof(first)) 			\
-	 	  * (sizeof((typeof(first)[])			\
-		{first, __VA_ARGS__})/sizeof(typeof(first))))),	\
-		(sizeof(typeof(first)) 				\
-	 	  * (sizeof((typeof(first)[])			\
-		{first, __VA_ARGS__})/sizeof(typeof(first)))),	\
+	initialize(SIMD,					\
+		alloca(sizeof(SIMD_Instance)),			\
+		(sizeof((typeof(first)[]){__VA_ARGS__})),	\
 	     		sizeof(typeof(first)), 			\
 		(typeof(first)[]){first, __VA_ARGS__}		\
 	)
 
-Interface(SIMD,
+Class(SIMD,
+__INIT(u16 bitwidth; u16 typesize; void* data),
+__FIELD(u16 bitwidth, typesize; void* data),
 	u32 maxBitWidth;
-       	void vmethod(Add,   SIMDVec* a, SIMDVec* b, SIMDVec* result);	
-       	void vmethod(Sub,   SIMDVec* a, SIMDVec* b, SIMDVec* result);	
-       	void vmethod(Mul,   SIMDVec* a, SIMDVec* b, SIMDVec* result);	
-       	void vmethod(Div,   SIMDVec* a, SIMDVec* b, SIMDVec* result);	
-       	void vmethod(And,   SIMDVec* a, SIMDVec* b, SIMDVec* result);	
-       	void vmethod(Or,    SIMDVec* a, SIMDVec* b, SIMDVec* result);	
-       	void vmethod(Xor,   SIMDVec* a, SIMDVec* b, SIMDVec* result);	
-       	void vmethod(Cmp,   numEquality cmpFlags, SIMDVec* a, SIMDVec* b, SIMDVec* result);	
-       	void vmethod(Move,  SIMDVec* vec, SIMDVec* output);	
-       	void vmethod(Store, SIMDVec* vec, void* output);	
-       	void vmethod(Set,   SIMDVec* vec, void* output);
+       	void method(SIMD, Add,,   inst(SIMD) b, inst(SIMD) result);	
+       	void method(SIMD, Sub,,   inst(SIMD) b, inst(SIMD) result);	
+       	void method(SIMD, Mul,,   inst(SIMD) b, inst(SIMD) result);	
+       	void method(SIMD, Div,,   inst(SIMD) b, inst(SIMD) result);	
+       	void method(SIMD, And,,   inst(SIMD) b, inst(SIMD) result);	
+       	void method(SIMD, Or,,    inst(SIMD) b, inst(SIMD) result);	
+       	void method(SIMD, Xor,,   inst(SIMD) b, inst(SIMD) result);	
+       	void method(SIMD, Not,,   inst(SIMD) result);	
+       	void method(SIMD, Cmp,,   inst(SIMD) b, inst(SIMD) result, numEquality cmpFlags);	
+       	void method(SIMD, Move,,  inst(SIMD) output);	
+       	void method(SIMD, Store,, void* output);	
+       	void method(SIMD, Set,,   void* output);
 )
-
-struct SIMD_Interface;
-extern const SIMD_Interface SIMD;
 #else
 	#define usingSIMD (false)
 #endif

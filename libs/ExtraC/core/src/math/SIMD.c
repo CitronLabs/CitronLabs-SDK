@@ -6,20 +6,22 @@
 	#include "SIMD/x86_64/move.c"
 #endif
 
-static inline void vmethodimpl(SIMD, Add,   SIMDVec* a, SIMDVec* b, SIMDVec* result){}	
-static inline void vmethodimpl(SIMD, Sub,   SIMDVec* a, SIMDVec* b, SIMDVec* result){}	
-static inline void vmethodimpl(SIMD, Mul,   SIMDVec* a, SIMDVec* b, SIMDVec* result){}	
-static inline void vmethodimpl(SIMD, Div,   SIMDVec* a, SIMDVec* b, SIMDVec* result){}	
-static inline void vmethodimpl(SIMD, And,   SIMDVec* a, SIMDVec* b, SIMDVec* result){}	
-static inline void vmethodimpl(SIMD, Or,    SIMDVec* a, SIMDVec* b, SIMDVec* result){}	
-static inline void vmethodimpl(SIMD, Xor,   SIMDVec* a, SIMDVec* b, SIMDVec* result){}	
-static inline void vmethodimpl(SIMD, Cmp,   numEquality cmpFlags, SIMDVec* a, SIMDVec* b, SIMDVec* result){}	
-static inline void vmethodimpl(SIMD, Move,  SIMDVec* vec, SIMDVec* output){}	
-static inline void vmethodimpl(SIMD, Store, SIMDVec* vec, void* output){}	
-static inline void vmethodimpl(SIMD, Set,   SIMDVec* vec, void* output){}
+private(SIMD,)
 
+void methodimpl(SIMD, Add,,   inst(SIMD) b, inst(SIMD) result){}	
+void methodimpl(SIMD, Sub,,   inst(SIMD) b, inst(SIMD) result){}	
+void methodimpl(SIMD, Mul,,   inst(SIMD) b, inst(SIMD) result){}	
+void methodimpl(SIMD, Div,,   inst(SIMD) b, inst(SIMD) result){}	
+void methodimpl(SIMD, And,,   inst(SIMD) b, inst(SIMD) result){}	
+void methodimpl(SIMD, Or,,    inst(SIMD) b, inst(SIMD) result){}	
+void methodimpl(SIMD, Xor,,   inst(SIMD) b, inst(SIMD) result){}	
+void methodimpl(SIMD, Not,,   inst(SIMD) result){}	
+void methodimpl(SIMD, Cmp,,   inst(SIMD) b, inst(SIMD) result, numEquality cmpFlags){}	
+void methodimpl(SIMD, Move,,  inst(SIMD) output){}	
+void methodimpl(SIMD, Store,, void* output){}	
+void methodimpl(SIMD, Set,,   void* output){}
 
-const Impl(SIMD){
+construct(SIMD,
 	.Add   = SIMD_Add,    
 	.Sub   = SIMD_Sub,    
 	.Mul   = SIMD_Mul,    
@@ -27,8 +29,22 @@ const Impl(SIMD){
 	.And   = SIMD_And,    
 	.Or    = SIMD_Or,      
 	.Xor   = SIMD_Xor,    
+	.Not   = SIMD_Not,    
 	.Cmp   = SIMD_Cmp,    
 	.Move  = SIMD_Move,  
 	.Store = SIMD_Store,
-	.Set   = SIMD_Set,    
-};
+	.Set   = SIMD_Set    
+){
+	if(args.bitwidth == 0) { 
+		ERR(ERR_INVALID, "SIMD bitwidth cannot be 0");
+		return NULL; 
+	}
+
+	switch(args.bitwidth){
+	case 1 ... 8:{
+		
+	break;}
+	}
+
+return self;
+}
