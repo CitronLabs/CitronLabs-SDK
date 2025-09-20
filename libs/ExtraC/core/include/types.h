@@ -1,8 +1,6 @@
 #pragma once
 #include "./libc.h"
 #include "./utils.h"
-#include <stdint.h>
-#include <string.h>
 
 /*------------------------------|
        Modules Preprocessors	|
@@ -199,10 +197,12 @@ typedef void* inst;
 #define new(name, ...) initialize(name, malloc(sizeof(name##_Instance) + sizeof_##name##_Private), __VA_ARGS__)
 #define push(name, ...) initialize(name, alloca(sizeof(name##_Instance) + sizeof_##name##_Private), __VA_ARGS__)
 
-#define del(object) if((class(Object) object)->__methods->__DESTROY == NULL) ERR(ERR_NULLPTR,"no destructor specified for this object"); \
-		    else if((class(Object) object)->__methods->__DESTROY(generic object) == ERR_NONE) free(object);
-#define pop(object) if((class(Object) object)->__methods->__DESTROY == NULL) ERR(ERR_NULLPTR,"no destructor specified for this object"); \
-		    else (class(Object) object)->__methods->__DESTROY(generic (object))
+#define del(...) { pntr delObjs[] = {__VA_ARGS__}; size_t delObjsNum = sizeof((pntr[]){__VA_ARGS__}); loop(i, delObjsNum) \
+		 if((class(Object) delObjs[i])->__methods->__DESTROY == NULL) ERR(ERR_NULLPTR,"no destructor specified for this object"); \
+		    else if((class(Object) delObjs[i])->__methods->__DESTROY(generic delObjs[i]) == ERR_NONE) free(delObjs[i]); }
+#define pop(...) { pntr delObjs[] = {__VA_ARGS__}; size_t delObjsNum = sizeof((pntr[]){__VA_ARGS__}); loop(i, delObjsNum) \
+		 if((class(Object) delObjs[i])->__methods->__DESTROY == NULL) ERR(ERR_NULLPTR,"no destructor specified for this object"); \
+		    else (class(Object) delObjs[i])->__methods->__DESTROY(generic (delObjs[i])); }
 /*----------------------|
        Base Types	|
 ----------------------*/
