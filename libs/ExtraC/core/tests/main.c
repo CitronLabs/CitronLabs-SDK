@@ -5,7 +5,6 @@
 #include "./time/time.c"
 #include "./malloc/malloc.c"
 
-
 int main(){
 
 	loginfo(YELLOW"--Extra C Tests--"NC);

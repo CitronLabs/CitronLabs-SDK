@@ -1,4 +1,7 @@
-#include "./data.h"
+#include "../data.h"
+#include "tests/features.c"
+#include "tests/errors.c"
+#include "tests/cases.c"
 
 #define printmap \
 loop(i, List.Size(entries)) \

@@ -1,14 +1,11 @@
-#include "./data.h"
+#include "../Queue.h"
 
-bool RUN_QUEUE_TESTS(){
-
-
-NEW_TEST("Queue Data Structure"){
+TEST(QUEUE_FEATURES){
 
 	Queue(char) queue = NULL;
 
 	NEW_SUBTEST("Initialization"){
-		queue = pushQueue(c8);
+		queue = pushQueue(c8, 10);
 		if(!isinit(queue)){
 			FAIL_TEST
 			goto skip;
@@ -56,7 +53,7 @@ NEW_TEST("Queue Data Structure"){
 		char queue_data[sizeof("Hello, World!")] = {0};
 		
 
-		queue = pushQueue(c8, 'H','e','l','l','o',',',' ','W','o','r','l','d','!');
+		queue = l_q('H','e','l','l','o',',',' ','W','o','r','l','d','!');
 
 		if(queue == NULL){
 			FAIL_TEST
@@ -85,12 +82,8 @@ NEW_TEST("Queue Data Structure"){
 		}
 			PASS_TEST
 	}
-}
+
 skip:
 
-
-
 return TEST_RESULT;
-
-
 }

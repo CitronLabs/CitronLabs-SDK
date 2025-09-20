@@ -4,20 +4,19 @@ SodaType 	= Menu.sodatype,
 Condiments 	= Menu.condiments,
 
 {
-
     	name     = "Jim M",
 	takeout	 = true,
     	cardInfo = 
 	{
 		number = "2644861952",
-        	cvn    = 745
+        	cvn    = 745,
         	name   = "JIM MULBERRY"
     	},
-    	order = 
+    	order =	
 	[ 
             	Menu.Burger: {
             		custom = "no pickles"
-            	,
+            	},
             	Menu.Fries: {
             		condiments = 
                 	      [Condiments.Ketchup]

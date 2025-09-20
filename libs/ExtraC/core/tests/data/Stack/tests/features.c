@@ -1,13 +1,11 @@
-#include "./data.h"
+#include "../Stack.h"
 
-bool RUN_STACK_TESTS(){
-
-NEW_TEST("Stack Data Structure"){
+TEST(STACK_FEATURES){
 
 	Stack(char) stack = NULL;
 
 	NEW_SUBTEST("Initialization"){
-		stack = pushStack(c8);
+		stack = pushStack(c8, 10);
 		if(!isinit(stack)){
 			FAIL_TEST
 			goto skip;
@@ -54,7 +52,7 @@ NEW_TEST("Stack Data Structure"){
 	NEW_SUBTEST("Initialize Literal"){
 		char stack_data[sizeof("Hello, World!")] = {0};
 		
-		stack = pushStack(c8, 'H','e','l','l','o',',',' ','W','o','r','l','d','!');
+		stack = l_s('H','e','l','l','o',',',' ','W','o','r','l','d','!');
 
 		if(stack == NULL){
 			FAIL_TEST
@@ -84,7 +82,7 @@ NEW_TEST("Stack Data Structure"){
 		}
 			PASS_TEST
 	}
-}
+
 skip:
 
 return TEST_RESULT;

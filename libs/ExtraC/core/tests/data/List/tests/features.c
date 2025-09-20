@@ -1,18 +1,6 @@
-#include "./data.h"
+#include "../List.h"
 
-
-#define TestListFor(test_list, string) \
-if(strncmp(List.GetPointer(test_list, 0), \
-string,sizeof(string)) == 0)
-
-#define TestListNotFor(test_list, string) \
-if(strncmp(List.GetPointer(test_list, 0), \
-string,sizeof(string)) != 0)
-
-bool RUN_LIST_TESTS(){
-
-
-NEW_TEST("List Data Structure"){
+TEST(LIST_FEATURES){
 	List(c8) test_list = NULL;
 	List(c8) sublist = NULL;
 
@@ -25,7 +13,6 @@ NEW_TEST("List Data Structure"){
 			goto skip;
 		}
 	}
-
 	NEW_SUBTEST("Appending"){
 		List.Append(test_list, "Hello, World!", sizeof("Hello, World!"));
 	
@@ -44,8 +31,8 @@ NEW_TEST("List Data Structure"){
 			FAIL_TEST
 			goto skip;
 		}
-
 	}
+
 	NEW_SUBTEST("Insertion"){
 		List.Insert(test_list, sizeof("Hello, World!"), UINT64_MAX, "Hello, World!");
 		
@@ -95,10 +82,39 @@ NEW_TEST("List Data Structure"){
 		}else 
 			PASS_TEST
 	}
-	NEW_SUBTEST("Casting"){
 
-	    quiet(
-		
+	NEW_SUBTEST("Iteration"){
+		foreach(test_list, char, c){
+		    if("Goodbye, Other World! See you tommorrow!"[c_iterator] != c){
+			FAIL_TEST
+			loginfo("FAIL RESULT: ",$((cstr)List.GetPointer(test_list,0)));
+			goto skip;
+		    }
+		}
+	}
+
+	NEW_SUBTEST("Free slots"){
+		loop(i, sizeof("Goodbye") - 1)
+		    iferr(List.SetFree(test_list, i)){
+			FAIL_TEST
+			loginfo("FAIL RESULT: ",$((cstr)List.GetPointer(test_list,0)));
+			goto skip;
+		    }
+	}
+
+	NEW_SUBTEST("Fill slots"){
+		loop(i, sizeof("Goodbye") - 1)
+		    List.FillSlot(test_list, &("Goodbye"[i]));
+
+		TestListNotFor(test_list, "eybdooG, Other World! See you tommorrow!"){
+			FAIL_TEST
+			loginfo("FAIL RESULT: ",$((cstr)List.GetPointer(test_list,0)));
+			goto skip;
+		}
+	}
+
+	NEW_SUBTEST("Casting"){
+	    quiet(){
 		ListCast(sublist, u32);
 		
 		if(List.Merge(test_list, sublist, 9) != DATAERR_SIZETOOLARGE){
@@ -113,9 +129,8 @@ NEW_TEST("List Data Structure"){
 			goto skip;
 		}else 
 			PASS_TEST
-	    )
+	    }
 	}
-}
 skip:
 
 return TEST_RESULT; 
