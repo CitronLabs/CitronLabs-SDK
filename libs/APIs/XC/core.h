@@ -38,40 +38,6 @@ SOFTWARE.
 #include "../../ExtraC/core/include/alloc.h"
 #include "../../ExtraC/core/include/timing.h"
 
-
-Enum(VersionSchema, V_SEMANTIC,	V_RELEASEDATE, V_ALPHABETA);
-
-Type(Version,
-	#define ABV_RELEASE 		0
-	#define ABV_RELEASE_CANDIATE 	1
-	#define ABV_BETA 		2
-	#define ABV_ALPHA 		3
-
-     	#define Version(project, _schema, ...) 				\
-     		static data(Version) __##project##_Version = 		\
-		{.schema = _schema, .version = (u32[]){__VA_ARGS__}	\
-	}
-
-	VersionSchema schema;
-	u32* version;
-);
-
-
-Version(ExtraC, V_SEMANTIC, 
-		0, ABV_RELEASE,		// MAJOR_VERSION
-		1, ABV_ALPHA,		// MINOR_VERSION
-		0, 			// PATCH_VERSION
-);
-
-Version(LibC, V_RELEASEDATE,
-	#if __STDC_VERSION__ == 201112L
-		2011
-	#elif __STDC_VERSION__ == 201710L
-		2017
-	#elif __STDC_VERSION__ == 202311L
-		2023
-	#endif
-);
 /*--------------------------------------------------------------|
  *								|
  * 			  Documentation 			|
