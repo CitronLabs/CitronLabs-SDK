@@ -66,56 +66,6 @@ typedef struct DSN_data DSN_data;
 
 
 /**
-@class IterableList
-@brief interface for any object that can be used in the foreach macros
-@details each method is called exactly once then is iterated on
-*/
-Interface(IterableList,
-/**
-@return the number of items in the item array
-*/
-	u64   imethod(Size);
-/**
-@return the pointer to the item array, if NULL is returned then
-it is treated as an error and the foreach loop will not run
-*/
-	void* imethod(Items);
-)
-
-/**
-@def foreach_pntr(iterable, type, var)
-@param iterable any object who's class has implemented the IterableList interface
-@param type the type of a single member within the iterable object
-@param var the name of the pointer which points to the current member of the iteration
-*/
-#define foreach_pntr(iterable, type, var) 			\
-	u64 __##var##_size = iterable->__methods->		\
-		IterableList.Size(generic iterable); 		\
-	type* var = iterable->__methods->			\
-		IterableList.Items(generic iterable);		\
-	if(var) for(size_t var##_iterator = 0; 			\
-     	    var##_iterator < __##var##_size; 			\
-	    var = &var[++var##_iterator]			\
-	)
-/**
-@def foreach(iterable, type, var)
-@param iterable any object who's class has implemented the IterableList interface
-@param type the type of a single member within the iterable object
-@param var the name of the varible which stores the current member of the iteration
-*/
-#define foreach(iterable, type, var) 				\
-	u64 __##var##_size = iterable->__methods->		\
-		IterableList.Size(generic iterable); 		\
-	type* __##var##_data = iterable->__methods->		\
-		IterableList.Items(generic iterable);		\
-	type var = __##var##_data == NULL ? (type){0} : 	\
-		   __##var##_data[0];				\
-	if(__##var##_data) for(size_t var##_iterator = 0; 	\
-     	    var##_iterator < __##var##_size; 			\
-	    var = __##var##_data[++var##_iterator]		\
-	)
-
-/**
  * Extra-C List Data Structure
  *-----*/
 
@@ -580,4 +530,3 @@ __FIELD(inst(String) name; inst(Struct) body),
 	u64 	method(DSN, formatString,, inst(String) data,	inst(StringBuilder) out);
 	u64 	method(DSN, formatNumber,, inst(Number) data,	inst(StringBuilder) out);
 )
-

@@ -7,7 +7,7 @@
 type item; 				\
 for(int __##item##_iterator = 0; 	\
     __##item##_iterator < size; 	\
-    item = ((type*)array)[++__##item##_iterator])
+    item = ((type*)array)[__##item##_iterator++])
 
 #define getbitflagsinit size_t currentflag = 0, flagschecked = 0; 
 

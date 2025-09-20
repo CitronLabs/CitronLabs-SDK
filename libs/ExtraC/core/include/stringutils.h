@@ -61,6 +61,7 @@ __FIELD(),
 
       	interface(Loggable);
       	interface(Formatter);
+	interface(IterableList);
 
 	u64 method(StringBuilder,Set,, inst(String) string, ...);
 	u64 method(StringBuilder,Append,, inst(String) string, ...);
@@ -229,6 +230,7 @@ __INIT(typeof((TextEncoding){0}.string) txt; u64 len; bool inline_alloc),
 __FIELD(typeof((TextEncoding){0}.string) txt; u64 len),
 	
 	interface(Formatter);
+	interface(IterableList);
 
 	u64 		method(String, Scan,, ...);
 	bool 		method(String, Compare,, inst(String) string2);

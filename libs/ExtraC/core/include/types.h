@@ -368,3 +368,57 @@ Class(Object,__INIT(void* private; Object_Interface* methods),,);
 Blueprint(Module,,);
 typedef void(*moduleLogic)(Module_Module*, void*);
 typedef errvt(*moduleSetup)(Module_Module*, void*);
+
+
+/**
+@class IterableList
+@brief interface for any object that can be used in the foreach macros
+@details each method is called exactly once then is iterated on
+*/
+Interface(IterableList,
+
+/**
+@return the number of items in the item array
+*/
+	u64   imethod(Size);
+/**
+@return the pointer to the item at INDEX, if NULL is returned then
+it is treated as an error and the foreach loop will end
+*/
+	void* imethod(ItemAt,, u64 index);
+)
+
+/**
+@def foreach_pntr(iterable, type, var)
+@param iterable any object who's class has implemented the IterableList interface
+@param type the type of a single member within the iterable object
+@param var the name of the pointer which points to the current member of the iteration
+*/
+#define foreach_pntr(iterable, type, var) 					\
+	typeof(iterable) var##_iterable = iterable;				\
+	u64 __##var##_size = var##_iterable->__methods->			\
+		IterableList.Size(generic var##_iterable); 			\
+	type* var = var##_iterable->__methods->					\
+		IterableList.ItemAt(generic var##_iterable, 0);			\
+	if(var) for(size_t var##_iterator = 0; 					\
+     	    var##_iterator < __##var##_size; 					\
+	    var = var##_iterable->__methods->					\
+		IterableList.ItemAt(generic var##_iterable, ++var##_iterator)	\
+	)
+/**
+@def foreach(iterable, type, var)
+@param iterable any object who's class has implemented the IterableList interface
+@param type the type of a single member within the iterable object
+@param var the name of the varible which stores the current member of the iteration
+*/
+#define foreach(iterable, type, var) 						\
+	typeof(iterable) var##_iterable = iterable;				\
+	u64 __##var##_size = var##_iterable->__methods->			\
+		IterableList.Size(generic var##_iterable); 			\
+	type var = *(type*)var##_iterable->__methods->				\
+		IterableList.ItemAt(generic var##_iterable, 0);			\
+	for(size_t var##_iterator = 0; 						\
+     	    var##_iterator < __##var##_size; 					\
+	    var = *(type*)iterable->__methods->					\
+		IterableList.ItemAt(generic var##_iterable, ++var##_iterator)	\
+	)
