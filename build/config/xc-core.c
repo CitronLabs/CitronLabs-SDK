@@ -12,7 +12,7 @@ ExtraC CORE Configuration File
 #if defined (			__ERROR_CODES__				)
 /*---------------------------------------------------------------------------*/
 	ERR_NONE, ERR_INVALID, ERR_NULLPTR, ERR_INITFAIL, 
-	ERR_NOTIMPLEM, ERR_FAIL,
+	ERR_NOTIMPLEM, ERR_FAIL, ERR_BUSY,
 
 	ERR_SEGFAULT, ERR_ABORT,
 
@@ -22,7 +22,7 @@ ExtraC CORE Configuration File
 
 	MEMERR_OVERFLOW, MEMERR_INITFAIL, MEMERR_LEAK, MEMERR_INVALIDSIZE,	
 
-	STRINGERR_REGEX,STRINGERR_FORMAT,
+	STRINGERR_REGEX, STRINGERR_FORMAT, STRINGERR_ENCODING,
 
 	#include "./xc-os.c"
 	#include "./xc-resource.c"

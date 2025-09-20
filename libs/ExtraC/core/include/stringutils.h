@@ -1,9 +1,6 @@
 #pragma once
 #include "./types.h"
 #include "./error.h"
-#include <stddef.h>
-#include <uchar.h>
-#include <wchar.h>
 
 Decl(String);
 Decl(StringBuilder);
@@ -30,8 +27,9 @@ static const FormatID __default_formats[] = {
 };
 #undef __FORMAT_CODES__
 
+
 Interface(Formatter,
-	#define $(expr)    NULL, &(asObject(expr)->__methods->Formatter), generic asObject(expr)
+	#define $(expr)   (FormatPoint){NULL, {&(asObject(expr)->__methods->Formatter), generic asObject(expr)}}
 
 	#define endprint NULL, NULL
 	#define endscan  NULL, NULL
@@ -52,6 +50,10 @@ Static(FormatUtils,
 	u64 vmethod(ScanVArgs, inst(String) in, va_list args);
 )
 
+Type(FormatPoint,
+	char* text_ignore; // ignore here so that users can use "text" in the format description
+     	ifob(Formatter) formatter;
+)
 
 Class(StringBuilder,
 __INIT(inst(String) init_str; u64 limit;),
@@ -63,11 +65,11 @@ __FIELD(),
       	interface(Formatter);
 	interface(IterableList);
 
-	u64 method(StringBuilder,Set,, inst(String) string, ...);
-	u64 method(StringBuilder,Append,, inst(String) string, ...);
-	u64 method(StringBuilder,Prepend,, inst(String) string, ...);
-	u64 method(StringBuilder,Insert,, u64 index, inst(String) string, ...);
-	errvt method(StringBuilder,Replace,, u64 index, inst(String) string);
+	u64 method(StringBuilder,Set,,       inst(String) string, ...);
+	u64 method(StringBuilder,Append,,    inst(String) string, ...);
+	u64 method(StringBuilder,Prepend,,   inst(String) string, ...);
+	u64 method(StringBuilder,Insert,,    u64 index, inst(String) string, ...);
+	errvt method(StringBuilder,Replace,, inst(String) replace_string, inst(String) replace_to);
 	errvt method(StringBuilder,Clear);
 	errvt method(StringBuilder,Max,, u64 max_len);
 	str_t method(StringBuilder,GetStr);
@@ -83,7 +85,8 @@ char16_t: 	CHAR_UTF16,		\
 char32_t*: 	CHAR_UTF32,		\
 char32_t: 	CHAR_UTF32,		\
 wchar_t*: 	sizeof(wchar_t),	\
-wchar_t: 	sizeof(wchar_t)		\
+wchar_t: 	sizeof(wchar_t),	\
+default:	CHAR_INVALID		\
 )
 
 #define getCharSize(chars) 		\
@@ -95,64 +98,57 @@ char16_t: 	sizeof(char16_t),	\
 char32_t*: 	sizeof(char32_t),	\
 char32_t: 	sizeof(char32_t),	\
 wchar_t*: 	sizeof(wchar_t),	\
-wchar_t: 	sizeof(wchar_t)		\
+wchar_t: 	sizeof(wchar_t),	\
+default:	0			\
 )
 
-
-static inline size_t str16nlen(char16_t* str, size_t maxlen){
-	size_t len = 0;
-	while (str[len] != u'\0' || len == maxlen) {
-		len++;
-	}
-return len;
-}
-
-static inline size_t str32nlen(char32_t* str, size_t maxlen){
-	size_t len = 0;
-	while (str[len] != u'\0' || len == maxlen) {
-		len++;
-	}
-return len;
-}
-
-#define getStringLen(string, maxlen)			\
-_Generic((string),					\
-char*: 		strnlen(generic string, maxlen),	\
-char16_t*: 	str16nlen(generic string, maxlen),	\
-char32_t*: 	str32nlen(generic string, maxlen),	\
-wchar_t*: 	wcsnlen(generic string, maxlen)		\
+#define getStringLenBytes(_string, maxlen)		\
+_Generic((_string),					\
+char*: 		strnlen(generic _string, maxlen),	\
+char16_t*: 	String.Utils.strnlen((TextEncoding){	\
+			.string = 			\
+	 		{CHAR_UTF16, generic _string}	\
+	 	}, maxlen) * sizeof(char16_t),		\
+char32_t*: 	String.Utils.strnlen((TextEncoding){	\
+	 		.string = 			\
+	 		{CHAR_UTF32, generic _string}	\
+	 	}, maxlen) * sizeof(char32_t),		\
+wchar_t*: 	wcsnlen(generic _string, maxlen) 	\
+	 		* sizeof(wchar_t) 		\
 )
 
-#define getStringLiteralLen(string) (sizeof(string) / sizeof(typeof(*string)))
 
 #define pushString(string, max_len) String_Construct(			\
 	(String_ConstructArgs){						\
-		string, getStringLen(string, max_len), 			\
-		getCharType(string), true 				\
+		{getCharType(string), string},				\
+		getStringLenBytes(string, max_len), 			\
+		true 							\
 	},								\
 	alloca(								\
  		sizeof(String_Instance)  + 				\
  		sizeof_String_Private    + 				\
- 		getStringLen(string, max_len) + 1			\
+ 		getStringLenBytes(string, max_len) + 1			\
 	)								\
 )
 
 #define newString(string, max_len) String_Construct(			\
 	(String_ConstructArgs){						\
-		string, getStringLen(string, max_len), 			\
-		getCharType(string), true				\
+		{getCharType(string), string},				\
+		getStringLenBytes(string, max_len), 			\
+		true							\
 	}, 								\
 	malloc(								\
  		sizeof(String_Instance)  + 				\
  		sizeof_String_Private    + 				\
- 		getStringLen(string, max_len) + 1			\
+ 		getStringLenBytes(string, max_len) + 1			\
 	)								\
 )
 
 #define s(string) String_Construct(					\
 	(String_ConstructArgs){						\
-		string, getStringLiteralLen(string) - 1,		\
-		getCharType(string), true 				\
+		{getCharType(string), string},				\
+		(sizeof(string)) - 1,					\
+		true 							\
 	},								\
 	alloca(								\
  		sizeof(String_Instance) + 				\
@@ -162,8 +158,9 @@ wchar_t*: 	wcsnlen(generic string, maxlen)		\
 )
 #define S(string) String_Construct(					\
 	(String_ConstructArgs){						\
-		string, getStringLiteralLen(string) - 1,		\
-		getCharType(string), true 				\
+		{getCharType(string), string},				\
+		(sizeof(string)) - 1,					\
+		true 							\
 	},								\
 	malloc(								\
  		sizeof(String_Instance) + 				\
@@ -188,16 +185,16 @@ wchar_t*: 	wcsnlen(generic string, maxlen)		\
 #define CUT_FROMBACK false
 #define CUT_FROMFRNT true
 
-#define cat(...)     (String.Cat(push(String), CAT_CSTRING, __VA_ARGS__))
-#define catNew(...)  (String.Cat(new(String), CAT_CSTRING, __VA_ARGS__))
-#define xcat(...)    (String.Cat(push(String), CAT_XCSTRING, __VA_ARGS__))
-#define xcatNew(...) (String.Cat(new(String), CAT_XCSTRING, __VA_ARGS__))
+#define cat(...)     (String.Cat(push(String), CAT_CSTRING, __VA_ARGS__, endstr))
+#define catNew(...)  (String.Cat(new(String), CAT_CSTRING, __VA_ARGS__, endstr))
+#define xcat(...)    (String.Cat(push(String), CAT_XCSTRING, __VA_ARGS__, endstr))
+#define xcatNew(...) (String.Cat(new(String), CAT_XCSTRING, __VA_ARGS__, endstr))
 
 #define switchs(string) inst(String) __string__switch = string; loop(__loop_once__,1)
 #define cases(str) if(String.Compare(__string__switch, s(str)))
 #define defaults else
 
-Enum(chartype, CHAR_UTF8 = 0, CHAR_ASCII = 1, CHAR_UTF16 = 2, CHAR_UTF32 = 4);
+Enum(chartype, CHAR_UTF8 = 0, CHAR_ASCII = 1, CHAR_UTF16 = 2, CHAR_UTF32 = 4, CHAR_INVALID = 5);
 
 Type(str_regex_result,
 	u64 str_offset;
@@ -208,7 +205,7 @@ typedef union{
     struct {
 	chartype type;
 	union {
-	    char utf8; 
+	    char ascii; 
 	    char16_t utf16; 
 	    char32_t utf32; 
 	    wchar_t wide;
@@ -225,8 +222,12 @@ typedef union{
     } string;
 }TextEncoding; 
 
+static inline size_t utf8_strnlen(const char *str, size_t len);
+static inline size_t str16nlen(char16_t* str, size_t maxlen);
+static inline size_t str32nlen(char32_t* str, size_t maxlen);
+
 Class(String,
-__INIT(typeof((TextEncoding){0}.string) txt; u64 len; bool inline_alloc),
+__INIT(typeof((TextEncoding){0}.string) txt; u64 bytes_len; bool inline_alloc),
 __FIELD(typeof((TextEncoding){0}.string) txt; u64 len),
 	
 	interface(Formatter);
@@ -238,13 +239,12 @@ __FIELD(typeof((TextEncoding){0}.string) txt; u64 len),
 	inst(String) 	method(String, Copy);
 	inst(String) 	method(String, Cat,, bool usingCstr, ...);
 	inst(String) 	method(String, Cut,, bool fromFront, u64 by);
-	errvt 		method(String, Convert,, void* result, chartype type);
+	inst(String)	method(String, Convert,, chartype type);
+	namespace(Utils,
+		size_t vmethod(strnlen, TextEncoding text, size_t len);
+	)
 )
 
-void test(){
-	inst(String) str  = String_FromLiteral("Hello");
-	inst(String) str2 = String_View(str, 1, 4);
-}
 
 Class(Integer,,
 __FIELD(union {u64 u64; i64 i64; u32 u32; i32 i32;} asType; u8 sign : 1, longint : 1),
@@ -275,24 +275,94 @@ __FIELD(u8 value : 1),
 	interface(Formatter);
 )
 
-#define asObject(var)										\
-_Generic((var), 										\
-i32:    	(&(data(Integer)){NULL, &Integer, &((typeof(var)){var}), true,  false}),	\
-u32:		(&(data(Integer)){NULL, &Integer, &((typeof(var)){var}), false, false}), 	\
-i64:    	(&(data(Integer)){NULL, &Integer, &((typeof(var)){var}), true,  true }), 	\
-u64:    	(&(data(Integer)){NULL, &Integer, &((typeof(var)){var}), false, true }), 	\
-i16:   		(&(data(Integer)){NULL, &Integer, &((typeof(var)){var}), true,  false}), 	\
-u16:   		(&(data(Integer)){NULL, &Integer, &((typeof(var)){var}), false, false}),	\
-i8:   		(&(data(Integer)){NULL, &Integer, &((typeof(var)){var}), true,  false}),	\
-u8:   		(&(data(Integer)){NULL, &Integer, &((typeof(var)){var}), false, false}),	\
-float:   	(&(data(Float))  {NULL, &Float,   &((typeof(var)){var}), false}),		\
-double:   	(&(data(Float))  {NULL, &Float,   &((typeof(var)){var}), true}),		\
-const char*: 	(&(data(CString)){NULL, &CString, &((typeof(var)){var})}),			\
-cstr:	 	(&(data(CString)){NULL, &CString, &((typeof(var)){var})}),			\
-c8:	 	(&(data(Char))   {NULL, &Char,    &((typeof(var)){var})}),			\
-char:	 	(&(data(Char))   {NULL, &Char,    &((typeof(var)){var})}),			\
-void*:	  	(&(data(Pointer)){NULL, &Pointer, &((typeof(var)){var})}),			\
-bool:		(&(data(Boolean)){NULL, &Boolean, &((typeof(var)){var})}), 			\
+#define boolToObject(var) 		\
+	(&(data(Boolean)){ 		\
+		NULL, 			\
+		&Boolean, 		\
+		*(u8*)&			\
+		(typeof(var)){var} 	\
+	})
+
+
+#define pntrToObject(var) 		\
+	(&(data(Pointer)){ 		\
+		NULL, 			\
+		&Pointer, 		\
+		*(void**)&		\
+		(typeof(var)){var} 	\
+	})
+
+#define charToObject(var) 		\
+	(&(data(Char)){ 		\
+		NULL, 			\
+		&Char, 			\
+		{getCharType(var), 	\
+		*(wchar_t*)&		\
+		(typeof(var)){var}} 	\
+	})
+
+#define cstrToObject(var) 		\
+	(&(data(CString)){ 		\
+		NULL, 			\
+		&CString, 		\
+		{getCharType(var), 	\
+		*((void**)&		\
+		(typeof(var)){var})} 	\
+	})
+
+#define floatToObject(var) 		\
+	(&(data(Float)){ 		\
+		NULL, 			\
+		&Float, 		\
+		*(double*)&		\
+		(typeof(var)){var}, 	\
+		.dbl = _Generic(var, 	\
+		float  : false,		\
+		double : true,		\
+	  	default: false		\
+	   	)			\
+	})
+
+#define intToObject(var) 		\
+	(&(data(Integer)){ 		\
+		NULL, 			\
+		&Integer, 		\
+		*(u64*)&		\
+		(typeof(var)){var}, 	\
+		.sign = _Generic(var, 	\
+		i32 : true, u32 : false,\
+		i64 : true, u64 : false,\
+		i16 : true, u16 : false,\
+		i8  : true, u8  : false,\
+	  	default: false		\
+	   	),			\
+		.longint = _Generic(var,\
+		i32 : false, u32 :false,\
+		i64 : true,  u64 :true, \
+		i16 : false, u16 :false,\
+		i8  : false, u8  :false,\
+	  	default: false		\
+	   	)			\
+	})
+
+#define asObject(var)			\
+_Generic((var), 			\
+i32:    	intToObject(var),	\
+u32:		intToObject(var), 	\
+i64:    	intToObject(var), 	\
+u64:    	intToObject(var), 	\
+i16:   		intToObject(var), 	\
+u16:   		intToObject(var),	\
+i8:   		intToObject(var),	\
+u8:   		intToObject(var),	\
+float:   	floatToObject(var),	\
+double:   	floatToObject(var),	\
+const char*: 	cstrToObject(var),	\
+char*:	 	cstrToObject(var),	\
+c8:	 	charToObject(var),	\
+char:	 	charToObject(var),	\
+void*:	  	pntrToObject(var),	\
+bool:		boolToObject(var), 	\
 default: 	var)		
 
 #define getMethods(type)  	\
@@ -312,4 +382,3 @@ cstr:	  	CString,	\
 pntr: 	 	Pointer,	\
 bool:		Boolean,	\
 default: 	type)		
-
