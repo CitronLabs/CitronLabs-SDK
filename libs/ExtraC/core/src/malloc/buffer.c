@@ -26,12 +26,8 @@ pntr imethodimpl(Buffer, New,, u64 size, void* ex_args){
 			ERR(MEMERR_OVERFLOW, "size exceeds buffer and cannot grow static buffer");
 			return NULL;
 		}else{
-		  check(
-		    Buffer.resize(self, (priv->size / 2) + size);
-		  ){ 
-			ERR(err->errorcode, err->message);
-			return NULL;	
-		  }
+			iferr(Buffer.resize(self, (priv->size / 2) + size))
+				return NULL;	
 		}
 	}
 
@@ -43,8 +39,7 @@ return result;
 
 void* imethodimpl(Buffer, Realloc,, pntr instance, u64 new_size, void* ex_args){
 	self(Buffer);
-	check(Buffer.resize(self, new_size);){
-		ERR(err->errorcode, err->message);
+	iferr(Buffer.resize(self, new_size)){
 		return NULL;
 	}
 return priv->data;
@@ -107,8 +102,10 @@ construct(Buffer,
 	if(args.isStatic){
 		priv->data = pntr_shiftcpy(self, sizeof(Buffer_Instance) + sizeof(Buffer_Private));
 	}else{
-	  check(priv->data = calloc(args.size, args.typeSize)){
-		ERR(err->errorcode, err->message); return NULL;
+	  	priv->data = calloc(args.size, args.typeSize);
+
+		if(!priv->data)
+			return NULL;
 	  }
 	}
 	

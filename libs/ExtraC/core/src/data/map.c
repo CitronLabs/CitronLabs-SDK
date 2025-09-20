@@ -194,11 +194,8 @@ return result;
 errvt methodimpl(Map, Remove,, void* key){
 	nonull(self, return err)
 
-	check(
-		u32 mindex = Map.SearchIndex(self, key);
-	){
-		return err->errorcode;
-	}
+	u32 mindex = Map.SearchIndex(self, key);
+
 	if(INVALID_MAPINDEX == mindex) 
 		return ERR(DATAERR_EMPTY, "key index not found");
 	

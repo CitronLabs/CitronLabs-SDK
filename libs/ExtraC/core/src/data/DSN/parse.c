@@ -297,8 +297,10 @@ u64 methodimpl(DSN, parseString,, inst(String)* data, inst(String) in){
 
 	if(in->len == cursor + 1 && in->txt[in->len] == '"')
 	scanned_len += cursor;
-
-	check(*data = newString(&in->txt[1], cursor)) return 0;
+	
+	*data = newString(&in->txt[1], cursor);
+	if(!isinit(*data)) 
+		return 0;
 	
 return scanned_len;
 }

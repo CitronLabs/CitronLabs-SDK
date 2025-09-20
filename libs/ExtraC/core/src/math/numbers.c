@@ -91,7 +91,6 @@ errvt methodimpl(Number, AddInto,, inst(Number) a, inst(Number) b){
 			Number.castToFloat(b);
 		}
 	}
-	check(
 	    if(apriv->floating)
 	    	Number_FloatAdd(a, b, self);
 	    else
@@ -99,9 +98,10 @@ errvt methodimpl(Number, AddInto,, inst(Number) a, inst(Number) b){
 
 	    if(tempList) 
 		{ del(tempList); }
-	){
+
+	    check(){
 		return err->errorcode;
-	}
+	    }
 
 return OK;
 }
@@ -156,7 +156,6 @@ errvt methodimpl(Number, SubtractInto,, inst(Number) a, inst(Number) b){
 			Number.castToFloat(b);
 		}
 	}
-	check(
 	    if(apriv->floating)
 	    	Number_FloatSubtract(a, b, self);
 	    else
@@ -164,9 +163,10 @@ errvt methodimpl(Number, SubtractInto,, inst(Number) a, inst(Number) b){
 
 	    if(tempList) 
 		{ del(tempList); }
-	){
+
+	    check(){
 		return err->errorcode;
-	}
+	    }
 
 return OK;
 
@@ -220,7 +220,6 @@ errvt methodimpl(Number, MultiplyInto,, inst(Number) a, inst(Number) b){
 			Number.castToFloat(b);
 		}
 	}
-	check(
 	    if(apriv->floating)
 	    	Number_FloatMultiply(a, b, self);
 	    else
@@ -228,9 +227,10 @@ errvt methodimpl(Number, MultiplyInto,, inst(Number) a, inst(Number) b){
 
 	    if(tempList) 
 		{ del(tempList); }
-	){
-		return err->errorcode;
-	}
+
+    	    check(){
+    	    	return err->errorcode;
+    	    }
 
 return OK;
 
@@ -297,7 +297,6 @@ errvt methodimpl(Number, DivideInto,,   inst(Number) a, inst(Number) b, inst(Num
 				Number.castToFloat(b);
 			}
 		}
-		check(
 		    if(apriv->floating)
 		    	Number_FloatDivide(a, b, remainder, self);
 		    else
@@ -305,9 +304,10 @@ errvt methodimpl(Number, DivideInto,,   inst(Number) a, inst(Number) b, inst(Num
 
 		    if(tempList) 
 			{ del(tempList); }
-		){
-			return err->errorcode;
-		}
+
+		    check(){
+		    	return err->errorcode;
+		    }
 	}
 	}
 	

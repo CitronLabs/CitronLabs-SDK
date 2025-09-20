@@ -1,5 +1,6 @@
 #pragma once
 #include "../../include/error.h"
+#include "../../include/alloc.h"
 #include "../../include/stringutils.h"
 
 private(Logger,

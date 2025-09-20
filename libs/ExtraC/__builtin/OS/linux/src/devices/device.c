@@ -251,11 +251,10 @@ return OK;
 errvt imethodimpl(OSDeviceManager, Destroy){
 	nonull(object, return err);
 	self(OSDeviceManager);
-    check(
+
 	List(data_entry) lookupEntries = Map.GetEntries(priv->deviceLookupTable);
 	foreach(lookupEntries, data_entry, entry){
 		del((class(String)entry.key));
-	}
 
 	del(priv->deviceLookupTable);
 

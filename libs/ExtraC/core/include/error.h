@@ -70,11 +70,18 @@ __FIELD(errvt errorcode; cstr message;),
 	#define OK ERR_NONE
 
 	#define ERR(code, msg) Error.Set(&(Error_Instance){NULL,&Error,code, #code}, msg, __func__)
-	#define check(...) Error.Clear(); __VA_ARGS__; for(inst(Error) err = geterr(); err->errorcode != ERR_NONE; Error.Clear())
+
+	#define check(...) for(inst(Error) err = geterr(); err->errorcode != ERR_NONE; Error.Clear()) 	\
+      			   loop(i, 									\
+		 		(sizeof((errvt[]){__VA_ARGS__}) / sizeof(errvt)) ? 			\
+		 		(sizeof((errvt[]){__VA_ARGS__}) / sizeof(errvt)) : 1			\
+			   ) if ((sizeof((errvt[]){__VA_ARGS__}) / sizeof(errvt)) ? 			\
+	    			 ((errvt[]){__VA_ARGS__})[i] == err->errorcode : err->errorcode != ERR_NONE)
 	
-	#define try(...) Error.Clear(); 								\
-			if(!Error.Try()) { __VA_ARGS__; } 						\
-			else for(inst(Error) err = geterr(); err->errorcode != ERR_NONE; Error.Clear())
+	#define try(...) Error.Clear(); 									\
+			if(!Error.Try((errvt[]){__VA_ARGS__}, sizeof((errvt[]){__VA_ARGS__})/sizeof(errvt)))	\
+
+	#define catch else for(inst(Error) err = geterr(); err->errorcode != ERR_NONE; Error.Clear())
 
 	#define throw(code, msg) ERR(code, msg); Error.Throw();
 	#define nullerr(var) ERR(ERR_NULLPTR, #var " is null")
@@ -96,7 +103,7 @@ __FIELD(errvt errorcode; cstr message;),
       	noFail vmethod(Show);
       	noFail vmethod(Clear);
       	noFail vmethod(Hide);
-      	errvt vmethod(Try);
+      	errvt vmethod(Try, errvt* errors_to_catch, size_t num);
       	noFail vmethod(Throw);
 	errvt vmethod(setLogger, inst(Logger) logger);
 	errvt vmethod(setSignalHandler, u8 signals_to_handle, void fn(sighandler, ErrorSignal signal))
@@ -107,4 +114,3 @@ static inst(Error) core_geterr(){
 	return &err;
 }
 static inst(Error)(*geterr)() = core_geterr;
-

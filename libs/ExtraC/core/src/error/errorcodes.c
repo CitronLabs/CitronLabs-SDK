@@ -1,5 +1,10 @@
 #include "error.h"
 
+private(Error,
+	Buffer(errvt) errors_to_catch;
+	jmp_buf try_throw_jumppoint;
+	u8 trying : 1;
+);
 
 errvt methodimpl(Error, Set,, const cstr errmsg, const char funcname[]){
 
@@ -45,14 +50,45 @@ noFail Error_Clear(){
 	inst(Error) curr_err = geterr();
 	curr_err->errorcode = 0;
 	curr_err->message = "No Error";
+	if(curr_err->__private->trying) {
+		curr_err->__private->trying = false;
+		curr_err->__private->try_throw_jumppoint[0] = (typeof(*(jmp_buf){0})){0};
+	}
 }
 
-private(Error);
+errvt Error_Try(errvt* errors_to_catch, size_t num){
+	inst(Error) curr_err = geterr(); 
+
+	if(setjmp(curr_err->__private->try_throw_jumppoint)){
+		curr_err->__private->trying = false;
+		return curr_err->errorcode;
+	}
+	curr_err->__private->errors_to_catch = 
+			new(Buffer, 
+				.initData = errors_to_catch, 
+				.size = num, 
+				.typeSize = sizeof(errvt)
+			);
+
+	curr_err->__private->trying = true;
+
+return OK;
+}
+
+void Error_Throw(){
+	inst(Error) curr_err = geterr(); 
+	
+	if(curr_err->__private->trying)
+		longjmp(curr_err->__private->try_throw_jumppoint, 1);
+}
+
 construct(Error,
 	.Set = Error_Set,
 	.Print = Error_Print,
 	.Show = Error_Show,
 	.Hide = Error_Hide,
+	.Try = Error_Try,
+	.Throw = Error_Throw,
 	.Clear = Error_Clear,
 	.setLogger = Error_SetLogger,
 ){

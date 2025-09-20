@@ -3,26 +3,27 @@
 
 errvt methodimpl(Number, IntAdd,, inst(Number) other, inst(Number) result) {
 
-	check(
-	if (priv->sign == opriv->sign) {
-	   	Number_absoluteAdd(rpriv, priv, opriv);
-			rpriv->sign = priv->sign;
-	} else {
-		switch(Number_absoluteCompare(priv, opriv)) { 
-		case NUM_GREATER:{
-				Number_absoluteSub(rpriv, priv, opriv); 
-				rpriv->sign = priv->sign;
-			break;}
-		case NUM_LESSER:{ // abs(self) < abs(other)
-				Number_absoluteSub(rpriv, opriv, priv);
-				rpriv->sign = opriv->sign;
-		break;}
-		case NUM_EQUALS:{
-				Number_setZero(rpriv);
-		break;}
-		default:{ ERR(ERR_NULLPTR, "invalid input"); }
-		}
-	}){
+	try() {
+	    if (priv->sign == opriv->sign) {
+	       	Number_absoluteAdd(rpriv, priv, opriv);
+	    		rpriv->sign = priv->sign;
+	    } else {
+	    	switch(Number_absoluteCompare(priv, opriv)) { 
+	    	case NUM_GREATER:{
+	    			Number_absoluteSub(rpriv, priv, opriv); 
+	    			rpriv->sign = priv->sign;
+	    		break;}
+	    	case NUM_LESSER:{ // abs(self) < abs(other)
+	    			Number_absoluteSub(rpriv, opriv, priv);
+	    			rpriv->sign = opriv->sign;
+	    	break;}
+	    	case NUM_EQUALS:{
+	    			Number_setZero(rpriv);
+	    	break;}
+	    	default:{ ERR(ERR_NULLPTR, "invalid input"); }
+	    	}
+	    }
+	} catch {
 		del(result);
 		return err->errorcode;
 	}
@@ -35,26 +36,27 @@ return OK;
 
  errvt methodimpl(Number, IntSubtract,, inst(Number) other, inst(Number) result) {
 	
-	check(
-	if (priv->sign != opriv->sign) {
-	   	Number_absoluteAdd(rpriv, priv, opriv);
-			rpriv->sign = priv->sign;
-	} else {
-		switch(Number_absoluteCompare(priv, opriv)) { 
-		case NUM_GREATER:{
-				Number_absoluteSub(rpriv, priv, opriv); 
-				rpriv->sign = priv->sign;
-			break;}
-		case NUM_LESSER:{ // abs(self) < abs(other)
-				Number_absoluteSub(rpriv, opriv, priv);
-				rpriv->sign = -(priv->sign);
-		break;}
-		case NUM_EQUALS:{
-				Number_setZero(rpriv);
-		break;}
-		default:{ERR(ERR_NULLPTR, "invalid input");}
-		}
-	}){
+	try() {
+	    if (priv->sign != opriv->sign) {
+	       	Number_absoluteAdd(rpriv, priv, opriv);
+	    		rpriv->sign = priv->sign;
+	    } else {
+	    	switch(Number_absoluteCompare(priv, opriv)) { 
+	    	case NUM_GREATER:{
+	    			Number_absoluteSub(rpriv, priv, opriv); 
+	    			rpriv->sign = priv->sign;
+	    		break;}
+	    	case NUM_LESSER:{ // abs(self) < abs(other)
+	    			Number_absoluteSub(rpriv, opriv, priv);
+	    			rpriv->sign = -(priv->sign);
+	    	break;}
+	    	case NUM_EQUALS:{
+	    			Number_setZero(rpriv);
+	    	break;}
+	    	default:{ERR(ERR_NULLPTR, "invalid input");}
+	    	}
+	    }
+	} catch {
 		del(result);
 		return err->errorcode;
 	}
