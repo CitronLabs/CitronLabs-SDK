@@ -1,18 +1,22 @@
 #include "datastructs.h"
 
 errvt methodimpl(Struct, Define,, ...){
-	va_list args;
-	va_start(args, self);
+	nonull(self, return err);
 
-	bool cont = true;
-	if(self->fields == NULL)
-		self->fields = newMap(String,DSN_data);
-
-	for(;;){
-		data_entry entry = va_arg(args, data_entry);
-		if(entry.data == NULL) break;
-			
-		Map.Insert(self->fields, entry.key, entry.data);
+	busy(priv->busy, return err){
+		va_list args;
+		va_start(args, self);
+	
+		bool cont = true;
+		if(self->fields == NULL)
+			self->fields = newMap(String,DSN_data);
+	
+		for(;;){
+			data_entry entry = va_arg(args, data_entry);
+			if(entry.data == NULL) break;
+				
+			Map.Insert(self->fields, entry.key, entry.data);
+		}
 	}
 return OK;
 }
@@ -80,16 +84,19 @@ errvt methodimpl(Struct, Merge,, inst(Struct) merge_struct){
 	nonull(merge_struct, return err);
 	nonull(self, return err);
 
-	List(data_entry) entries = Map.GetEntries(merge_struct->fields);
+	busy(priv->busy, return err){
 
-	foreach(entries, data_entry, ent){
-		DSN_data* res = Struct.SearchField(self, ent.key);
-		if(res == NULL){
-		    if(Struct.AddField(self, ent.key, ent.data) != ERR_NONE){
-			return ERR(DATAERR_MEMALLOC, "failed to merge field to struct");
-		    }
-		}else{
-			return ERR(DATAERR_OUTOFRANGE, "struct merge conflict");
+		List(data_entry) entries = Map.GetEntries(merge_struct->fields);
+	
+		foreach(entries, data_entry, ent){
+			DSN_data* res = Struct.SearchField(self, ent.key);
+			if(res == NULL){
+			    if(Struct.AddField(self, ent.key, ent.data) != ERR_NONE){
+				return ERR(DATAERR_MEMALLOC, "failed to merge field to struct");
+			    }
+			}else{
+				return ERR(DATAERR_OUTOFRANGE, "struct merge conflict");
+			}
 		}
 	}
 
@@ -100,8 +107,11 @@ errvt methodimpl(Struct, AddField,, cstr name, DSN_data* field){
 	nonull(self, return err;);
 	nonull(field->data, return err;);
 
-	if(ERR_NONE != Map.Insert(self->fields, String_From(name, 1024), field)){
-		return ERR(DATAERR_MEMALLOC, "could not add field to datastructs");
+	busy(priv->busy, return err){
+
+		if(ERR_NONE != Map.Insert(self->fields, String_From(name, 1024), field)){
+			return ERR(DATAERR_MEMALLOC, "could not add field to datastructs");
+		}
 	}
 
 return OK;
@@ -111,7 +121,12 @@ DSN_data* methodimpl(Struct, SearchField,, inst(String) name){
 	nonull(self, return NULL;);
 	nonull(name, return NULL;);
 	
-return Map.Search(self->fields, name);
+	DSN_data* result = NULL;
+
+	busy(priv->busy, return NULL)
+		result = Map.Search(self->fields, name);
+
+return result;
 }
 
 

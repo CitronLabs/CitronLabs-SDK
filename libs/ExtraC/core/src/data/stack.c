@@ -7,27 +7,33 @@ errvt methodimpl(Stack,Push,, void* item, u64 num){
 	nonull(self, return err;);
 	nonull(item, return err;);
 	
-	if((priv->top + 1) >= priv->allocednum){ 
-		priv->allocednum = (priv->allocednum * 2) + num;
-		priv->start = realloc(priv->start, priv->allocednum * priv->itemsize);
+	busy(priv->busy, return err){	
+
+		if((priv->top + 1) >= priv->allocednum){ 
+			priv->allocednum = (priv->allocednum * 2) + num;
+			priv->start = realloc(priv->start, priv->allocednum * priv->itemsize);
+		}
+		
+		memcpy(&((u8*)priv->start)[priv->top * priv->itemsize], item, priv->itemsize * num);
+		priv->top += num;
 	}
-	
-	memcpy(&((u8*)priv->start)[priv->top * priv->itemsize], item, priv->itemsize * num);
-	priv->top += num;
 
 return OK;
 }
 errvt methodimpl(Stack,Pop,, void* out, u64 num){
-	nonull(self, return err;);
-	nonull(out, return err;);
-	
-	if(0 == priv->top) return ERR(DATAERR_EMPTY, "stack is empty");
-	
-	num = priv->top < num ? priv->top : num;
+	nonull(self, return err);
+	nonull(out, return err);
 
-	loop(i, num){
-		priv->top--;
-		memcpy(&((u8*)out)[i * priv->itemsize], &((u8*)priv->start)[priv->top * priv->itemsize], priv->itemsize);
+	busy(priv->busy, return err){	
+
+		if(0 == priv->top) return ERR(DATAERR_EMPTY, "stack is empty");
+		
+		num = priv->top < num ? priv->top : num;
+	
+		loop(i, num){
+			priv->top--;
+			memcpy(&((u8*)out)[i * priv->itemsize], &((u8*)priv->start)[priv->top * priv->itemsize], priv->itemsize);
+		}
 	}
 
 return OK;
@@ -49,6 +55,17 @@ void* methodimpl(Stack, ToPointer){
 return priv->start;
 }
 
+void* methodimpl(Stack, ItemAt,, u64 index){
+	nonull(self, return NULL);
+
+	if(index > priv->top) {
+		ERR(DATAERR_OUTOFRANGE, "index out of range of stack");
+		return NULL;
+	}
+
+return &((u8*)priv->start)[(priv->top - index) * priv->itemsize];
+}
+
 errvt methodimpl(Stack, Grow,, u64 add_amount){
 	nonull(self, return err);
 	if(priv->allocednum + add_amount > priv->limit){
@@ -67,21 +84,31 @@ return OK;
 
 
 errvt methodimpl(Stack, Reserve,, bool exact, u64 amount){
-	if(exact)
-		return Stack_Grow(self, amount);
-	else
-		return Stack_Grow(self, priv->allocednum + (priv->allocednum / 2) + amount);
+	nonull(self, return err);
+
+	errvt result = OK;
+	busy(priv->busy, return err){
+		if(exact)
+			result = Stack_Grow(self, amount);
+		else
+			result = Stack_Grow(self, priv->allocednum + (priv->allocednum / 2) + amount);
+	}
+
+return result;
 }
 
 errvt methodimpl(Stack, Limit,, u64 limit){
 	nonull(self, return err);
-	priv->limit = limit;
-	if(priv->allocednum > priv->limit){
-		priv->allocednum = priv->limit;
-		priv->start = realloc(priv->start, priv->limit);
-		priv->top = 
-			priv->top > priv->limit ? 
-			priv->limit : priv->top;
+
+	busy(priv->busy, return err){
+		priv->limit = limit;
+		if(priv->allocednum > priv->limit){
+			priv->allocednum = priv->limit;
+			priv->start = realloc(priv->start, priv->limit);
+			priv->top = 
+				priv->top > priv->limit ? 
+				priv->limit : priv->top;
+		}
 	}
 
 return OK;
@@ -90,14 +117,16 @@ return OK;
 errvt methodimpl(Stack, Index,, bool write, u64 index, void* data){
 	nonull(self, return err);
 
-	if(index > priv->top) return ERR(
-		DATAERR_OUTOFRANGE, "index is out of range"
-	);
-
-	if(write){
-		memcpy(priv->start + (priv->itemsize * index), data, priv->itemsize);
-	}else{
-		memcpy(data, priv->start + (priv->itemsize * index), priv->itemsize);
+	busy(priv->busy, return err){
+		if(index > priv->top) return ERR(
+			DATAERR_OUTOFRANGE, "index is out of range"
+		);
+	
+		if(write){
+			memcpy(priv->start + (priv->itemsize * index), data, priv->itemsize);
+		}else{
+			memcpy(data, priv->start + (priv->itemsize * index), priv->itemsize);
+		}
 	}
 
 return OK;
@@ -171,7 +200,7 @@ construct(Stack,
 	},
 	.IterableList = {
 		.Size	= generic Stack_Count,
-	  	.Items	= generic Stack_ToPointer
+	  	.ItemAt	= generic Stack_ItemAt
 
 	}
 ){

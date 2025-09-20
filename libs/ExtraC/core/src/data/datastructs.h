@@ -20,6 +20,7 @@ private(List,
 	    * free_slots_buff, free_slots_buff_alloced, free_slots_buff_size
 	;
 	DSN_fieldType dsn_type;
+	mutex busy;
 )
 
 private(Map,
@@ -30,15 +31,17 @@ private(Map,
 	List(data_entry) buckets;
 	DSN_fieldType key_dsn, data_dsn;
 	u32(*key_hash_func)(inst(Object));
+	mutex busy;
 )
 
 typedef u8 slot_status;
-private(Queue,
+private(Queue,	
     	slot_status* writehead,* readhead,* start,* end, * jmp_point;
-    	u16 itemsize;
+	void* to_pointer_buf;
 	u64 items, limit;
 	DSN_fieldType dsn_type;
-	void* to_pointer_buf;
+    	u16 itemsize;
+	mutex busy;
 )
 
 private(Stack,
@@ -46,13 +49,16 @@ private(Stack,
 	u64 allocednum, top, limit;
 	u16 itemsize;
 	DSN_fieldType dsn_type;
+	mutex busy;
 )
 
 private(DSN,
 	Map(String, u32) import_resolve;
 	List(DSN) imports;
 	inst(Struct) header;
+	mutex busy;
 );
 private(Struct,
+	mutex busy;
 );
 

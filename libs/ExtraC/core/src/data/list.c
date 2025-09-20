@@ -5,30 +5,31 @@
 
 errvt methodimpl(List, Limit,, u64 limit_size){
 	
-	nonull(self, return err;)
-	nonull(self, return err;)
-	
-	priv->limit = limit_size;
-	
-	if(priv->items > limit_size || priv->items_alloced > priv->limit){
-	    // reallocating to fit with the limits new bounds
-		priv->data = realloc(priv->data, priv->item_size * priv->limit);
+	nonull(self, return err);
+	nonull(self, return err);
+	busy(priv->busy, return err){
+		priv->limit = limit_size;
 		
-		if(NULL == priv->data ) ERR( 
-			DATAERR_MEMALLOC, "failed to reallocate list");
-
-		priv->items = priv->items > priv->limit ? limit_size : priv->items;
-		priv->items_alloced = limit_size;
+		if(priv->items > limit_size || priv->items_alloced > priv->limit){
+		    // reallocating to fit with the limits new bounds
+			priv->data = realloc(priv->data, priv->item_size * priv->limit);
+			
+			if(NULL == priv->data ) busy_return ERR( 
+				DATAERR_MEMALLOC, "failed to reallocate list");
+	
+			priv->items = priv->items > priv->limit ? limit_size : priv->items;
+			priv->items_alloced = limit_size;
+		}
 	}
 
 return OK;
-;}
+}
 
 errvt methodimpl(List,Grow,, u64 plus_amount){
 
-	nonull(self, return err;)
 	if(priv->items == priv->limit) return ERR(
 		DATAERR_LIMIT, "limit has been reached for this list");
+
 	if(priv->items_alloced + plus_amount > priv->limit){
 		priv->items_alloced = priv->limit - priv->items_alloced;
 	}else{
@@ -43,139 +44,169 @@ return OK;
 }
 
 errvt methodimpl(List, Reserve,, bool exact, u64 amount){
-	if(exact)
-		return List_Grow(self, amount);
-	else
-		return List_Grow(self, priv->items_alloced + (priv->items_alloced / 2) + amount);
+	nonull(self, return err);
+
+	errvt result = OK;
+	busy(priv->busy, return err){
+
+		if(exact)
+			result = List_Grow(self, amount);
+		else
+			result = List_Grow(self, priv->items_alloced + (priv->items_alloced / 2) + amount);
+	}
+
+return result;
 }
 
 errvt methodimpl(List,Append,, void* in, u64 len){
 	nonull(self, return err;)
 	nonull(in, return err;)
 
-	if(priv->items + len > priv->items_alloced){
-		if(__List.autoGrow)
-			List_Grow(self, priv->items_alloced + (priv->items_alloced / 2) + len);
-		else
-			return ERR(DATAERR_OUTOFRANGE, "grow the list to fit new data");
-	}
-	insertIntoListAt(priv->items, in, len)
+	busy(priv->busy, return err){
+
+		if(priv->items + len > priv->items_alloced){
+			if(__List.autoGrow)
+				List_Grow(self, priv->items_alloced + (priv->items_alloced / 2) + len);
+			else
+				busy_return ERR(DATAERR_OUTOFRANGE, "grow the list to fit new data");
+		}
+		insertIntoListAt(priv->items, in, len)
 	
-	priv->items++;
+		priv->items++;
+    	}
 return OK;
 }
 
 errvt methodimpl(List, SetFree,, u64 index){
-	nonull(self, return err);
+    	nonull(self, return err;)
 
-	if(priv->free_slots_buff == NULL){
-		priv->free_slots_buff = calloc(10, sizeof(u64));
-		priv->free_slots_buff_alloced = 10;
+    	busy(priv->busy, return err){
+
 		if(priv->free_slots_buff == NULL){
-			return ERR(DATAERR_MEMALLOC, "failed to allocate free_slots_buff");
+			priv->free_slots_buff = calloc(10, sizeof(u64));
+			priv->free_slots_buff_alloced = 10;
+			if(priv->free_slots_buff == NULL){
+				busy_return ERR(DATAERR_MEMALLOC, "failed to allocate free_slots_buff");
+			}
 		}
-	}
 	
-	priv->free_slots_buff[priv->free_slots_buff_size] = index;
-	priv->free_slots_buff_size++;
+		priv->free_slots_buff[priv->free_slots_buff_size] = index;
+		priv->free_slots_buff_size++;
+    	}
 
 return OK;	
 }
 u64 methodimpl(List, FillSlot,, void* in){
-	nonull(self, return err);
+	nonull(self, return err;)
+	
 	u64 index = UINT64_MAX;
 
-	if(priv->free_slots_buff == NULL || priv->free_slots_buff_size == 0){
-		index = priv->items;
-		List.Append(self, in, 1);
+	busy(priv->busy, return 0){
 
-	}else{
-		index = priv->free_slots_buff[--priv->free_slots_buff_size];
+		if(priv->free_slots_buff == NULL || priv->free_slots_buff_size == 0){
+			index = priv->items;
+			List.Append(self, in, 1);
 
-	}
+		}else{
+			index = priv->free_slots_buff[--priv->free_slots_buff_size];
+		}
+    	}
 return index;
 }
 
 errvt methodimpl(List,Insert,, u64 len, u64 index, void* in){
 
-	nonull(self, return err;)
+	nonull(self, return err);
 
-	index = index == UINT64_MAX ? priv->items : index;	
+	busy(priv->busy, return err){
 	
-	if(index > priv->items) return ERR(
-		DATAERR_SIZETOOLARGE , "index out of range");
+		index = index == UINT64_MAX ? priv->items : index;	
+		
+		if(index > priv->items) busy_return ERR(
+			DATAERR_SIZETOOLARGE , "index out of range");
+		
+		if(priv->items == priv->limit) busy_return ERR(
+			DATAERR_LIMIT, "limit has been reached for this priv");
 	
-	if(priv->items == priv->limit) return ERR(
-		DATAERR_LIMIT, "limit has been reached for this priv");
-
-	if(priv->items + len > priv->limit)
-		len = priv->limit - priv->items;
-
-	if(priv->items + len > priv->items_alloced){
-		if(__List.autoGrow)
-			List_Grow(self, len + (priv->items_alloced / 2));
-		else
-			return ERR(DATAERR_OUTOFRANGE, "grow the list to fit new data");
-	}
-
-	if(index == priv->items){
-		insertIntoListAt(priv->items, in, len)
-		priv->items+=len;
-	}else{
-		u64 size_restoflist = (priv->items - index);
-		void* tempstore = calloc(size_restoflist, priv->item_size);
-		void* indexloc = &(((u8*)priv->data)[index * priv->item_size]);
-		memcpy(tempstore, indexloc, size_restoflist * priv->item_size);
-
-		priv->items -= size_restoflist;
-		insertIntoListAt(index, in, len)
-		
-		priv->items += len;
-		
-		insertIntoListAt(priv->items, tempstore, size_restoflist)
-		priv->items += size_restoflist;
-		
-		free(tempstore);
+		if(priv->items + len > priv->limit)
+			len = priv->limit - priv->items;
+	
+		if(priv->items + len > priv->items_alloced){
+			if(__List.autoGrow)
+				List_Grow(self, len + (priv->items_alloced / 2));
+			else
+				busy_return ERR(DATAERR_OUTOFRANGE, "grow the list to fit new data");
+		}
+	
+		if(index == priv->items){
+			insertIntoListAt(priv->items, in, len)
+			priv->items+=len;
+		}else{
+			u64 size_restoflist = (priv->items - index);
+			void* tempstore = calloc(size_restoflist, priv->item_size);
+			void* indexloc = &(((u8*)priv->data)[index * priv->item_size]);
+			memcpy(tempstore, indexloc, size_restoflist * priv->item_size);
+	
+			priv->items -= size_restoflist;
+			insertIntoListAt(index, in, len)
+			
+			priv->items += len;
+			
+			insertIntoListAt(priv->items, tempstore, size_restoflist)
+			priv->items += size_restoflist;
+			
+			free(tempstore);
+		}
 	}
 
 return OK;
 }
+
 #define mergpriv merged_list->__private
 errvt methodimpl(List,Merge,, inst(List) merged_list, u64 index){
 
-    // Error checking
-	
 	nonull(self, return err;)
 	nonull(merged_list, return err;)
 
-	if(mergpriv->item_size != priv->item_size) return ERR(
-		DATAERR_SIZETOOLARGE , "different item sizes");
+	errvt result = ERR_NONE;
 
+	busy(priv->busy, return err){
+		if(mergpriv->item_size != priv->item_size) busy_return ERR(
+			DATAERR_SIZETOOLARGE , "different item sizes"
+		);
 
-   // Merging the Lists
-	if(index == UINT64_MAX){
-		return List.Append(self, mergpriv->data, mergpriv->items);
-	}else{
-		return List.Insert(self, mergpriv->items, index, mergpriv->data);
+		if(index == UINT64_MAX){
+			result = List.Append(self, mergpriv->data, mergpriv->items);
+		}else{
+			result = List.Insert(self, mergpriv->items, index, mergpriv->data);
+		}
 	}
+
+return result;
 }
 
 inst(List) methodimpl(List,SubList,, u64 index, u64 len){
 
 	nonull(self, return NULL;)
+	inst(List) out_list = NULL;
 
-	if(index >= priv->items) ERR(
-		DATAERR_OUTOFRANGE , "index out of range");
+	busy(priv->busy, return NULL){
+
+		if(index >= priv->items) {ERR(
+			DATAERR_OUTOFRANGE , "index out of range");
+			busy_return NULL;
+		}
 	
-	if(len == UINT64_MAX)len = priv->items - index;
+		if(len == UINT64_MAX)len = priv->items - index;
 	
-	void* indexloc = &(((u8*)priv->data)[index * priv->item_size]);
+		void* indexloc = &(((u8*)priv->data)[index * priv->item_size]);
 	
-	inst(List) out_list = new(List, 
-		.init_size = len, 
-		.type_size = priv->item_size,
-		.literal = indexloc
-	);
+		out_list = new(List, 
+			.init_size = len, 
+			.type_size = priv->item_size,
+			.literal = indexloc
+		);
+	}
 
 return out_list;
 }
@@ -183,19 +214,22 @@ errvt methodimpl(List,Index,, bool write, u64 index, u64 len, void* data){
 	
 	nonull(self, return err;)
 	nonull(data, return err;)
-		
-	if(index + len > priv->items_alloced) ERR(
-	 	DATAERR_OUTOFRANGE, "index out of range");
+	
+	busy(priv->busy, return err){
 
-	if(write){
-		void* loc = &(((u8*)priv->data)[index * priv->item_size]);
-
-		memcpy(loc, data, priv->item_size * len);
-		priv->items++;
-	}else{
-		void* loc = &(((u8*)priv->data)[index * priv->item_size]);
-		
-		memcpy(data, loc, priv->item_size);
+		if(index + len > priv->items_alloced) ERR(
+		 	DATAERR_OUTOFRANGE, "index out of range");
+	
+		if(write){
+			void* loc = &(((u8*)priv->data)[index * priv->item_size]);
+	
+			memcpy(loc, data, priv->item_size * len);
+			priv->items++;
+		}else{
+			void* loc = &(((u8*)priv->data)[index * priv->item_size]);
+			
+			memcpy(data, loc, priv->item_size);
+		}
 	}
 
 return OK;
@@ -204,46 +238,52 @@ void* methodimpl(List,GetPointer,, u64 index){
 	
 	nonull(self, return NULL)
 
-	if(index > priv->items_alloced) {ERR(
-		DATAERR_EMPTY , "index out of range");
-		return NULL;
+	void* result = NULL;
+
+	busy(priv->busy, return NULL){
+
+		if(index > priv->items_alloced) {ERR(
+			DATAERR_EMPTY , "index out of range");
+			busy_return NULL;
+		}
+
+		result = &(((u8*)priv->data)[index * priv->item_size]);
 	}
 
-return &(((u8*)priv->data)[index * priv->item_size]);
-}
-
-void* methodimpl(List, Items){
-	nonull(self, return NULL)
-
-return priv->data;
+return result; 
 }
 
 errvt methodimpl(List,Cast,, DSN_fieldType new_type, u64 new_type_size){
 	nonull(self, return err)
-	
-	priv->items = (priv->items * priv->item_size) / new_type_size; 
-	priv->limit = (priv->limit * priv->item_size) / new_type_size; 
-	priv->data = realloc(priv->data, (priv->items + 10) * new_type_size);
-	priv->items_alloced = priv->items + 10;
-	priv->item_size = new_type_size;
-	priv->dsn_type = new_type;
+
+	busy(priv->busy, return err){
+		priv->items = (priv->items * priv->item_size) / new_type_size; 
+		priv->limit = (priv->limit * priv->item_size) / new_type_size; 
+		priv->data = realloc(priv->data, (priv->items + 10) * new_type_size);
+		priv->items_alloced = priv->items + 10;
+		priv->item_size = new_type_size;
+		priv->dsn_type = new_type;
+	}
 
 return OK;
 }
 u64 methodimpl(List,Size){
 	nonull(self, return UINT64_MAX;)
 	
-	return priv->items;
+return priv->items;
 }
 void methodimpl(List,Flush){
 	nonull(self, return)
 	
-	priv->items = 0;
+	busy(priv->busy, return)
+	    { priv->items = 0; }
 }
 u32 methodimpl(List,Pop,, u32 num){
 	nonull(self, return 0)
-	if(num > priv->items) num = priv->items;
-	priv->items -= num;
+	busy(priv->busy, return 0){
+		if(num > priv->items) num = priv->items;
+		priv->items -= num;
+	}
 return num;
 }
 
@@ -251,7 +291,7 @@ errvt imethodimpl(List,Free){
 	self(List)
 	nonull(self, return err;)
 	
-	if(priv->data != NULL) free(priv->data);
+	if(priv->data != NULL) free(priv->data); 
 return OK;
 }
 void* methodimpl(List,FreeToPointer){
@@ -273,7 +313,7 @@ u64 imethodimpl(List, Print,, FormatID* formats, inst(StringBuilder) out){
 	break;
 	case DATA_DEBUG:
 			
-		formated_len += StringBuilder.Append(out, s("(List){"));
+		formated_len += StringBuilder.Append(out, s("(List){ "));
 		
 		formated_len += StringBuilder.Append(out, NULL, ".data = ", $(priv->data), ", ", endstr);
 		formated_len += StringBuilder.Append(out, NULL, ".items = ", $(priv->items), ", ", endstr);
@@ -328,7 +368,7 @@ construct(List,
 	  	.Scan 	= List_Scan
 	},
 	.IterableList = {
-		.Items	= generic List_Items,
+		.ItemAt	= generic List_GetPointer,
 	  	.Size	= generic List_Size
 
 	}

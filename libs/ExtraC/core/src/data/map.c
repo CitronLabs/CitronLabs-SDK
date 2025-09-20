@@ -70,53 +70,55 @@ u32 methodimpl(Map,Insert,, void* key_data, void* itemptr){
 	nonull(self,     return INVALID_MAPINDEX);
 	nonull(key_data, return INVALID_MAPINDEX);
 	nonull(itemptr,  return INVALID_MAPINDEX);
-	
-	
-	u64 place = 10;
-	u8 placenum = 10;
-	u32 
-	 key = INVALID_MAPINDEX,
-	 index = INVALID_MAPINDEX,
-	 hashvalue =
-	    priv->key_hash_func == NULL ?
-		Map.Hash(key_data, priv->key_size) 
-		:
-		priv->key_hash_func(key_data);
-	
-	for(;;){
-		if(priv->bucket_indexes[hashvalue%place] == 0){
-			key = (hashvalue%place);
-			index = List.Size(priv->buckets);
-			List.FillSlot(priv->buckets, &(data_entry){
-				.hash = hashvalue,
-				.data = calloc(1, priv->item_size),
-				.key = calloc(1, priv->key_size),
-			});
-			// we add 1 to the index since we want to avoid using index 0 
-			// because we check for index 0 as an invalid state in the search function
-			priv->bucket_indexes[key] = index + 1;
-			memcpy(
-				((data_entry*)List.GetPointer(
-					priv->buckets, 
-					index)
-				)->key,
-				key_data,
-				priv->key_size);
-			memcpy(
-				((data_entry*)List.GetPointer(
-					priv->buckets, 
-					index)
-				)->data,
-				itemptr,
-				priv->item_size);
-			break;
+
+	u32 index = INVALID_MAPINDEX;
+
+	busy(priv->busy, return INVALID_MAPINDEX){
+		u64 place = 10;
+		u8 placenum = 10;
+		u32 
+		 key = INVALID_MAPINDEX,
+		 hashvalue =
+		    priv->key_hash_func == NULL ?
+			Map.Hash(key_data, priv->key_size) 
+			:
+			priv->key_hash_func(key_data);
+		
+		for(;;){
+			if(priv->bucket_indexes[hashvalue%place] == 0){
+				key = (hashvalue%place);
+				index = List.Size(priv->buckets);
+				List.FillSlot(priv->buckets, &(data_entry){
+					.hash = hashvalue,
+					.data = calloc(1, priv->item_size),
+					.key = calloc(1, priv->key_size),
+				});
+				// we add 1 to the index since we want to avoid using index 0 
+				// because we check for index 0 as an invalid state in the search function
+				priv->bucket_indexes[key] = index + 1;
+				memcpy(
+					((data_entry*)List.GetPointer(
+						priv->buckets, 
+						index)
+					)->key,
+					key_data,
+					priv->key_size);
+				memcpy(
+					((data_entry*)List.GetPointer(
+						priv->buckets, 
+						index)
+					)->data,
+					itemptr,
+					priv->item_size);
+				break;
+			}
+			place+=placenum;
+			if(place >= (10*10000) || place >= priv->allocednum){
+				priv->bucket_indexes = realloc(priv->bucket_indexes, 
+				    (priv->allocednum * 2) * sizeof(u32));
+				priv->allocednum *= 2;
+			}	
 		}
-		place+=placenum;
-		if(place >= (10*10000) || place >= priv->allocednum){
-			priv->bucket_indexes = realloc(priv->bucket_indexes, 
-			    (priv->allocednum * 2) * sizeof(u32));
-			priv->allocednum *= 2;
-		}	
 	}
 	
 return index;
@@ -127,95 +129,102 @@ u32 methodimpl(Map, SearchIndex,, void* key){
 	nonull(key, return INVALID_MAPINDEX);
 	nonull(self, return INVALID_MAPINDEX);
 	
-	u64 place = 10;
-	u8 placenum = 10;
-	u32 hashvalue = 
-	    priv->key_hash_func == NULL ?
-		Map.Hash(key, priv->key_size) 
-		:
-		priv->key_hash_func(key);
+	busy(priv->busy, return INVALID_MAPINDEX){
 
-	for(;;){
-		if(priv->bucket_indexes[hashvalue%place] != 0){
-
-			data_entry* bucket = 
-				List.GetPointer(
-					priv->buckets,
-					// see insert function for reason why we substract 1
-					priv->bucket_indexes[hashvalue%place] - 1 
-				);
-				
-			if(bucket->hash == hashvalue)
-					// see insert function for reason why we substract 1
-				return priv->bucket_indexes[hashvalue%place] - 1;
-		}
-		place+=placenum;
-		if(place >= (10*10000) || place >= priv->allocednum){
-			break;
+		u64 place = 10;
+		u8 placenum = 10;
+		u32 hashvalue = 
+		    priv->key_hash_func == NULL ?
+			Map.Hash(key, priv->key_size) 
+			:
+			priv->key_hash_func(key);
+	
+		for(;;){
+			if(priv->bucket_indexes[hashvalue%place] != 0){
+	
+				data_entry* bucket = 
+					List.GetPointer(
+						priv->buckets,
+						// see insert function for reason why we substract 1
+						priv->bucket_indexes[hashvalue%place] - 1 
+					);
+					
+				if(bucket->hash == hashvalue)
+						// see insert function for reason why we substract 1
+					return priv->bucket_indexes[hashvalue%place] - 1;
+			}
+			place+=placenum;
+			if(place >= (10*10000) || place >= priv->allocednum){
+				break;
+			}
 		}
 	}
+
 return priv->default_index;
 }
 
 
 void* methodimpl(Map, Search,, void* key){
 
-	u32 mindex = Map.SearchIndex(self, key);
-
-	if(INVALID_MAPINDEX == mindex) {
-		ERR(DATAERR_EMPTY, "key index not found");
-		return NULL;
-	}
-
-return Map.Index(self, mindex);
+return Map.Index(self, Map.SearchIndex(self, key));
 }
 
 void* methodimpl(Map,Index,, u32 key){
 	nonull(self, return NULL)
 
-	if(key > List.Size(priv->buckets)){
-		ERR(DATAERR_OUTOFRANGE, "invalid key");
-		return NULL;
-	}
+	void* result = NULL;
 
-	data_entry* buckets = List.GetPointer(priv->buckets, 0);
+	busy(priv->busy, return NULL){
+		if(key > List.Size(priv->buckets)){
+			ERR(DATAERR_OUTOFRANGE, "invalid key");
+			busy_return NULL;
+		}
 	
-	if(buckets[key].hash == 0){
-		ERR(DATAERR_OUTOFRANGE, "invalid key");
-		return NULL;
+		data_entry* buckets = List.GetPointer(priv->buckets, 0);
+		
+		if(buckets[key].hash == 0){
+			ERR(DATAERR_OUTOFRANGE, "invalid key");
+			busy_return NULL;
+		}
+		result = buckets[key].data;
 	}
 
-return buckets[key].data;
+return result;
 }
 errvt methodimpl(Map, Remove,, void* key){
 	nonull(self, return err)
-	
-	u32 mindex = Map.SearchIndex(self, key);
 
+	check(
+		u32 mindex = Map.SearchIndex(self, key);
+	){
+		return err->errorcode;
+	}
 	if(INVALID_MAPINDEX == mindex) 
 		return ERR(DATAERR_EMPTY, "key index not found");
-
-	data_entry* bucket = 
-		List.GetPointer(
-			priv->buckets, 
-			mindex
-		);
-	if(bucket == NULL) 
-		ERR(DATAERR_OUTOFRANGE, "invalid key");
-	free(bucket->data); 
-	free(bucket->key);
-	*bucket = (data_entry){0}; 
-	List.SetFree(priv->buckets, mindex);
-
+	
+	busy(priv->busy){
+	
+		data_entry* bucket = 
+			List.GetPointer(
+				priv->buckets, 
+				mindex
+			);
+		if(bucket == NULL) 
+			ERR(DATAERR_OUTOFRANGE, "invalid key");
+		free(bucket->data); 
+		free(bucket->key);
+		*bucket = (data_entry){0}; 
+		List.SetFree(priv->buckets, mindex);
+	}
 return OK;
 }
 List(data_entry) methodimpl(Map,GetEntries){
 
 return priv->buckets;
 }
-errvt imethodimpl(Map,Free){
+errvt imethodimpl(Map, Free){
 	self(Map);
-	nonull(self, return err;);
+	nonull(self, return err);
 	
 	foreach(priv->buckets, data_entry, entry){
 		if(entry.data != NULL){
@@ -230,11 +239,11 @@ return OK;
 }
 
 u64 methodimpl(Map, Count){
-	return List.Size(priv->buckets);
+return List.Size(priv->buckets);
 }
 
 errvt methodimpl(Map, Limit,, u64 limit){
-	return List.Limit(priv->buckets, limit);
+return List.Limit(priv->buckets, limit);
 }
 
 u64 imethodimpl(Map, Scan,, FormatID* formats, inst(String) in){
